@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.eureka.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ .Values.eureka.name }}
+  ports:
+  - port: {{ .Values.eureka.service.port }}
+    targetPort: {{ .Values.eureka.service.port }}
+  type: {{ .Values.eureka.service.type }} 

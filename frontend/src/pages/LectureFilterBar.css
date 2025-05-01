@@ -1,0 +1,101 @@
+/* 검색 입력창 + 버튼 정렬 */
+.filter-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 1rem;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #ddd;
+}
+
+/* 검색창 */
+.search-bar {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-right: none;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+}
+
+.search-bar button {
+    padding: 0 20px;
+    font-size: 1rem;
+    background-color: #5a48d0;
+    color: white;
+    border: 1px solid #5a48d0;
+    border-left: none;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+}
+
+/* 필터 그룹 */
+.filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.filter-group button {
+    padding: 6px 14px;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    color: #333;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.filter-group button:hover {
+    background-color: #f0f0f0;
+}
+
+.filter-group .active {
+    background-color: #5a48d0;
+    color: #fff;
+    border-color: #5a48d0;
+}
+/* 메인 검색창 */
+.main-search-bar {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+}
+
+.main-search-bar input {
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-right: none;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+}
+
+.main-search-bar button {
+    padding: 0 20px;
+    font-size: 1rem;
+    background-color: #5a48d0;
+    color: white;
+    border: 1px solid #5a48d0;
+    border-left: none;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+}
+/* ✅ NavBar에 있는 검색창만 오른쪽 정렬 */
+.main-search-bar {
+    margin-left: auto;
+    justify-content: flex-end;
+}

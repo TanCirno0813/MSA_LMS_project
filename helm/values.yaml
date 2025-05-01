@@ -1,0 +1,27 @@
+namespace: msa-namespace
+
+eureka:
+  name: eureka-server
+  image:
+    repository: eureka-server
+    tag: latest
+    pullPolicy: Never
+  service:
+    type: ClusterIP
+    port: 8761
+  env:
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka/"
+    EUREKA_INSTANCE_HOSTNAME: "eureka-server"
+
+gateway:
+  name: gateway
+  image:
+    repository: gateway
+    tag: latest
+    pullPolicy: Never
+  service:
+    type: LoadBalancer
+    port: 8080
+  env:
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka/"
+    SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_ENABLED: "true" 

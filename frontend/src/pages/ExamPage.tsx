@@ -1,0 +1,170 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
+
+interface Question {
+    id: number;
+    question: string;
+    type: 'objective' | 'subjective';
+    choices?: string[];
+}
+
+interface Exam {
+    id: number;
+    lectureId: number;
+    title: string;
+    description: string;
+    question: string;
+}
+
+interface AnswersState {
+    [key: string]: string;
+}
+
+interface QuestionResult {
+    questionId: number;
+    question: string;
+    userAnswer: string;
+    correctAnswer: string;
+    isCorrect: boolean;
+}
+
+interface ScoreResult {
+    totalQuestions: number;
+    correctCount: number;
+    score: number;
+    examTitle?: string;
+    questionResults?: QuestionResult[];
+    lectureId?: number;
+}
+
+const ExamPage: React.FC = () => {
+    const [exams, setExams] = useState<Exam[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [answers, setAnswers] = useState<AnswersState>({});
+    const navigate = useNavigate();
+    const { lectureId } = useParams<{ lectureId: string }>();
+
+    useEffect(() => {
+        if (!lectureId) return;
+        setLoading(true);
+        axios.get(`/api/exams/lecture/${lectureId}`)
+            .then(res => {
+                setExams(res.data || []);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error('시험 목록 로드 실패:', err);
+                setError('시험 목록을 불러오는데 실패했습니다.');
+                setLoading(false);
+            });
+    }, [lectureId]);
+
+    const handleAnswerChange = (examId: number, questionId: number, value: string) => {
+        setAnswers(prev => ({ ...prev, [`${examId}_${questionId}`]: value }));
+    };
+
+    const handleSubmit = () => {
+        if (!exams || exams.length === 0) {
+            alert('제출할 시험이 없습니다.');
+            return;
+        }
+
+        const payload = exams.map(exam => ({
+            examId: exam.id,
+            questionJson: exam.question,
+            answers: Object.fromEntries(
+                Object.entries(answers).filter(([key]) => key.startsWith(`${exam.id}_`))
+            )
+        }));
+
+        console.log("🔎 제출 payload:", payload);
+
+        axios.post('/api/grading/submit', payload)
+            .then(res => {
+                console.log("✅ 서버 응답:", res.data);
+                const result: ScoreResult = {
+                    ...res.data,
+                    lectureId: parseInt(lectureId || '1', 10)
+                };
+                navigate('/result', { state: result });
+            })
+            .catch(() => alert('채점 실패'));
+    };
+
+    const parseQuestions = (json: string): Question[] => {
+        if (!json) return [];
+        
+        try {
+            const parsed = JSON.parse(json);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    };
+
+    if (loading) {
+        return <div style={{ textAlign: 'center', padding: '2rem' }}>시험 목록을 불러오는 중...</div>;
+    }
+
+    if (error) {
+        return <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>{error}</div>;
+    }
+
+    return (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+            <div style={{ maxWidth: '800px', width: '100%' }}>
+                <h2>📝 확인 문제</h2>
+
+                {exams && exams.length > 0 ? (
+                    exams.map(exam => (
+                        <div key={exam.id} style={{ marginBottom: '2rem' }}>
+                            <h3><strong>{exam.title}</strong> - {exam.description}</h3>
+                            {exam.question && parseQuestions(exam.question).map(q => (
+                                <div key={q.id} style={{ marginBottom: '1rem' }}>
+                                    <p><strong>Q{q.id}.</strong> {q.question}</p>
+                                    {q.type === 'objective' && q.choices && q.choices.length > 0 ? (
+                                        q.choices.map((choice, idx) => (
+                                            <label key={idx} style={{ display: 'block' }}>
+                                                <input
+                                                    type="radio"
+                                                    name={`${exam.id}_${q.id}`}
+                                                    value={choice}
+                                                    onChange={e =>
+                                                        handleAnswerChange(exam.id, q.id, e.target.value)
+                                                    }
+                                                />{' '}
+                                                {choice}
+                                            </label>
+                                        ))
+                                    ) : (
+                                        <textarea
+                                            rows={3}
+                                            style={{ width: '100%' }}
+                                            value={answers[`${exam.id}_${q.id}`] || ''}
+                                            onChange={e =>
+                                                handleAnswerChange(exam.id, q.id, e.target.value)
+                                            }
+                                            placeholder="답변을 입력하세요"
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    ))
+                ) : (
+                    <p>이 강의에 등록된 시험이 없습니다.</p>
+                )}
+
+                {exams && exams.length > 0 && (
+                    <button onClick={handleSubmit} style={{ marginTop: '1rem' }}>
+                        답안 제출
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default ExamPage;

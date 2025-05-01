@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.30/f195ee86e6c896ea47a1d39defbe20eb59cd149d/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="MSA_LMS_project.lecture-service.main" />
+        <module name="MSA_LMS_project.exam-service.main" />
+        <module name="MSA_LMS_project.review-service.main" />
+        <module name="MSA_LMS_project.admin-service.main" />
+        <module name="MSA_LMS_project.gateway.main" />
+        <module name="MSA_LMS_project.grading-service.main" />
+        <module name="MSA_LMS_project.notice-service.main" />
+        <module name="MSA_LMS_project.eureka-server.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="17" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="MSA_LMS_project.admin-service" options="-parameters" />
+      <module name="MSA_LMS_project.admin-service.main" options="-parameters" />
+      <module name="MSA_LMS_project.admin-service.test" options="-parameters" />
+      <module name="MSA_LMS_project.eureka-server" options="-parameters" />
+      <module name="MSA_LMS_project.eureka-server.main" options="-parameters" />
+      <module name="MSA_LMS_project.eureka-server.test" options="-parameters" />
+      <module name="MSA_LMS_project.exam-service" options="-parameters" />
+      <module name="MSA_LMS_project.exam-service.main" options="-parameters" />
+      <module name="MSA_LMS_project.exam-service.test" options="-parameters" />
+      <module name="MSA_LMS_project.gateway" options="-parameters" />
+      <module name="MSA_LMS_project.gateway.main" options="-parameters" />
+      <module name="MSA_LMS_project.gateway.test" options="-parameters" />
+      <module name="MSA_LMS_project.grading-service" options="-parameters" />
+      <module name="MSA_LMS_project.grading-service.main" options="-parameters" />
+      <module name="MSA_LMS_project.grading-service.test" options="-parameters" />
+      <module name="MSA_LMS_project.lecture-service" options="-parameters" />
+      <module name="MSA_LMS_project.lecture-service.main" options="-parameters" />
+      <module name="MSA_LMS_project.lecture-service.test" options="-parameters" />
+      <module name="MSA_LMS_project.notice-service" options="-parameters" />
+      <module name="MSA_LMS_project.notice-service.main" options="-parameters" />
+      <module name="MSA_LMS_project.notice-service.test" options="-parameters" />
+      <module name="MSA_LMS_project.review-service" options="-parameters" />
+      <module name="MSA_LMS_project.review-service.main" options="-parameters" />
+      <module name="MSA_LMS_project.review-service.test" options="-parameters" />
+    </option>
+  </component>
+</project>

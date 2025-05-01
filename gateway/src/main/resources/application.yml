@@ -1,0 +1,70 @@
+server:
+  port: 9898
+
+spring:
+  application:
+    name: gateway-service
+  datasource:
+    url: jdbc:mysql://localhost:3309/lms?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: user
+    password: user123
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: create
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/users/**
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/products/**
+        - id: notice-service
+          uri: lb://NOTICE-SERVICE
+          predicates:
+            - Path=/api/notices/**
+        - id: lecture-service
+          uri: lb://LECTURE-SERVICE
+          predicates:
+            - Path=/api/lectures/**
+        - id: grading-service
+          uri: lb://GRADING-SERVICE
+          predicates:
+            - Path=/api/grading/**
+        - id: exam-service
+          uri: lb://EXAM-SERVICE
+          predicates:
+            - Path=/api/exams/**
+        - id: progress-service
+          uri: lb://PROGRESS-SERVICE
+          predicates:
+            - Path=/api/progress/**
+        - id: admin-service
+          uri: lb://ADMIN-SERVICE
+          predicates:
+            - Path=/api/admins/**
+        - id: review-service
+          uri: lb://REVIEW-SERVICE
+          predicates:
+            - Path=/api/reviews/**
+
+
+coolsms:
+  api:
+    key: NCSZ1KJRQ5SEN11M
+    secret: NADVY6NH93V1QMQDHD41ZPBR6AUAMW5F
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true 

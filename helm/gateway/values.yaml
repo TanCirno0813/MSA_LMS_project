@@ -1,0 +1,24 @@
+replicaCount: 3
+
+image:
+  repository: gateway
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 9898
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {} 

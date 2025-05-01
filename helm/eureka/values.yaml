@@ -1,0 +1,24 @@
+replicaCount: 1
+
+image:
+  repository: eureka
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8761
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {} 

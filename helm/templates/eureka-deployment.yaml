@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.eureka.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.eureka.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.eureka.name }}
+    spec:
+      containers:
+      - name: {{ .Values.eureka.name }}
+        image: {{ .Values.eureka.image.repository }}:{{ .Values.eureka.image.tag }}
+        imagePullPolicy: {{ .Values.eureka.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.eureka.service.port }}
+        env:
+        {{- range $key, $value := .Values.eureka.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }} 

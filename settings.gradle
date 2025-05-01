@@ -1,0 +1,10 @@
+rootProject.name = 'MSA_LMS_project'
+
+include 'eureka-server'
+include 'gateway'
+include 'notice-service'
+include 'lecture-service'
+include 'grading-service'
+include 'exam-service'
+include 'admin-service'
+include 'review-service'
