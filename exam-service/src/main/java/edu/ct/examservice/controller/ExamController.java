@@ -2,7 +2,10 @@ package edu.ct.examservice.controller;
 
 import edu.ct.examservice.dto.ExamCreateRequest;
 import edu.ct.examservice.dto.ExamResponse;
+import edu.ct.examservice.dto.ExamResultResponse;
+import edu.ct.examservice.entity.ExamResult;
 import edu.ct.examservice.service.ExamService;
+import edu.ct.examservice.service.GradingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,5 +47,11 @@ public class ExamController {
     public ResponseEntity<Void> updateExam(@PathVariable Long id, @RequestBody ExamCreateRequest request) {
         examService.updateExam(id, request);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/latest")
+    public ResponseEntity<List<ExamResultResponse>> getLatestExamResults() {
+        List<ExamResultResponse> responses = examService.getLatestExamResults();
+        return ResponseEntity.ok(responses);
     }
 }
