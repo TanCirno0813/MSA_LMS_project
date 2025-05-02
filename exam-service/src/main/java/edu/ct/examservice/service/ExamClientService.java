@@ -1,4 +1,4 @@
-package edu.ct.gradingservice.service;
+package edu.ct.examservice.service;
 
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;

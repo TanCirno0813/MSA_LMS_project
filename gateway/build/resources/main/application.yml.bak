@@ -36,7 +36,7 @@ spring:
           predicates:
             - Path=/api/lectures/**
         - id: grading-service
-          uri: lb://EXAM-SERVICE
+          uri: lb://GRADING-SERVICE
           predicates:
             - Path=/api/grading/**
         - id: exam-service

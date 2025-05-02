@@ -12,7 +12,6 @@
         <module name="MSA_LMS_project.review-service.main" />
         <module name="MSA_LMS_project.admin-service.main" />
         <module name="MSA_LMS_project.gateway.main" />
-        <module name="MSA_LMS_project.grading-service.main" />
         <module name="MSA_LMS_project.notice-service.main" />
         <module name="MSA_LMS_project.eureka-server.main" />
       </profile>
@@ -33,7 +32,6 @@
       <module name="MSA_LMS_project.gateway" options="-parameters" />
       <module name="MSA_LMS_project.gateway.main" options="-parameters" />
       <module name="MSA_LMS_project.gateway.test" options="-parameters" />
-      <module name="MSA_LMS_project.grading-service" options="-parameters" />
       <module name="MSA_LMS_project.grading-service.main" options="-parameters" />
       <module name="MSA_LMS_project.grading-service.test" options="-parameters" />
       <module name="MSA_LMS_project.lecture-service" options="-parameters" />

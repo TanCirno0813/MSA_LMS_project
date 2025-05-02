@@ -1,20 +1,27 @@
 package edu.ct.gateway.controller;
 
 import edu.ct.gateway.dto.LoginResponse;
+import edu.ct.gateway.dto.UpdateUserRequest;
 import edu.ct.gateway.entity.User;
 import edu.ct.gateway.repository.UserRepository;
 import edu.ct.gateway.util.JwtUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
     @Autowired
@@ -22,6 +29,8 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -75,6 +84,9 @@ public class UserController {
             return ResponseEntity.badRequest().body("이미 존재하는 사용자입니다.");
         }
 
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         user.setRole("USER"); // 일반 사용자로 등록
         userRepository.save(user);
         return ResponseEntity.ok("회원가입 성공");
@@ -83,22 +95,24 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginUser) {
-        Optional<User> user = userRepository.findByUsername(loginUser.getUsername());
+        Optional<User> userOpt = userRepository.findByUsername(loginUser.getUsername());
 
-        if (user.isPresent() && user.get().getPassword().equals(loginUser.getPassword())) {
-            String token = jwtUtil.generateToken(user.get().getUsername());
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
 
-            LoginResponse response = new LoginResponse(
-                    token,
-                    user.get().getId(),
-                    user.get().getUsername(),
-                    user.get().getRole()
-            );
-
-            return ResponseEntity.ok(response); // 👈 DTO 객체 그대로 반환
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            if (passwordEncoder.matches(loginUser.getPassword(), user.getPassword())) {
+                String token = jwtUtil.generateToken(user.getUsername());
+                LoginResponse response = new LoginResponse(
+                        token,
+                        user.getId(),
+                        user.getUsername(),
+                        user.getRole()
+                );
+                return ResponseEntity.ok(response);
+            }
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
     }
 
 
@@ -115,7 +129,10 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public ResponseEntity<?> updateMyInfo(@RequestHeader("Authorization") String authHeader, @RequestBody User updatedUser) {
+    public ResponseEntity<?> updateMyInfo(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody UpdateUserRequest req
+    ) {
         try {
             String token = authHeader.replace("Bearer ", "");
             String username = jwtUtil.validateTokenAndGetUsername(token);
@@ -126,16 +143,33 @@ public class UserController {
             }
 
             User user = optionalUser.get();
-            user.setName(updatedUser.getName());
-            user.setEmail(updatedUser.getEmail());
-            user.setPhone(updatedUser.getPhone());
-            user.setAddress(updatedUser.getAddress());
-            // 비밀번호나 권한 등은 수정하지 않음
+
+            user.setName(req.getName());
+            user.setEmail(req.getEmail());
+            user.setPhone(req.getPhone());
+            user.setAddress(req.getAddress());
+
+            if (req.getBirthDate() != null && !req.getBirthDate().isBlank()) {
+                try {
+                    user.setBirthDate(LocalDate.parse(req.getBirthDate()));
+                } catch (DateTimeParseException e) {
+                    return ResponseEntity.badRequest().body("생년월일 형식이 올바르지 않습니다. (예: 1990-01-01)");
+                }
+            }
+
+            if (req.getNewPassword() != null && !req.getNewPassword().isBlank()) {
+                if (!passwordEncoder.matches(req.getCurrentPassword(), user.getPassword())) {
+                    return ResponseEntity.badRequest().body("현재 비밀번호가 일치하지 않습니다.");
+                }
+                user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+            }
 
             userRepository.save(user);
-            return ResponseEntity.ok("정보가 수정되었습니다.");
+            return ResponseEntity.ok("정보가 성공적으로 수정되었습니다.");
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰 오류");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰 오류 또는 요청 처리 실패");
         }
     }
 

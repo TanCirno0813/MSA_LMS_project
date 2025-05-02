@@ -21,23 +21,6 @@ interface AnswersState {
     [key: string]: string;
 }
 
-interface QuestionResult {
-    questionId: number;
-    question: string;
-    userAnswer: string;
-    correctAnswer: string;
-    isCorrect: boolean;
-}
-
-interface ScoreResult {
-    totalQuestions: number;
-    correctCount: number;
-    score: number;
-    examTitle?: string;
-    questionResults?: QuestionResult[];
-    lectureId?: number;
-}
-
 const ExamPage: React.FC = () => {
     const [exams, setExams] = useState<Exam[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -70,25 +53,25 @@ const ExamPage: React.FC = () => {
             alert('제출할 시험이 없습니다.');
             return;
         }
+        const userId = parseInt(localStorage.getItem('userId') || '0', 10);
 
         const payload = exams.map(exam => ({
             examId: exam.id,
+            userId,
             questionJson: exam.question,
             answers: Object.fromEntries(
                 Object.entries(answers).filter(([key]) => key.startsWith(`${exam.id}_`))
             )
         }));
 
-        console.log("🔎 제출 payload:", payload);
-
         axios.post('/api/grading/submit', payload)
             .then(res => {
-                console.log("✅ 서버 응답:", res.data);
-                const result: ScoreResult = {
-                    ...res.data,
-                    lectureId: parseInt(lectureId || '1', 10)
-                };
-                navigate('/result', { state: result });
+                console.log("✅ 서버 응답:", res.data); // ← 이 로그로 구조 확인 가능
+
+                const result = res.data[0]; // ✅ 결과 배열에서 첫 번째 결과 꺼냄
+                result.lectureId = parseInt(lectureId || '1', 10); // 필요 시 추가 필드
+
+                navigate('/result', { state: result }); // ✅ 올바른 구조로 넘기기
             })
             .catch(() => alert('채점 실패'));
     };

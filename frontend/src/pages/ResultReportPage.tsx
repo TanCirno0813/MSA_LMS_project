@@ -11,9 +11,12 @@ interface QuestionResult {
 }
 
 interface ScoreResult {
+    examId: number;
+    userId: number;
     totalQuestions: number;
-    correctCount: number;
+    correctAnswers: number;
     score: number;
+    passed: boolean;
     examTitle?: string;
     questionResults?: QuestionResult[];
     lectureId?: number;
@@ -26,17 +29,13 @@ const ResultReportPage: React.FC = () => {
 
     useEffect(() => {
         console.log("📦 채점 결과 전체 확인:", result);
-        result.questionResults?.forEach((q, idx) => {
+        result?.questionResults?.forEach((q, idx) => {
             console.log(`🔍 Q${idx + 1}`, q);
         });
     }, [result]);
 
-    const getGrade = (score: number): string => {
-        if (score >= 90) return 'A';
-        if (score >= 80) return 'B';
-        if (score >= 70) return 'C';
-        if (score >= 60) return 'D';
-        return 'F';
+    const getPassStatus = (score: number): string => {
+        return score >= 50 ? '합격' : '불합격';
     };
 
     const today = new Date().toLocaleDateString('ko-KR');
@@ -51,6 +50,11 @@ const ResultReportPage: React.FC = () => {
     const isActuallyCorrect = (value: boolean | string): boolean =>
         value === true || value === 'true';
 
+    const scoreText =
+        typeof result?.score === 'number' ? `${result.score.toFixed(2)}점` : '점수 없음';
+    const statusText =
+        typeof result?.score === 'number' ? getPassStatus(result.score) : '미채점';
+
     return (
         <Box sx={{ mt: 6, display: 'flex', justifyContent: 'center' }}>
             <Paper sx={{ width: 700, p: 4, boxShadow: 4, border: '1px solid #ccc', borderRadius: 2 }}>
@@ -60,15 +64,15 @@ const ResultReportPage: React.FC = () => {
 
                 <Divider sx={{ mb: 2 }} />
 
-                {renderRow('시험 제목', `${result.examTitle}`)}
+                {renderRow('시험 제목', result.examTitle || '제목 없음')}
                 {renderRow('응시일', today)}
 
                 <Divider sx={{ my: 2 }} />
 
-                {renderRow('총 문항 수', `${result.totalQuestions}문제`)}
-                {renderRow('정답 개수', `${result.correctCount}개`)}
-                {renderRow('점수', `${result.score.toFixed(2)}점`)}
-                {renderRow('등급', getGrade(result.score))}
+                {renderRow('총 문항 수', `${result.totalQuestions ?? 0}문제`)}
+                {renderRow('정답 개수', `${result.correctAnswers ?? 0}개`)}
+                {renderRow('점수', scoreText)}
+                {renderRow('결과', statusText)}
 
                 <Divider sx={{ mt: 3, mb: 2 }} />
 
@@ -76,23 +80,27 @@ const ResultReportPage: React.FC = () => {
                     const correct = isActuallyCorrect(q.isCorrect ?? (q as any).correct);
                     return (
                         <Box key={idx} sx={{ mb: 2 }}>
-                            <Typography variant="subtitle1">
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                                 Q{q.questionId}. {q.question}
                             </Typography>
+
                             <Typography
                                 variant="body2"
-                                sx={{ color: correct ? 'green' : 'red' }}
+                                sx={{ color: correct ? 'green' : 'red', mt: 0.5 }}
                             >
-                                📝 내가 쓴 답: {q.userAnswer || '미응답'} {correct ? '✅' : '❌'}
+                                📝 내가 쓴 답: {q.userAnswer || '미응답'} {correct ? '✅ 정답' : '❌ 오답'}
                             </Typography>
-                            <Typography variant="body2">
+
+                            <Typography variant="body2" sx={{ mt: 0.5 }}>
                                 ✅ 정답: {q.correctAnswer}
                             </Typography>
+
                             {!correct && q.correctAnswer.includes(',') && (
                                 <Typography variant="caption" color="text.secondary">
                                     ✔ 부분 점수 부여 가능
                                 </Typography>
                             )}
+
                             <Divider sx={{ mt: 1, mb: 2 }} />
                         </Box>
                     );
