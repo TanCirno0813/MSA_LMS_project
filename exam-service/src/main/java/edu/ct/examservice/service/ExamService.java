@@ -1,14 +1,21 @@
 package edu.ct.examservice.service;
 
-import edu.ct.examservice.dto.ExamCreateRequest;
-import edu.ct.examservice.dto.ExamResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.ct.examservice.dto.*;
 import edu.ct.examservice.entity.Exam;
+import edu.ct.examservice.entity.ExamResult;
 import edu.ct.examservice.repository.ExamRepository;
+import edu.ct.examservice.repository.ExamResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +23,8 @@ import java.util.List;
 public class ExamService {
 
     private final ExamRepository examRepository;
+    private final ExamResultRepository examResultRepository;
+    private final ObjectMapper objectMapper;
 
     public Long createExam(ExamCreateRequest request) {
         try {
@@ -90,5 +99,70 @@ public class ExamService {
         response.setEndTime(exam.getEndTime());
         response.setQuestion(exam.getQuestion());
         return response;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExamResultResponse> getLatestExamResults() {
+        List<ExamResult> results = examResultRepository.findLatestResults();
+
+        return results.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private ExamResultResponse convertToDto(ExamResult examResult) {
+        Exam exam = examResult.getExam();
+
+        List<Question> questions = parseQuestions(exam.getQuestion());
+        Map<String, String> userAnswers = parseUserAnswers(examResult.getAnswers());
+
+        List<QuestionResult> questionResults = questions.stream()
+                .map(q -> {
+                    String key = exam.getId() + "_" + q.getId();
+                    String userAnswer = userAnswers.getOrDefault(key, null);
+                    boolean correct = userAnswer != null && userAnswer.equalsIgnoreCase(q.getCorrectAnswer());
+
+                    return QuestionResult.builder()
+                            .questionId(q.getId())
+                            .question(q.getQuestionText())
+                            .userAnswer(userAnswer)
+                            .correctAnswer(q.getCorrectAnswer())
+                            .isCorrect(correct)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        int correctCount = (int) questionResults.stream().filter(QuestionResult::isCorrect).count();
+        int totalQuestions = questionResults.size();
+        double score = totalQuestions > 0 ? (correctCount * 100.0 / totalQuestions) : 0;
+        boolean passed = correctCount >= Math.ceil(totalQuestions / 2.0);
+
+        return ExamResultResponse.builder()
+                .id(examResult.getId())
+                .examId(exam.getId())
+                .userId(examResult.getUserId())
+                .totalQuestions(totalQuestions)
+                .correctAnswers(correctCount)
+                .score(score)
+                .passed(passed)
+                .examTitle(exam.getTitle())
+                .questionResults(questionResults)
+                .build();
+    }
+
+    private List<Question> parseQuestions(String questionJson) {
+        try {
+            return objectMapper.readValue(questionJson, new TypeReference<List<Question>>() {});
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("문제 파싱 오류", e);
+        }
+    }
+
+    private Map<String, String> parseUserAnswers(String answersJson) {
+        try {
+            return objectMapper.readValue(answersJson, new TypeReference<Map<String, String>>() {});
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("답안 파싱 오류", e);
+        }
     }
 }

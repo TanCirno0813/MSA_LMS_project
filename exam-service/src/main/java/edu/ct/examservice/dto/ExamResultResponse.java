@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ExamResultResponse {
+    private Long id;
     private Long examId;
     private Long userId;
     private int totalQuestions;
