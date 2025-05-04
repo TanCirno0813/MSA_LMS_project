@@ -1,6 +1,6 @@
 // src/pages/Login.tsx
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Box, Container, Link as MuiLink } from '@mui/material';
+import { TextField, Button, Container, Link as MuiLink } from '@mui/material';
 import { Link } from 'react-router-dom';
 import axios from '../api/axios';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +23,7 @@ const Login: React.FC<Props> = ({ onLogin }) => {
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('username', res.data.username);
             localStorage.setItem('role', res.data.role);
+            localStorage.setItem('userId', String(res.data.userId));
 
             // 상태 전달
             onLogin(res.data.username, res.data.role);
