@@ -1215,4 +1215,6 @@
 .video-progress-label {
   font-size: 0.8rem;
   color: #444;
-  margin-t
+  margin-top: 4px;
+  display: inline-block;
+}
