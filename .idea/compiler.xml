@@ -10,6 +10,7 @@
         <module name="MSA_LMS_project.lecture-service.main" />
         <module name="MSA_LMS_project.exam-service.main" />
         <module name="MSA_LMS_project.review-service.main" />
+        <module name="MSA_LMS_project.chat-service.main" />
         <module name="MSA_LMS_project.admin-service.main" />
         <module name="MSA_LMS_project.gateway.main" />
         <module name="MSA_LMS_project.notice-service.main" />
@@ -23,6 +24,9 @@
       <module name="MSA_LMS_project.admin-service" options="-parameters" />
       <module name="MSA_LMS_project.admin-service.main" options="-parameters" />
       <module name="MSA_LMS_project.admin-service.test" options="-parameters" />
+      <module name="MSA_LMS_project.chat-service" options="-parameters" />
+      <module name="MSA_LMS_project.chat-service.main" options="-parameters" />
+      <module name="MSA_LMS_project.chat-service.test" options="-parameters" />
       <module name="MSA_LMS_project.eureka-server" options="-parameters" />
       <module name="MSA_LMS_project.eureka-server.main" options="-parameters" />
       <module name="MSA_LMS_project.eureka-server.test" options="-parameters" />

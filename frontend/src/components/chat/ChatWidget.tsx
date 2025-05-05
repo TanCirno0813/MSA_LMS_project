@@ -94,9 +94,9 @@ const ChatWidget: React.FC = () => {
                         <button onClick={() => setOpen(false)} style={{ background: 'none', color: '#fff', border: 'none', fontSize: '16px' }}>✕</button>
                     </div>
                     <div className="chat-messages" ref={chatBoxRef}>
-                        {messages.map((msg) => (
+                        {messages.map((msg, index) => (
                             <div
-                                key={msg.id}
+                                key={`${msg.id}-${index}`}  // ← 중복 방지
                                 className={`chat-message ${msg.sender === 'AI' ? 'from-discord' : 'from-user'}`}
                             >
                                 <span>{msg.message}</span>
