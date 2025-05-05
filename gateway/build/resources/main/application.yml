@@ -34,7 +34,7 @@ spring:
         - id: lecture-service
           uri: lb://LECTURE-SERVICE
           predicates:
-            - Path=/api/lectures/**
+            - Path=/api/lectures/**, /files/**
         - id: grading-service
           uri: lb://EXAM-SERVICE
           predicates:

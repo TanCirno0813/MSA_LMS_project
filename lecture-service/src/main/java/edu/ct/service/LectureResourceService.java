@@ -68,7 +68,7 @@ public class LectureResourceService {
 
         Files.copy(file.getInputStream(), savedPath, StandardCopyOption.REPLACE_EXISTING);
 
-        String url = "http://localhost:9696/files/" + storedName;
+        String url = "http://localhost:9898/files/" + storedName;
         repository.save(new LectureResource(originalName, url, lectureId));
     }
 
