@@ -40,6 +40,17 @@ public class ChatService {
     }
 
     public void saveMessageWithAiResponse(String userId, ChatMessageDto dto) {
+        Long size = redisTemplate.opsForList().size("chat:" + userId);
+        if (size == null || size == 0) {
+            ChatMessageDto welcome = new ChatMessageDto(
+                    UUID.randomUUID().toString(),
+                    "무엇을 도와드릴까요?",
+                    Sender.AI,
+                    LocalDateTime.now()
+            );
+            pushToRedis(userId, welcome);
+        }
+
         ChatMessageDto userMsg = new ChatMessageDto(
                 UUID.randomUUID().toString(),
                 dto.getMessage(),
@@ -57,13 +68,14 @@ public class ChatService {
         pushToRedis(userId, aiMsg);
     }
 
-
-
     private void pushToRedis(String userId, ChatMessageDto message) {
         try {
+            String key = "chat:" + userId;
             String json = objectMapper.writeValueAsString(message);
-            redisTemplate.opsForList().leftPush("chat:" + userId, json);
-            redisTemplate.opsForList().trim("chat:" + userId, 0, MAX_MESSAGES - 1);
+            redisTemplate.opsForList().leftPush(key, json);
+            redisTemplate.opsForList().trim(key, 0, MAX_MESSAGES - 1);
+
+            System.out.println("✅ 저장한 Redis key: " + key);  // ← 확인용
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

@@ -71,6 +71,13 @@ const ChatWidget: React.FC = () => {
         return () => clearInterval(interval);
     }, [userId]);
 
+    // 채팅창 열릴 때 즉시 메시지 불러오기
+    useEffect(() => {
+        if (open) {
+            fetchMessages();
+        }
+    }, [open]);
+
     const formatKoreanDateTime = (isoString: string) => {
         const date = new Date(isoString);
         const year = date.getFullYear();

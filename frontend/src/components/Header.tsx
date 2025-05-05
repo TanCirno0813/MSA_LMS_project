@@ -7,7 +7,7 @@ interface HeaderProps {
   onLogout: () => void;
 }
 
-const Header = ({ username, role, onLogout }: HeaderProps) => {
+const Header = ({ username, role,onLogout }: HeaderProps) => {
   return (
     <header className="header">
       <div className="header-container">
