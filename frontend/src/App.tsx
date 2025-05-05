@@ -24,7 +24,6 @@ import LectureAdminPage from "./pages/LectureManagement.tsx"
 import ContentManagement from './pages/ContentManagement';
 import LectureManagement from './pages/LectureManagement';
 import ReviewList from './pages/ReviewList.tsx';
-import ChatWidget from "@/components/chat/ChatWidget.tsx";
 
 const App: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
@@ -41,8 +40,6 @@ const App: React.FC = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
         localStorage.removeItem('role');
-        localStorage.removeItem('userId');
-
         setUsername(null);
         setRole(null);
         
@@ -97,7 +94,7 @@ const App: React.FC = () => {
                 <Route path="/admin/lectures" element={<LectureManagement />} />
                 <Route path="/admin/lectures/:lectureId/contents" element={<ContentManagement />} />
             </Routes>
-            <ChatWidget />
+
             <Footer />
         </ThemeProvider>
     )

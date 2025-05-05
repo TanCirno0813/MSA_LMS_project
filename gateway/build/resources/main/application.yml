@@ -55,10 +55,6 @@ spring:
           uri: lb://REVIEW-SERVICE
           predicates:
             - Path=/api/reviews/**
-        - id: chat-service
-          uri: lb://CHAT-SERVICE
-          predicates:
-            - Path=/api/chat/**
 
 
 coolsms:
