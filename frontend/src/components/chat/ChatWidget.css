@@ -42,11 +42,15 @@
 }
 
 .from-discord {
-    background-color: #f0f0f0;
+    background-color: #f1f1f1; /* 연한 회색 */
+    align-self: flex-start;
+    max-width: 80%;
 }
 
 .from-user {
-    background-color: #e0ecff;
+    background-color: #d6e8ff; /* 연한 파랑 */
+    align-self: flex-end;
+    max-width: 80%;
 }
 
 .chat-input-container {
@@ -69,4 +73,9 @@
     font-size: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     cursor: pointer;
+}
+
+.chat-timestamp{
+    font-size: 12px;
+    color: #888888;
 }

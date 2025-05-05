@@ -5,6 +5,7 @@ import './ChatWidget.css';
 interface Message {
     id: string;
     message: string;
+    sender: string;
     timestamp: string;
 }
 
@@ -94,7 +95,10 @@ const ChatWidget: React.FC = () => {
                     </div>
                     <div className="chat-messages" ref={chatBoxRef}>
                         {messages.map((msg) => (
-                            <div key={msg.id} className="chat-message">
+                            <div
+                                key={msg.id}
+                                className={`chat-message ${msg.sender === 'AI' ? 'from-discord' : 'from-user'}`}
+                            >
                                 <span>{msg.message}</span>
                                 <div className="chat-timestamp">{formatKoreanDateTime(msg.timestamp)}</div>
                             </div>
