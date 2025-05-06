@@ -113,6 +113,27 @@ public class GradingService {
                 .trim()
                 .toLowerCase();
     }
+
+    public List<ExamResult> getLatestResults() {
+        return examResultRepository.findLatestResults(); // ✅ 이미 구현돼 있음
+    }
+
+    public List<ExamResult> getUserResults(Long userId) {
+        return examResultRepository.findByUserId(userId);
+    }
+
+    public ExamResultResponse toResponse(ExamResult result) {
+        return ExamResultResponse.builder()
+                .id(result.getId())
+                .examId(result.getExam().getId())
+                .userId(result.getUserId())
+                .totalQuestions(result.getTotalQuestions())
+                .correctAnswers(result.getCorrectAnswers())
+                .score(result.getScore())
+                .passed(result.getPassed())
+                .examTitle(result.getExam().getTitle())
+                .build();
+    }
 }
 
 

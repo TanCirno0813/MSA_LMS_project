@@ -24,38 +24,45 @@ import LectureAdminPage from "./pages/LectureManagement.tsx"
 import ContentManagement from './pages/ContentManagement';
 import LectureManagement from './pages/LectureManagement';
 import ReviewList from './pages/ReviewList.tsx';
+import EnrollmentManagement from './pages/EnrollmentManagement';
 
 const App: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
     const [role, setRole] = useState<string | null>(null);
-    
+    const [, setUserId] = useState<string | null>(null);
+
     useEffect(() => {
         const storedUsername = localStorage.getItem('username');
         const storedRole = localStorage.getItem('role');
+        const storeUserId = localStorage.getItem('userId')
         setRole(storedRole);
         setUsername(storedUsername);
+        setUserId(storeUserId)
     }, []);
-    
+
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
         localStorage.removeItem('role');
+        localStorage.removeItem('userId')
         setUsername(null);
         setRole(null);
-        
-        // 로그아웃 시 auth-change 이벤트 발생
+        setUserId(null)
+
         window.dispatchEvent(new Event('auth-change'));
-        
+
         window.location.href = '/';
     };
-    
+
     // 로그인 처리 함수
-    const handleLogin = (u: string, r: string) => {
+    const handleLogin = (u: string, r: string, i: string) => {
         localStorage.setItem('username', u);
         localStorage.setItem('role', r);
+        localStorage.setItem('userId',i);
         setUsername(u);
         setRole(r);
-        
+        setUserId(i)
+
         // 로그인 시 auth-change 이벤트 발생
         window.dispatchEvent(new Event('auth-change'));
     };
@@ -90,6 +97,7 @@ const App: React.FC = () => {
                 <Route path="/admin" element={<AdminDashboard />}>
                     <Route path="users" element={<Users />} />
                     <Route path="lectures" element={<LectureAdminPage />} />
+                    <Route path="enrollments" element={<EnrollmentManagement />} />
                 </Route>
                 <Route path="/admin/lectures" element={<LectureManagement />} />
                 <Route path="/admin/lectures/:lectureId/contents" element={<ContentManagement />} />

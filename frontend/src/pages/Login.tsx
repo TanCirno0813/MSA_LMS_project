@@ -1,13 +1,13 @@
 // src/pages/Login.tsx
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Box, Container, Link as MuiLink } from '@mui/material';
+import { TextField, Button, Container, Link as MuiLink } from '@mui/material';
 import { Link } from 'react-router-dom';
 import axios from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import './Auth.css';
 
 interface Props {
-    onLogin: (username: string, role: string) => void;
+    onLogin: (username: string, role: string, userId: string) => void;
 }
 
 const Login: React.FC<Props> = ({ onLogin }) => {
@@ -23,9 +23,10 @@ const Login: React.FC<Props> = ({ onLogin }) => {
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('username', res.data.username);
             localStorage.setItem('role', res.data.role);
+            localStorage.setItem('userId', res.data.role);
 
             // 상태 전달
-            onLogin(res.data.username, res.data.role);
+            onLogin(res.data.username, res.data.role, res.data.userId);
 
             // auth-change 이벤트 발생 - 즉시 UI 업데이트용
             window.dispatchEvent(new Event('auth-change'));

@@ -1218,3 +1218,48 @@
   margin-top: 4px;
   display: inline-block;
 }
+
+/* 수강 신청 관련 스타일 */
+.lecture-enroll-btn {
+    padding: 10px 20px;
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 15px;
+    align-self: flex-start;
+    transition: background-color 0.2s;
+}
+
+.lecture-enroll-btn:hover {
+    background-color: #105cc0;
+}
+
+.enrollment-status {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    align-self: flex-start;
+    display: inline-block;
+}
+
+.enrollment-status.pending {
+    background-color: #f0f0f0;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.enrollment-status.approved {
+    background-color: #e6f4ea;
+    color: #137333;
+    border: 1px solid #9fd8bc;
+}
+
+.enrollment-status.rejected {
+    background-color: #fce8e6;
+    color: #c5221f;
+    border: 1px solid #f7bbb9;
+}
