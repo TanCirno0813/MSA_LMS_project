@@ -58,19 +58,26 @@ public class LectureResourceService {
         }
 
         String originalName = file.getOriginalFilename();
-
         if (originalName == null || originalName.trim().isEmpty()) {
             throw new IllegalArgumentException("파일명이 비어있습니다.");
         }
 
-        String storedName = resolveUniqueFilename(originalName);
-        Path savedPath = uploadPath.resolve(storedName);
+        String tempName = UUID.randomUUID() + "_" + originalName;
+        Path tempPath = uploadPath.resolve(tempName);
+        Files.copy(file.getInputStream(), tempPath, StandardCopyOption.REPLACE_EXISTING);
 
-        Files.copy(file.getInputStream(), savedPath, StandardCopyOption.REPLACE_EXISTING);
+        LectureResource saved = repository.save(new LectureResource(originalName, "", lectureId));
+        String storedName = lectureId + "-" + saved.getId() + "-" + originalName;
+
+        Path finalPath = uploadPath.resolve(storedName);
+        Files.move(tempPath, finalPath, StandardCopyOption.REPLACE_EXISTING);
 
         String url = "http://localhost:9898/files/" + storedName;
-        repository.save(new LectureResource(originalName, url, lectureId));
+        saved.setFileUrl(url);
+        saved.setFileName(storedName); // DB에도 새 파일명 저장
+        repository.save(saved);
     }
+
 
     public void delete(Long resourceId) throws IOException {
         LectureResource resource = repository.findById(resourceId)
