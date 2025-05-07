@@ -34,6 +34,5 @@ logging:
     org.springframework.web.client.RestTemplate: DEBUG
     edu.ct.admin: DEBUG
 
-
 openai:
-  api-key: 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
+  api-key: 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

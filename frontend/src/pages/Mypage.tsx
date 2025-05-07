@@ -12,6 +12,7 @@ interface Completion {
     lectureTitle: string;
     contentTitle: string;
     completedAt: string;
+    isCompleted: boolean; // ✅ 추가
 }
 
 interface UserInfo {
@@ -77,8 +78,13 @@ const Mypage: React.FC = () => {
             const completionsWithTitles: Completion[] = res.data.map((item: any) => ({
                 ...item,
                 lectureTitle: item.lectureTitle || `강의 ${item.lectureId}`,
-                contentTitle: item.contentTitle || '강의 콘텐츠'
+                contentTitle: item.contentTitle || '강의 콘텐츠',
+                isCompleted: item.watchedTime && item.totalDuration
+                    ? item.watchedTime >= item.totalDuration * 0.95
+                    : false // ✅ 95% 이상 시 이수 처리
             }));
+
+
 
             setCompletionHistory(completionsWithTitles);
         } catch (err) {
@@ -264,10 +270,12 @@ const Mypage: React.FC = () => {
                                         <Typography variant="subtitle1" fontWeight="bold">{item.contentTitle}</Typography>
                                         <Chip
                                             size="small"
-                                            label="이수완료"
-                                            color="success"
+                                            label={item.isCompleted ? "이수완료" : "진행 중"}
+                                            color={item.isCompleted ? "success" : "default"}
                                             sx={{ height: 24 }}
                                         />
+
+
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', color: 'text.secondary', fontSize: '0.875rem' }}>
                                         <span>{item.lectureTitle}</span>
@@ -401,8 +409,11 @@ const Mypage: React.FC = () => {
                                                     {completion.contentTitle}
                                                 </Typography>
                                                 <Typography color="text.secondary" fontSize="0.875rem">
-                                                    {formatDate(completion.completedAt)} 수료
+                                                    {completion.isCompleted
+                                                        ? `${formatDate(completion.completedAt)} 수료`
+                                                        : "진행 중"}
                                                 </Typography>
+
                                             </Box>
                                         </Box>
                                     </ListItem>
