@@ -19,7 +19,10 @@ public class Lecture {
 
     private String author;
 
-        private String title;
+    private String title;
+
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
+    private int likeCount;
 
     @Column(length = 1000)
     private String description;

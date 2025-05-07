@@ -8,12 +8,14 @@ import edu.ct.entity.Lecture;
 import edu.ct.repository.LectureRepository;
 import edu.ct.service.ContentService;
 import edu.ct.service.LectureService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -78,8 +80,7 @@ public class LectureController {
             dto.setAuthor(lecture.getAuthor());
             dto.setThumbnail(lecture.getThumbnail());
             dto.setCategory(lecture.getCategory());
-            dto.setLevel("초급"); // 임시값: 실제 level 필드가 Lecture에 없으므로 보완 필요
-            dto.setLikes(0);      // 임시값: likes 필드가 아직 없음
+            dto.setLikes(lecture.getLikeCount());  // ✅ 좋아요 개수 반영
             dto.setDescription(lecture.getDescription());
             return dto;
         }).toList();
@@ -156,4 +157,28 @@ public class LectureController {
     public ResponseEntity<List<LectureDto>> getAllLectures() {
         return ResponseEntity.ok(lectureService.getAllLectures());
     }
+
+
+    @PostMapping("/{id}/like")
+    public Map<String, Object> toggleLike(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+        }
+
+        boolean liked = lectureService.toggleLike(id, userId);
+        long likes = lectureService.countLikes(id);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("liked", liked);
+        response.put("likes", likes);
+
+        return response;
+    }
+
+    @GetMapping("/{id}/likes")
+    public long getLikes(@PathVariable Long id) {
+        return lectureService.countLikes(id);
+    }
+
 }

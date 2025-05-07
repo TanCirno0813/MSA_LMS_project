@@ -10,9 +10,10 @@ import java.util.Date;
 public class JwtUtil {
     private final String SECRET_KEY = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEF"; // 256bit
 
-    public String generateToken(String username) {
+    public String generateToken(Long userId,String username) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("userId", userId)   // ✅ userId 추가
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1일
                 .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)

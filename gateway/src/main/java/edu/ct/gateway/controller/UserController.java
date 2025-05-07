@@ -102,7 +102,7 @@ public class UserController {
 
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             if (passwordEncoder.matches(loginUser.getPassword(), user.getPassword())) {
-                String token = jwtUtil.generateToken(user.getUsername());
+                String token = jwtUtil.generateToken(user.getId(),user.getUsername());
                 LoginResponse response = new LoginResponse(
                         token,
                         user.getId(),

@@ -12,8 +12,8 @@ interface Lecture {
     author: string;
     thumbnail: string;
     category: string;
-    level: string;
-    likes: number;
+    liked: boolean;
+    likes: number;  // ✅ 추가
     description?: string; // 선택적으로 추가 가능
 }
 
@@ -35,8 +35,7 @@ const LectureList: React.FC = () => {
     const categoryFromURL = searchParams.get('category') || '전체';
     const [selectedCategory, setSelectedCategory] = useState(categoryFromURL);
 
-    // const [selectedCategory, setSelectedCategory] = useState('전체');
-    const [selectedLevel, setSelectedLevel] = useState('전체');
+    const [selectedLevel] = useState('전체');
 
 
 
@@ -50,7 +49,6 @@ const LectureList: React.FC = () => {
                     page,
                     limit: ITEMS_PER_PAGE,
                     category: selectedCategory !== '전체' ? selectedCategory : undefined,
-                    level: selectedLevel !== '전체' ? selectedLevel : undefined,
                     keyword: keyword.trim() !== '' ? keyword : undefined,
                 },
             });
@@ -70,19 +68,51 @@ const LectureList: React.FC = () => {
     const navigate = useNavigate();
     const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
+    // ✅ 좋아요 토글 처리 함수
+    const handleToggleLike = async (lectureId: number) => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('로그인이 필요한 서비스입니다.');
+                navigate('/login');
+                return;
+            }
+
+            const res = await axios.post(`/api/lectures/${lectureId}/like`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const { liked, likes } = res.data;
+
+            setLectures((prevLectures) =>
+                prevLectures.map((lecture) =>
+                    lecture.id === lectureId
+                        ? { ...lecture, liked, likes }
+                        : lecture
+                )
+            );
+        } catch (err: any) {
+            if (err.response?.status === 401) {
+                alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+                localStorage.removeItem('token');
+                navigate('/login');
+            } else {
+                console.error(`강의 ${lectureId} 좋아요 처리 실패:`, err);
+                alert('좋아요 처리 중 오류가 발생했습니다.');
+            }
+        }
+    };
+
+
     return (
         <>
             <LectureFilterBar
                 selectedCategory={selectedCategory}
-                selectedLevel={selectedLevel}
                 keyword={keyword}
                 onCategoryChange={(cat) => {
                     setSelectedCategory(cat);
                     setSearchParams({ page: '1', category: cat }); // ✅ category 쿼리 적용
-                }}
-                onLevelChange={(lvl) => {
-                    setSelectedLevel(lvl);
-                    setSearchParams({ page: '1' });
                 }}
                 onKeywordChange={(newKeyword) => {
                     setSearchParams({ page: '1', keyword: newKeyword });
@@ -104,8 +134,17 @@ const LectureList: React.FC = () => {
                                     <div className="lecture-info">
                                         <h3>{lecture.title}</h3>
                                         <p className="lecture-meta">
-                                            ❤️ {lecture.likes ?? 0} &nbsp; | &nbsp;
-                                            {lecture.category || '공통'} | {lecture.level || '초급'}
+                                            <span
+                                                style={{ cursor: 'pointer', color: lecture.liked ? 'red' : 'gray' }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();  // ✅ 카드 클릭 막기
+                                                    handleToggleLike(lecture.id);
+                                                }}
+                                            >
+                                                ❤️ {lecture.likes}
+                                            </span>
+                                            &nbsp; | &nbsp;
+                                            {lecture.category || '공통'}
                                         </p>
                                     </div>
                                 </div>
