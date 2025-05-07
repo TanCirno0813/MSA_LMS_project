@@ -54,4 +54,9 @@ public class ExamController {
         List<ExamResultResponse> responses = examService.getLatestExamResults();
         return ResponseEntity.ok(responses);
     }
+
+    @GetMapping("/user/{userId}")
+    public List<ExamResultResponse> getResultsByUser(@PathVariable Long userId) {
+        return examService.getResultsByUser(userId);
+    }
 }

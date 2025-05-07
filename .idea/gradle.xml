@@ -9,10 +9,10 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/admin-service" />
+            <option value="$PROJECT_DIR$/chat-service" />
             <option value="$PROJECT_DIR$/eureka-server" />
             <option value="$PROJECT_DIR$/exam-service" />
             <option value="$PROJECT_DIR$/gateway" />
-            <option value="$PROJECT_DIR$/grading-service" />
             <option value="$PROJECT_DIR$/lecture-service" />
             <option value="$PROJECT_DIR$/notice-service" />
             <option value="$PROJECT_DIR$/review-service" />

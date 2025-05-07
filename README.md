@@ -1,245 +1,146 @@
-# MSA 프로젝트 Helm 배포 가이드
+# MSA 기반 LMS 프로젝트
 
-이 프로젝트는 Spring Cloud 기반의 MSA(Microservice Architecture) 애플리케이션을 Kubernetes 환경에 배포하기 위한 Helm 차트를 제공합니다.
+## 프로젝트 개요
+이 프로젝트는 마이크로서비스 아키텍처(MSA) 기반의 학습 관리 시스템(LMS)입니다. 각 도메인별로 독립적인 서비스를 구현하여 확장성과 유지보수성을 높였습니다.
 
-## 사전 요구사항
+## 개발 기간
+- 2024.04.15 ~ 2024.05.
 
-- Docker
-- Kubernetes (minikube)
-- Helm 3.x
-- kubectl
-- Node.js (프론트엔드 개발용)
+## 기술 스택
 
-## Node.js 설치 가이드 (Ubuntu)
+### Backend
+- Java 17, Spring Boot, Spring Cloud
+- Gradle, JPA, MySQL
+- Redis
+- Eureka, Spring Cloud Gateway
 
-### NVM을 사용한 Node.js 설치
+### Frontend
+- React 18, TypeScript
+- Vite
+- Material-UI (MUI)
+- Redux Toolkit, React Router
 
-1. 시스템 업데이트:
-```bash
-sudo apt update
-sudo apt upgrade -y
-```
+### DevOps
+- Docker, Kubernetes, Helm (예정)
+- Minikube, kubectl
 
-2. NVM 설치를 위한 필수 패키지 설치:
-```bash
-sudo apt install curl
-```
-
-3. NVM 설치:
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-```
-
-4. NVM을 현재 셸에서 사용할 수 있도록 설정:
-```bash
-source ~/.bashrc
-```
-
-5. 설치된 NVM 버전 확인:
-```bash
-nvm --version
-```
-
-6. Node.js 설치 (LTS 버전):
-```bash
-nvm install 18  # LTS 버전 설치
-```
-
-7. 설치된 Node.js 버전 확인:
-```bash
-node -v
-npm -v
-```
-
-8. 특정 버전의 Node.js 사용:
-```bash
-nvm use 18  # Node.js 18 버전 사용
-```
-
-### 추가 명령어
-
-- 다른 Node.js 버전 설치:
-```bash
-nvm install 16  # Node.js 16 버전 설치
-nvm install 20  # Node.js 20 버전 설치
-```
-
-- 설치된 Node.js 버전 목록 확인:
-```bash
-nvm ls
-```
-
-- 기본 Node.js 버전 설정:
-```bash
-nvm alias default 18  # Node.js 18을 기본 버전으로 설정
-```
-
-- 글로벌 npm 패키지 설치:
-```bash
-npm install -g yarn  # 예: yarn 설치
-```
-
-### 주의사항
-
-1. NVM을 설치한 후에는 터미널을 재시작하거나 `source ~/.bashrc`를 실행해야 합니다.
-2. 프로젝트마다 다른 Node.js 버전이 필요한 경우, 프로젝트 디렉토리에서 `nvm use <version>`을 실행하여 버전을 변경할 수 있습니다.
-3. 시스템 전체에 Node.js를 설치하려면 다음 명령어를 사용할 수 있습니다:
-```bash
-sudo apt install nodejs npm
-```
-하지만 이 방법은 버전 관리가 어렵기 때문에 NVM 사용을 추천합니다.
-
-## 프로젝트 구조
+## 서비스 구성도
 
 ```
 .
-├── eureka-server/          # Eureka 서비스 디스커버리 서버
-├── gateway/               # API Gateway 서비스
-├── frontend/              # Vue.js 프론트엔드
-└── helm/                  # Helm 차트
-    ├── eureka/            # Eureka 서비스 Helm 차트
-    ├── gateway/           # Gateway 서비스 Helm 차트
-    ├── build-images.sh    # Docker 이미지 빌드 스크립트
-    ├── cleanup.sh         # 리소스 정리 스크립트
-    └── deploy.sh          # 배포 스크립트
+├── eureka-server/
+├── gateway/
+├── admin-service/
+├── lecture-service/
+├── exam-service/
+├── review-service/
+├── notice-service/
+├── chat-service/
+├── frontend/
+└── helm/
 ```
 
-## 배포 방법
+## 로컬 개발 및 실행 방법
 
-### 1. JAR 파일 준비
-- Eureka 서비스 JAR 파일을 `eureka-server/build/libs/` 폴더에 복사
-- Gateway 서비스 JAR 파일을 `gateway/build/libs/` 폴더에 복사
-
-### 2. 배포 스크립트 실행
+### 공통
 ```bash
-# 스크립트 실행 권한 부여
-chmod +x helm/*.sh
-
-# 배포 실행
-./helm/deploy.sh
+./gradlew build
 ```
 
-배포 스크립트는 다음 작업을 순차적으로 수행합니다:
-1. 기존 리소스 정리 (Helm 릴리즈, 네임스페이스, Docker 이미지)
-2. Docker 이미지 빌드 및 Minikube에 로드
-3. microservices 네임스페이스 생성
-4. Eureka 서비스 배포
-5. Gateway 서비스 배포
-6. 배포 상태 확인
-
-### 3. 외부 접속 방법
-
-#### 방법 1: minikube service 명령어 사용
+### 프론트엔드
 ```bash
-minikube service gateway -n microservices
+cd frontend
+npm install
+npm run dev
 ```
-이 명령어는 자동으로 브라우저를 열어 Gateway 서비스에 접속할 수 있는 URL을 제공합니다.
 
-#### 방법 2: minikube tunnel 사용
+### 각 서비스 실행
 ```bash
-# 터미널 1: 터널 실행
-minikube tunnel
-
-# 터미널 2: 서비스 상태 확인
-kubectl get svc gateway -n microservices
-```
-터널을 실행한 후 EXTERNAL-IP를 통해 접속할 수 있습니다:
-- http://EXTERNAL-IP:9898/api/users
-- http://EXTERNAL-IP:9898/api/products
-
-주의: minikube tunnel은 백그라운드에서 계속 실행되어야 하며, 터널을 종료하면 외부 접속이 중단됩니다.
-
-## 리소스 정리
-모든 리소스를 정리하려면 다음 명령어를 실행합니다:
-```bash
-./helm/cleanup.sh
+cd <service>
+./gradlew bootRun
 ```
 
-## 서비스 상태 확인
-```bash
-# 모든 리소스 상태 확인
-kubectl get all -n microservices
+## 서비스별 역할
 
-# Gateway 서비스 상태 확인
-kubectl get svc gateway -n microservices
-```
+### 1. 인프라 서비스
+#### eureka-server
+- 서비스 디스커버리 서버
+- 마이크로서비스 등록 및 관리
 
-## 서비스 스케일링
+#### gateway
+- API 게이트웨이 역할
+- 사용자 인증/인가 처리
+- 사용자 관리 (회원가입/로그인/정보수정)
+- 학습 진도 관리 (CompletionHistory)
 
-### Gateway 서비스 레플리카 수 조정
-Gateway 서비스의 레플리카 수를 조정하려면 다음 단계를 따르세요:
+### 2. 핵심 서비스
+#### lecture-service
+- 강의 CRUD
+- 강의 콘텐츠 관리
+- 강의별 Q&A 게시판 운영
+  - 질문 등록/조회
+  - 답변 등록/수정
+  - 질문 삭제
 
-1. `helm/gateway/values.yaml` 파일에서 `replicaCount` 값을 수정합니다.
-2. 다음 명령어로 변경사항을 적용합니다:
-   ```bash
-   helm upgrade gateway ./helm/gateway -n microservices
-   ```
-3. 변경된 레플리카 수를 확인합니다:
-   ```bash
-   kubectl get pods -n microservices | grep gateway
-   ```
+#### exam-service
+- 시험 문제 관리
+- 시험 결과 처리 및 채점
+- 시험 성적 조회
 
-## Helm 차트 관리
+#### chat-service
+- REST API 기반 채팅
+- 사용자별 메시지 이력 관리
+- AI 응답 처리
 
-### 차트 업그레이드
+#### notice-service
+- 공지사항 CRUD
+- 시간순 정렬 조회
 
-설정을 변경한 후 차트를 업그레이드합니다:
+#### review-service
+- 강의 리뷰 조회
 
-```bash
-helm upgrade msa-app ./helm
-```
+#### admin-service
+- 강의 관리
+- 콘텐츠 관리
+- 시험 관리
 
-### 차트 삭제
+## 주요 API 명세
 
-배포된 차트를 삭제합니다:
+### 강의 서비스 (`/api/lectures`)
+- `GET /api/lectures` : 강의 목록 조회
+- `GET /api/lectures/{id}` : 강의 상세 조회
+- `POST /api/lectures` : 강의 등록
 
-```bash
-helm uninstall msa-app -n msa-namespace
-```
+### 시험 서비스 (`/api/exams`)
+- `GET /api/exams` : 모든 시험 목록 조회
+- `GET /api/exams/{id}` : 시험 상세 조회
+- `GET /api/exams/lecture/{lectureId}` : 특정 강의의 시험 목록 조회
+- `POST /api/exams` : 시험 생성
+- `PUT /api/exams/{id}` : 시험 정보 수정
+- `GET /api/exams/latest` : 최근 시험 결과 조회
 
-## 설정 변경
+### 채팅 서비스 (`/api/chat`)
+- `GET /api/chat/{userId}` : 사용자의 채팅 메시지 조회
+- `POST /api/chat/{userId}` : 메시지 전송
 
-`helm/values.yaml` 파일을 수정하여 다음 설정을 변경할 수 있습니다:
+### 공지사항 서비스 (`/api/notices`)
+- `GET /api/notices` : 공지사항 목록 조회
+- `GET /api/notices/{id}` : 공지사항 상세 조회
+- `POST /api/notices` : 공지사항 등록
+- `PUT /api/notices/{id}` : 공지사항 수정
 
-- 네임스페이스
-- 이미지 태그
-- 서비스 포트
-- 환경 변수
-- 레플리카 수
+### 리뷰 서비스 (`/api/reviews`)
+- `GET /api/reviews` : 모든 리뷰 조회
 
-## 문제 해결
+### 관리자 서비스 (`/api/admins`)
+- `GET /api/admins/lectures` : 관리자용 강의 목록 조회
+- `GET /api/admins/exams/lecture/{lectureId}` : 관리자용 특정 강의의 시험 목록 조회
+- `GET /api/admins/contents/lecture/{lectureId}` : 관리자용 특정 강의의 콘텐츠 목록 조회
 
-### 일반적인 문제
-
-1. JAR 파일 없음
-   - 각 서비스의 build/libs 디렉토리에 JAR 파일이 있는지 확인
-   - JAR 파일 이름이 올바른지 확인 (eureka-server-*.jar, gateway-*.jar)
-
-2. Dockerfile 문제
-   - Dockerfile이 올바른 위치에 있는지 확인
-   - JAR 파일 경로가 Dockerfile과 일치하는지 확인
-
-3. 이미지 로드 실패
-   - minikube가 실행 중인지 확인
-   - Docker 이미지가 올바르게 빌드되었는지 확인
-
-4. 서비스 접속 불가
-   - 서비스 상태 확인: `kubectl get svc -n msa-namespace`
-   - 포드 상태 확인: `kubectl get pods -n msa-namespace`
-   - 로그 확인: `kubectl logs <pod-name> -n msa-namespace`
-
-### 로그 확인
-
-```bash
-# Eureka 서버 로그
-kubectl logs -f deployment/eureka-server -n msa-namespace
-
-# Gateway 서비스 로그
-kubectl logs -f deployment/gateway -n msa-namespace
-```
-
-## 참고사항
-
-- 이 Helm 차트는 개발 환경을 위한 기본 설정을 제공합니다.
-- 프로덕션 환경에서는 보안 설정, 리소스 제한, 모니터링 등을 추가로 구성해야 합니다.
-- 필요에 따라 `values.yaml` 파일의 설정을 수정하여 환경에 맞게 조정할 수 있습니다. 
+### 사용자 관리 (`/api/users`)
+- `GET /api/users` : 사용자 목록 조회
+- `GET /api/users/{id}` : 사용자 상세 정보 조회
+- `POST /api/users` : 사용자 등록
+- `PUT /api/users/{id}` : 사용자 정보 수정
+- `DELETE /api/users/{id}` : 사용자 삭제
+- `GET /api/users/me` : 현재 로그인한 사용자 정보 조회

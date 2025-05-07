@@ -1,0 +1,39 @@
+server:
+  port: 9292
+
+spring:
+  application:
+    name: chat-service
+  datasource:
+    url: jdbc:mysql://localhost:3309/lms?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: user
+    password: user123
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: create
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# 로깅 설정
+logging:
+  level:
+    org.springframework.web.client.RestTemplate: DEBUG
+    edu.ct.admin: DEBUG
+
+
+openai:
+  api-key: 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

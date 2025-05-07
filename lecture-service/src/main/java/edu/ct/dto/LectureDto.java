@@ -18,4 +18,7 @@ public class LectureDto {
     private String level;
     private int likes;
     private String description;
+
+    public LectureDto(Long id, String title) {
+    }
 }
