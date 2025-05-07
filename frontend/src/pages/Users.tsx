@@ -30,6 +30,8 @@ import {
   ListItemText,
   Collapse,
   Badge,
+  Divider,
+  Alert,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -38,6 +40,9 @@ import SchoolIcon from '@mui/icons-material/School';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import api from '../api/axios';
 import '../styles/admin.css';
 import { SxProps } from '@mui/system';
@@ -74,6 +79,26 @@ interface CompletionDetail {
   completedAt: string;
 }
 
+interface QuestionResult {
+  questionId: number;
+  question: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
+interface ExamResultResponse {
+  id: number;
+  examId: number;
+  userId: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  score: number;
+  passed: boolean;
+  examTitle: string;
+  questionResults: QuestionResult[];
+}
+
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -95,6 +120,13 @@ const Users: React.FC = () => {
   const [completionDetails, setCompletionDetails] = useState<{[key: number]: CompletionDetail[]}>({});
   const [expandedUsers, setExpandedUsers] = useState<{[key: number]: boolean}>({});
   const [loadingCompletions, setLoadingCompletions] = useState<boolean>(false);
+  
+  // 시험 결과 관련 상태
+  const [userExamResults, setUserExamResults] = useState<{[key: number]: ExamResultResponse[]}>({});
+  const [expandedExamResults, setExpandedExamResults] = useState<{[key: string]: boolean}>({});
+  const [examResultDialogOpen, setExamResultDialogOpen] = useState(false);
+  const [selectedExamResult, setSelectedExamResult] = useState<ExamResultResponse | null>(null);
+  const [loadingExamResults, setLoadingExamResults] = useState<boolean>(false);
 
   const fetchUsers = async () => {
     try {
@@ -141,6 +173,30 @@ const Users: React.FC = () => {
     }
   };
   
+  const fetchUserExamResults = async (userId: number) => {
+    // 이미 로드되었으면 다시 로드하지 않음
+    if (userExamResults[userId] && userExamResults[userId].length > 0) {
+      return;
+    }
+    
+    try {
+      setLoadingExamResults(true);
+      const token = localStorage.getItem('token');
+      const response = await api.get(`/exams/results/user/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setUserExamResults(prev => ({
+        ...prev,
+        [userId]: response.data
+      }));
+    } catch (error) {
+      console.error(`사용자 ID ${userId}의 시험 결과를 불러오는데 실패했습니다.`, error);
+    } finally {
+      setLoadingExamResults(false);
+    }
+  };
+  
   const toggleUserExpand = (userId: number) => {
     // 접기/펼치기 토글
     setExpandedUsers(prev => {
@@ -155,6 +211,18 @@ const Users: React.FC = () => {
     });
   };
 
+  const toggleExamResultExpand = (resultId: string) => {
+    setExpandedExamResults(prev => ({
+      ...prev,
+      [resultId]: !prev[resultId]
+    }));
+  };
+
+  const openExamResultDetail = (result: ExamResultResponse) => {
+    setSelectedExamResult(result);
+    setExamResultDialogOpen(true);
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -162,6 +230,8 @@ const Users: React.FC = () => {
   useEffect(() => {
     if (tabValue === 1) {
       fetchCompletionSummary();
+    } else if (tabValue === 2) {
+      fetchUsers();
     }
   }, [tabValue]);
 
@@ -381,6 +451,114 @@ const Users: React.FC = () => {
     </Card>
   );
 
+  const renderExamResults = () => (
+    <Card className="admin-card">
+      <CardHeader
+        title="사용자 시험 결과"
+        action={
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={fetchUsers}
+            className="admin-button admin-button-primary"
+          >
+            새로고침
+          </Button>
+        }
+      />
+      <CardContent>
+        {users.length === 0 ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+            <Typography>등록된 사용자가 없습니다.</Typography>
+          </Box>
+        ) : (
+          <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+            {users.map((user) => (
+              <React.Fragment key={user.id}>
+                <ListItem
+                  onClick={() => {
+                    fetchUserExamResults(user.id);
+                    toggleUserExpand(user.id);
+                  }}
+                >
+                  <ListItemText
+                    primary={
+                      <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+                        <PersonIcon sx={{ mr: 1, fontSize: 20 }} />
+                        <Typography component="span" variant="subtitle1">
+                          {user.name} ({user.username})
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                  {expandedUsers[user.id] ? <ExpandLess /> : <ExpandMore />}
+                </ListItem>
+                
+                <Collapse in={expandedUsers[user.id]} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding sx={{ bgcolor: 'background.paper' }}>
+                    {loadingExamResults ? (
+                      <ListItem sx={{ pl: 4 }}>
+                        <ListItemText primary="시험 결과를 불러오는 중..." />
+                      </ListItem>
+                    ) : !userExamResults[user.id] ? (
+                      <ListItem sx={{ pl: 4 }}>
+                        <ListItemText primary="시험 결과를 불러오는 중..." />
+                      </ListItem>
+                    ) : userExamResults[user.id].length === 0 ? (
+                      <ListItem sx={{ pl: 4 }}>
+                        <ListItemText primary="시험 결과가 없습니다." />
+                      </ListItem>
+                    ) : (
+                      userExamResults[user.id].map((result) => (
+                        <React.Fragment key={`exam-${result.id}`}>
+                          <ListItem 
+                            sx={{ pl: 4 }}
+                            onClick={() => openExamResultDetail(result)}
+                          >
+                            <AssignmentIcon sx={{ mr: 2, color: result.passed ? 'success.main' : 'error.main' }} />
+                            <ListItemText
+                              primary={
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <Typography variant="body2">
+                                    {result.examTitle}
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Chip 
+                                      label={`${result.score}점`} 
+                                      size="small" 
+                                      color={result.passed ? "success" : "error"}
+                                      sx={{ mr: 1 }}
+                                    />
+                                    <Chip 
+                                      icon={result.passed ? <CheckCircleIcon /> : <CancelIcon />} 
+                                      label={result.passed ? "합격" : "불합격"} 
+                                      size="small" 
+                                      color={result.passed ? "success" : "error"}
+                                    />
+                                  </Box>
+                                </Box>
+                              }
+                              secondary={
+                                <Typography variant="caption" color="text.secondary">
+                                  맞은 문제: {result.correctAnswers} / {result.totalQuestions}
+                                </Typography>
+                              }
+                            />
+                          </ListItem>
+                          <Divider component="li" variant="inset" />
+                        </React.Fragment>
+                      ))
+                    )}
+                  </List>
+                </Collapse>
+              </React.Fragment>
+            ))}
+          </List>
+        )}
+      </CardContent>
+    </Card>
+  );
+
   return (
     <Box className="admin-container">
       <Box className="admin-header">
@@ -396,69 +574,147 @@ const Users: React.FC = () => {
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="사용자 관리 탭">
           <Tab label="사용자 목록" />
           <Tab label="이수 현황" />
+          <Tab label="시험 결과" />
         </Tabs>
       </Box>
       
-      {tabValue === 0 ? renderUserManagement() : renderCompletionManagement()}
+      {tabValue === 0 && renderUserManagement()}
+      {tabValue === 1 && renderCompletionManagement()}
+      {tabValue === 2 && renderExamResults()}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle className="admin-modal-title">{isEdit ? '사용자 수정' : '새 사용자 추가'}</DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="사용자명"
-                value={userForm.username}
-                onChange={(e) => setUserForm({ ...userForm, username: e.target.value })}
-                className="admin-form-field"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="비밀번호"
-                type="password"
-                value={userForm.password}
-                onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                className="admin-form-field"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="이름"
-                value={userForm.name}
-                onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-                className="admin-form-field"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="이메일"
-                value={userForm.email}
-                onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                className="admin-form-field"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="생년월일"
-                value={userForm.birthDate}
-                onChange={(e) => setUserForm({ ...userForm, birthDate: e.target.value })}
-                className="admin-form-field"
-                placeholder="YYYY-MM-DD"
-              />
-            </Grid>
-          </Grid>
+          <Box sx={{ mt: 1 }}>
+            <TextField
+              fullWidth
+              label="사용자명"
+              value={userForm.username}
+              onChange={(e) => setUserForm({ ...userForm, username: e.target.value })}
+              className="admin-form-field"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="비밀번호"
+              type="password"
+              value={userForm.password}
+              onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+              className="admin-form-field"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="이름"
+              value={userForm.name}
+              onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+              className="admin-form-field"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="이메일"
+              value={userForm.email}
+              onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+              className="admin-form-field"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="생년월일"
+              value={userForm.birthDate}
+              onChange={(e) => setUserForm({ ...userForm, birthDate: e.target.value })}
+              className="admin-form-field"
+              placeholder="YYYY-MM-DD"
+            />
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)} className="admin-button admin-button-secondary">취소</Button>
           <Button onClick={handleSubmit} variant="contained" color="primary" className="admin-button admin-button-primary">
             확인
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog 
+        open={examResultDialogOpen} 
+        onClose={() => setExamResultDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle className="admin-modal-title">
+          시험 결과 상세 정보
+          {selectedExamResult && (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="subtitle1">
+                {selectedExamResult.examTitle}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                <Chip 
+                  label={`${selectedExamResult.score}점`} 
+                  color={selectedExamResult.passed ? "success" : "error"}
+                  sx={{ mr: 1 }}
+                />
+                <Chip 
+                  icon={selectedExamResult.passed ? <CheckCircleIcon /> : <CancelIcon />} 
+                  label={selectedExamResult.passed ? "합격" : "불합격"} 
+                  color={selectedExamResult.passed ? "success" : "error"}
+                />
+                <Typography variant="body2" sx={{ ml: 2 }}>
+                  맞은 문제: {selectedExamResult?.correctAnswers} / {selectedExamResult?.totalQuestions}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        </DialogTitle>
+        <DialogContent dividers>
+          {selectedExamResult && selectedExamResult.questionResults && (
+            <List>
+              {selectedExamResult.questionResults.map((qResult, idx) => (
+                <React.Fragment key={`q-${qResult.questionId}`}>
+                  <ListItem alignItems="flex-start">
+                    <Box sx={{ width: '100%' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mr: 1 }}>
+                          문제 {idx + 1}:
+                        </Typography>
+                        <Typography variant="subtitle1">{qResult.question}</Typography>
+                        {qResult.isCorrect ? (
+                          <CheckCircleIcon color="success" sx={{ ml: 1 }} />
+                        ) : (
+                          <CancelIcon color="error" sx={{ ml: 1 }} />
+                        )}
+                      </Box>
+                      
+                      <Box sx={{ mb: 1 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>정답:</Typography>
+                        <Alert severity="success" sx={{ mt: 0.5 }}>
+                          {qResult.correctAnswer}
+                        </Alert>
+                      </Box>
+                      
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                          사용자 답변:
+                        </Typography>
+                        <Alert 
+                          severity={qResult.isCorrect ? "success" : "error"} 
+                          sx={{ mt: 0.5 }}
+                        >
+                          {qResult.userAnswer || '(답변 없음)'}
+                        </Alert>
+                      </Box>
+                    </Box>
+                  </ListItem>
+                  {idx < selectedExamResult.questionResults.length - 1 && <Divider component="li" />}
+                </React.Fragment>
+              ))}
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setExamResultDialogOpen(false)}>닫기</Button>
         </DialogActions>
       </Dialog>
     </Box>

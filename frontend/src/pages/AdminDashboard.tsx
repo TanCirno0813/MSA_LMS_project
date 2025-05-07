@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Typography,  Container, Box, } from '@mui/material';
 import { Dashboard as DashboardIcon, PersonOutline as PersonIcon, 
-         VideoLibrary as LectureIcon } from '@mui/icons-material';
+         VideoLibrary as LectureIcon, School as SchoolIcon } from '@mui/icons-material';
 import '../styles/admin.css';
 
 const AdminDashboard = () => {
@@ -22,11 +22,18 @@ const AdminDashboard = () => {
                             사용자 관리
                         </Link>
                     </li>
+                    <li className={`admin-sidebar-item ${location.pathname.includes('/admin/enrollments') ? 'active' : ''}`}>
+                        <Link to="/admin/enrollments" className="admin-sidebar-link">
+                            <SchoolIcon />
+                            수강 신청 관리
+                        </Link>
+                    </li>
                     <li className={`admin-sidebar-item ${location.pathname.includes('/admin/lectures') ? 'active' : ''}`}>
                         <Link to="/admin/lectures" className="admin-sidebar-link">
                             <LectureIcon />
                             강의 관리
                         </Link>
+
                     </li>
                 </ul>
             </div>

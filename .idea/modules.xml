@@ -3,7 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/admin-service/MSA_LMS_project.admin-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/admin-service/MSA_LMS_project.admin-service.main.iml" />
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat-service/MSA_LMS_project.chat-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/chat-service/MSA_LMS_project.chat-service.main.iml" />
+=======
+>>>>>>> f940107112cd48c47d979a53cdde8052e2798a9b
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/eureka-server/MSA_LMS_project.eureka-server.main.iml" filepath="$PROJECT_DIR$/.idea/modules/eureka-server/MSA_LMS_project.eureka-server.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/exam-service/MSA_LMS_project.exam-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/exam-service/MSA_LMS_project.exam-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gateway/MSA_LMS_project.gateway.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gateway/MSA_LMS_project.gateway.main.iml" />
