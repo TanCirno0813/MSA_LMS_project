@@ -19,7 +19,10 @@ public class CompletionHistory {
     private String contentTitle;
     private LocalDate completedAt;
 
-    // ✅ 추가: 영상 시청 시간 및 전체 길이 (초 단위)
     private Long watchedTime;
     private Long totalDuration;
+    private Long resumeTime;
+
+    @Column(nullable = false)
+    private Boolean isCompleted = false; // ✅ 90% 이상 시 true
 }

@@ -48,6 +48,33 @@ const VideoPage: React.FC = () => {
     }, [lectureId, videoId]);
 
     useEffect(() => {
+        const fetchResumeTime = async () => {
+            const accessToken = localStorage.getItem("token");
+            if (!lectureId || !currentContent || !accessToken) return;
+
+            try {
+                const res = await axios.get("/api/completions/resume", {
+                    params: {
+                        lectureId: Number(lectureId),
+                        contentTitle: currentContent.title
+                    },
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+
+                if (res.data?.resumeTime > 0) {
+                    resumeTimeRef.current = res.data.resumeTime;
+                }
+            } catch (err) {
+                console.log("📭 이어보기 기록 없음 (resumeTime 없음)");
+            }
+        };
+
+        fetchResumeTime();
+    }, [lectureId, currentContent]);
+
+    useEffect(() => {
         const loadYouTubeAPI = () => {
             const tag = document.createElement('script');
             tag.src = 'https://www.youtube.com/iframe_api';
@@ -95,12 +122,12 @@ const VideoPage: React.FC = () => {
 
                 if (duration > 0) {
                     const accessToken = localStorage.getItem("token");
-                    localStorage.setItem(`resume_${username}_${lectureId}_${currentContent.title}`, currentTime.toString());
 
                     axios.post("/api/completions", {
                         lectureId: Number(lectureId),
                         watchedTime: Math.floor(currentTime),
                         totalDuration: Math.floor(duration),
+                        resumeTime: Math.floor(currentTime),
                         contentTitle: currentContent.title
                     }, {
                         headers: {
@@ -118,15 +145,6 @@ const VideoPage: React.FC = () => {
         return () => clearInterval(intervalId);
     }, [lectureId, currentContent, username]);
 
-    useEffect(() => {
-        if (lectureId && currentContent && username) {
-            const saved = localStorage.getItem(`resume_${username}_${lectureId}_${currentContent.title}`);
-            if (saved) {
-                resumeTimeRef.current = parseFloat(saved);
-            }
-        }
-    }, [lectureId, currentContent, username]);
-
     const registerCompletion = (content: Content | null, duration: number) => {
         const accessToken = localStorage.getItem("token");
         if (accessToken && lectureId && content) {
@@ -134,6 +152,7 @@ const VideoPage: React.FC = () => {
                 lectureId: Number(lectureId),
                 watchedTime: Math.floor(duration),
                 totalDuration: Math.floor(duration),
+                resumeTime: Math.floor(duration),
                 contentTitle: content.title
             }, {
                 headers: {

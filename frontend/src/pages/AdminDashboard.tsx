@@ -1,7 +1,10 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Typography,  Container, Box, } from '@mui/material';
-import { Dashboard as DashboardIcon, PersonOutline as PersonIcon, 
-         VideoLibrary as LectureIcon } from '@mui/icons-material';
+import { Typography, Container, Box } from '@mui/material';
+import {
+    Dashboard as DashboardIcon,
+    PersonOutline as PersonIcon,
+    VideoLibrary as LectureIcon
+} from '@mui/icons-material';
 import '../styles/admin.css';
 
 const AdminDashboard = () => {
@@ -15,7 +18,6 @@ const AdminDashboard = () => {
                     관리자 대시보드
                 </Typography>
                 <ul className="admin-sidebar-menu">
-                   
                     <li className={`admin-sidebar-item ${location.pathname.includes('/admin/users') ? 'active' : ''}`}>
                         <Link to="/admin/users" className="admin-sidebar-link">
                             <PersonIcon />
@@ -28,6 +30,7 @@ const AdminDashboard = () => {
                             강의 관리
                         </Link>
                     </li>
+
                 </ul>
             </div>
 
@@ -43,7 +46,6 @@ const AdminDashboard = () => {
                                 사이트 통계 및 관리 현황을 한눈에 확인하세요.
                             </Typography>
                         </Box>
-
                     </Container>
                 ) : (
                     <Outlet />

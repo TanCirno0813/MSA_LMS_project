@@ -47,20 +47,53 @@ public class CompletionController {
         CompletionHistory history;
         if (existing.isPresent()) {
             history = existing.get();
-            history.setWatchedTime(request.getWatchedTime());
-            history.setTotalDuration(request.getTotalDuration());
-            history.setCompletedAt(LocalDate.now()); // 마지막 갱신일자도 업데이트
         } else {
             history = new CompletionHistory();
             history.setUserId(userId);
             history.setLectureId(request.getLectureId());
             history.setContentTitle(request.getContentTitle());
-            history.setWatchedTime(request.getWatchedTime());
-            history.setTotalDuration(request.getTotalDuration());
-            history.setCompletedAt(LocalDate.now());
         }
 
+        history.setWatchedTime(request.getWatchedTime());
+        history.setTotalDuration(request.getTotalDuration());
+        history.setResumeTime(request.getResumeTime());
+        history.setCompletedAt(LocalDate.now());
+
+        // ✅ 99% 이상 시 isCompleted true 처리
+        boolean isCompleted = false;
+        if (request.getTotalDuration() != null && request.getTotalDuration() > 0) {
+            double ratio = (double) request.getWatchedTime() / request.getTotalDuration();
+            isCompleted = ratio >= 0.99;
+        }
+        history.setIsCompleted(isCompleted);
+
         return completionRepository.save(history);
+    }
+
+    /**
+     * ✅ [GET] 이어보기 시간 조회
+     */
+    @GetMapping("/resume")
+    public ResponseEntity<Map<String, Object>> getResumeTime(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam Long lectureId,
+            @RequestParam String contentTitle) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        String username = jwtUtil.extractUsername(token);
+        Long userId = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getId();
+
+        Optional<CompletionHistory> optional = completionRepository
+                .findByUserIdAndLectureIdAndContentTitle(userId, lectureId, contentTitle);
+
+        if (optional.isPresent()) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("resumeTime", optional.get().getResumeTime());
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**
@@ -86,17 +119,17 @@ public class CompletionController {
             response.put("completedAt", completion.getCompletedAt());
             response.put("watchedTime", completion.getWatchedTime());
             response.put("totalDuration", completion.getTotalDuration());
+            response.put("isCompleted", completion.getIsCompleted());
 
             if (!lectureTitleCache.containsKey(completion.getLectureId())) {
                 try {
                     String lectureServiceUrl = "http://localhost:9696/api/lectures/" + completion.getLectureId();
                     ResponseEntity<Map> res = restTemplate.getForEntity(lectureServiceUrl, Map.class);
                     Map<String, Object> lectureInfo = res.getBody();
-                    if (lectureInfo != null && lectureInfo.containsKey("title")) {
-                        lectureTitleCache.put(completion.getLectureId(), (String) lectureInfo.get("title"));
-                    } else {
-                        lectureTitleCache.put(completion.getLectureId(), "강의 " + completion.getLectureId());
-                    }
+                    lectureTitleCache.put(completion.getLectureId(),
+                            (lectureInfo != null && lectureInfo.containsKey("title"))
+                                    ? (String) lectureInfo.get("title")
+                                    : "강의 " + completion.getLectureId());
                 } catch (Exception e) {
                     lectureTitleCache.put(completion.getLectureId(), "강의 " + completion.getLectureId());
                 }
@@ -106,8 +139,6 @@ public class CompletionController {
             return response;
         }).collect(Collectors.toList());
     }
-
-    // 나머지 관리자용 조회 API 그대로 유지 ----------------------
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUserCompletions(
@@ -140,17 +171,17 @@ public class CompletionController {
             response.put("completedAt", completion.getCompletedAt());
             response.put("watchedTime", completion.getWatchedTime());
             response.put("totalDuration", completion.getTotalDuration());
+            response.put("isCompleted", completion.getIsCompleted());
 
             if (!lectureTitleCache.containsKey(completion.getLectureId())) {
                 try {
                     String lectureServiceUrl = "http://localhost:9696/api/lectures/" + completion.getLectureId();
                     ResponseEntity<Map> res = restTemplate.getForEntity(lectureServiceUrl, Map.class);
                     Map<String, Object> lectureInfo = res.getBody();
-                    if (lectureInfo != null && lectureInfo.containsKey("title")) {
-                        lectureTitleCache.put(completion.getLectureId(), (String) lectureInfo.get("title"));
-                    } else {
-                        lectureTitleCache.put(completion.getLectureId(), "강의 " + completion.getLectureId());
-                    }
+                    lectureTitleCache.put(completion.getLectureId(),
+                            (lectureInfo != null && lectureInfo.containsKey("title"))
+                                    ? (String) lectureInfo.get("title")
+                                    : "강의 " + completion.getLectureId());
                 } catch (Exception e) {
                     lectureTitleCache.put(completion.getLectureId(), "강의 " + completion.getLectureId());
                 }
@@ -203,6 +234,7 @@ public class CompletionController {
                     latestInfo.put("completedAt", latest.getCompletedAt());
                     latestInfo.put("watchedTime", latest.getWatchedTime());
                     latestInfo.put("totalDuration", latest.getTotalDuration());
+                    latestInfo.put("isCompleted", latest.getIsCompleted());
 
                     Long lectureId = latest.getLectureId();
                     if (!lectureTitleCache.containsKey(lectureId)) {
@@ -213,8 +245,7 @@ public class CompletionController {
                             lectureTitleCache.put(lectureId,
                                     (lectureInfo != null && lectureInfo.containsKey("title"))
                                             ? (String) lectureInfo.get("title")
-                                            : "강의 " + lectureId
-                            );
+                                            : "강의 " + lectureId);
                         } catch (Exception e) {
                             lectureTitleCache.put(lectureId, "강의 " + lectureId);
                         }

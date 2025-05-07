@@ -25,6 +25,7 @@ import ContentManagement from './pages/ContentManagement';
 import LectureManagement from './pages/LectureManagement';
 import ReviewList from './pages/ReviewList.tsx';
 
+
 const App: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
     const [role, setRole] = useState<string | null>(null);
@@ -88,6 +89,7 @@ const App: React.FC = () => {
                 <Route path="/lectures/:lectureId/video/:videoId" element={<VideoPage />} />
                 <Route path="/result" element={<ResultReportPage />} />
                 <Route path="/admin" element={<AdminDashboard />}>
+
                     <Route path="users" element={<Users />} />
                     <Route path="lectures" element={<LectureAdminPage />} />
                 </Route>
