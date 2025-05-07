@@ -165,4 +165,11 @@ public class ExamService {
             throw new RuntimeException("답안 파싱 오류", e);
         }
     }
+
+    public List<ExamResultResponse> getResultsByUser(Long userId) {
+        List<ExamResult> results = examResultRepository.findByUserId(userId);
+        return results.stream()
+                .map(r -> new ExamResultResponse(r.getExam().getTitle(), r.getScore()))
+                .collect(Collectors.toList());
+    }
 }

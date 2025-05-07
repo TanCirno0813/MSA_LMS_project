@@ -60,7 +60,6 @@ spring:
           predicates:
           - Path=/api/chat/**
 
-
 coolsms:
   api:
     key: NCSZ1KJRQ5SEN11M

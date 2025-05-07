@@ -62,15 +62,47 @@ cd <service>
 
 ## 서비스별 역할
 
-- **eureka-server**: 서비스 디스커버리
-- **gateway**: API Gateway, 인증/라우팅
-- **admin-service**: 관리자 기능
-- **lecture-service**: 강의 관리
-- **exam-service**: 시험 관리
-- **review-service**: 리뷰 관리
-- **notice-service**: 공지사항 관리
-- **chat-service**: 실시간 채팅 (REST API 기반)
-- **frontend**: 사용자 웹 프론트엔드
+### 1. 인프라 서비스
+#### eureka-server
+- 서비스 디스커버리 서버
+- 마이크로서비스 등록 및 관리
+
+#### gateway
+- API 게이트웨이 역할
+- 사용자 인증/인가 처리
+- 사용자 관리 (회원가입/로그인/정보수정)
+- 학습 진도 관리 (CompletionHistory)
+
+### 2. 핵심 서비스
+#### lecture-service
+- 강의 CRUD
+- 강의 콘텐츠 관리
+- 강의별 Q&A 게시판 운영
+  - 질문 등록/조회
+  - 답변 등록/수정
+  - 질문 삭제
+
+#### exam-service
+- 시험 문제 관리
+- 시험 결과 처리 및 채점
+- 시험 성적 조회
+
+#### chat-service
+- REST API 기반 채팅
+- 사용자별 메시지 이력 관리
+- AI 응답 처리
+
+#### notice-service
+- 공지사항 CRUD
+- 시간순 정렬 조회
+
+#### review-service
+- 강의 리뷰 조회
+
+#### admin-service
+- 강의 관리
+- 콘텐츠 관리
+- 시험 관리
 
 ## 주요 API 명세
 
@@ -112,5 +144,3 @@ cd <service>
 - `PUT /api/users/{id}` : 사용자 정보 수정
 - `DELETE /api/users/{id}` : 사용자 삭제
 - `GET /api/users/me` : 현재 로그인한 사용자 정보 조회
-
-## 폴더 구조

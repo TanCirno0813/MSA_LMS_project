@@ -19,4 +19,7 @@ public class ExamResultResponse {
     private boolean passed;
     private String examTitle;
     private List<QuestionResult> questionResults;
+
+    public ExamResultResponse(String title, Integer score) {
+    }
 }

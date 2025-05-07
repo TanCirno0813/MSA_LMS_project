@@ -2,6 +2,7 @@ package edu.ct.controller;
 
 import edu.ct.dto.ContentDto;
 import edu.ct.dto.LectureDetailDto;
+import edu.ct.dto.LectureDto;
 import edu.ct.dto.LectureListDto;
 import edu.ct.entity.Lecture;
 import edu.ct.repository.LectureRepository;
@@ -144,5 +145,10 @@ public class LectureController {
                     return ResponseEntity.ok().<Void>build();
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<LectureDto> getLecturesByUser(@PathVariable Long userId) {
+        return lectureService.getLecturesByUser(userId);
     }
 }

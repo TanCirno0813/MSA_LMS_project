@@ -18,7 +18,7 @@ import java.util.UUID;
 public class ChatMessage {
     @Id
     private String id = UUID.randomUUID().toString();
-    private String userId;
+    private int userId;
     private String message;
     private LocalDateTime timestamp;
 }

@@ -16,4 +16,6 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
         )
         """, nativeQuery = true)
     List<ExamResult> findLatestResults();
+
+    List<ExamResult> findByUserId(Long userId);
 }

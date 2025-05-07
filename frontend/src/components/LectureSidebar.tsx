@@ -8,9 +8,8 @@ interface LectureSidebarProps {
     onSectionChange: (section: string) => void;
 }
 
-const LectureSidebar: React.FC<LectureSidebarProps> = ({ 
-    lectureId, 
-    notices, 
+const LectureSidebar: React.FC<LectureSidebarProps> = ({
+    notices,
     activeSection, 
     onSectionChange 
 }) => {

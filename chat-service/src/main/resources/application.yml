@@ -4,15 +4,15 @@ server:
 spring:
   application:
     name: chat-service
-#  datasource:
-#    url: jdbc:mysql://localhost:3309/lms?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    username: user
-#    password: user123
+  datasource:
+    url: jdbc:mysql://localhost:3309/lms?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: user
+    password: user123
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
   data:
     redis:
       host: localhost
@@ -32,4 +32,8 @@ eureka:
 logging:
   level:
     org.springframework.web.client.RestTemplate: DEBUG
-    edu.ct.admin: DEBUG 
+    edu.ct.admin: DEBUG
+
+
+openai:
+  api-key: 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
