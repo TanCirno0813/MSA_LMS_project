@@ -24,16 +24,9 @@ import LectureAdminPage from "./pages/LectureManagement.tsx"
 import ContentManagement from './pages/ContentManagement';
 import LectureManagement from './pages/LectureManagement';
 import ReviewList from './pages/ReviewList.tsx';
-<<<<<<< HEAD
 import ChatWidget from "./components/chat/ChatWidget.tsx"
 import EnrollmentManagement from './pages/EnrollmentManagement';
-=======
 
-import ChatWidget from "./components/chat/ChatWidget.tsx"
-
-import EnrollmentManagement from './pages/EnrollmentManagement';
-
->>>>>>> 80b8a60af78609ef50fb84e107b3735f0206f003
 
 const App: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
@@ -71,11 +64,7 @@ const App: React.FC = () => {
         setUsername(u);
         setRole(r);
         setUserId(i)
-<<<<<<< HEAD
-=======
 
->>>>>>> 80b8a60af78609ef50fb84e107b3735f0206f003
-        // 로그인 시 auth-change 이벤트 발생
         window.dispatchEvent(new Event('auth-change'));
     };
 
