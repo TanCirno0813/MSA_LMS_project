@@ -15,7 +15,6 @@ import java.util.Map;
 public class AiClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${openai.api-key}")
     private String apiKey;
@@ -23,8 +22,11 @@ public class AiClient {
     private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
     public String ask(String userMessage) {
+        // 🌟 API 키 확인 로그
+        System.out.println("API Key: " + (apiKey != null ? "Present" : "Missing"));
+
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(apiKey);
+        headers.setBearerAuth(apiKey);  // ✅ Bearer 토큰 설정 확인
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> body = Map.of(
@@ -36,10 +38,23 @@ public class AiClient {
         );
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-        ResponseEntity<Map> response = restTemplate.postForEntity(OPENAI_URL, entity, Map.class);
 
-        List<Map> choices = (List<Map>) response.getBody().get("choices");
-        Map message = (Map) choices.get(0).get("message");
-        return (String) message.get("content");
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(OPENAI_URL, entity, Map.class);
+            System.out.println("Response Status: " + response.getStatusCode());
+            System.out.println("Response Body: " + response.getBody());
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                List<Map> choices = (List<Map>) response.getBody().get("choices");
+                Map message = (Map) choices.get(0).get("message");
+                return (String) message.get("content");
+            } else {
+                return "AI 응답 오류: " + response.getStatusCode();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "OpenAI API 호출 오류: " + e.getMessage();
+        }
     }
 }
+

@@ -31,6 +31,7 @@ public class ChatService {
     private static final int MAX_MESSAGES = 50;
 
     public List<ChatMessageDto> getRecentMessages(String userId) {
+        if (userId == null) return List.of(); // 사용자 ID 없으면 메시지 없음
         return redisTemplate.opsForList().range(redisKey(userId), 0, MAX_MESSAGES - 1)
                 .stream()
                 .map(json -> {
@@ -45,19 +46,24 @@ public class ChatService {
     }
 
     public void saveMessageWithAiResponse(String userId, ChatMessageDto dto) {
-        if (isFirstMessage(userId)) {
+        if (userId != null && isFirstMessage(userId)) {
             pushToRedis(userId, createMessage("무엇을 도와드릴까요?", Sender.AI));
         }
 
-        pushToRedis(userId, createMessage(dto.getMessage(), Sender.USER));
+        if (userId != null) {
+            pushToRedis(userId, createMessage(dto.getMessage(), Sender.USER));
+        }
 
-        List<LectureDto> lectures = lectureClient.getLecturesByUser(Long.parseLong(userId));
-        List<ExamResultDto> results = examClient.getResultsByUser(Long.parseLong(userId));
+        List<LectureDto> lectures = lectureClient.getAllLectures();
 
-        String prompt = promptBuilder.build(dto.getMessage(), lectures, results);
+        String prompt = promptBuilder.build(dto.getMessage(), lectures);
         String aiReply = aiClient.ask(prompt);
-        pushToRedis(userId, createMessage(aiReply, Sender.AI));
+
+        if (userId != null) {
+            pushToRedis(userId, createMessage(aiReply, Sender.AI));
+        }
     }
+
 
     private boolean isFirstMessage(String userId) {
         Long size = redisTemplate.opsForList().size(redisKey(userId));
@@ -80,5 +86,26 @@ public class ChatService {
 
     private String redisKey(String userId) {
         return "chat:" + userId;
+    }
+
+    // ❗ userId가 없으면 전체 강의 추천
+    private List<LectureDto> getLectures(String userId) {
+        try {
+            return userId != null
+                    ? lectureClient.getLecturesByUser(Long.parseLong(userId))
+                    : lectureClient.getAllLectures();  // 새로운 API 만들어야 함
+        } catch (Exception e) {
+            return List.of();  // 장애 대비
+        }
+    }
+
+    private List<ExamResultDto> getExamResults(String userId) {
+        try {
+            return userId != null
+                    ? examClient.getResultsByUser(Long.parseLong(userId))
+                    : List.of();
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 }
