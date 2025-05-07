@@ -1,8 +1,10 @@
 package edu.ct.admin.config;
 
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
@@ -18,17 +20,17 @@ public class RestTemplateConfig {
     
     @Bean
     public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        
-        // 최대 중첩 깊이 제한 늘리기
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule()); // ✅ Java 8 날짜 지원 추가
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         StreamReadConstraints streamReadConstraints = StreamReadConstraints.builder()
-                .maxNestingDepth(10000)  // 기본값(1000)에서 10000으로 증가
+                .maxNestingDepth(10000)
                 .build();
-        mapper.getFactory().setStreamReadConstraints(streamReadConstraints);
-        
-        return mapper;
+        objectMapper.getFactory().setStreamReadConstraints(streamReadConstraints);
+
+        return objectMapper;
     }
     
     @Bean

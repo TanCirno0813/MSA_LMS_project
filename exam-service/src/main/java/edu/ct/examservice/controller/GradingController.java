@@ -22,5 +22,25 @@ public class GradingController {
         List<ExamResultResponse> responses = gradingService.gradeAll(requests);
         return ResponseEntity.ok(responses);
     }
+
+    @GetMapping("/results/latest")
+    public ResponseEntity<List<ExamResultResponse>> getLatestResults() {
+        List<ExamResult> latest = gradingService.getLatestResults(); // 🔄 서비스 추가
+        List<ExamResultResponse> response = latest.stream()
+                .map(gradingService::toResponse) // 🔄 ExamResult → ExamResultResponse로 변환
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/results/user/{userId}")
+    public ResponseEntity<List<ExamResultResponse>> getUserResults(@PathVariable Long userId) {
+        List<ExamResult> userResults = gradingService.getUserResults(userId);
+        List<ExamResultResponse> response = userResults.stream()
+                .map(gradingService::toResponse)
+                .toList();
+                
+        return ResponseEntity.ok(response);
+    }
 }
 

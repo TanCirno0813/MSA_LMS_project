@@ -44,6 +44,7 @@ const LectureDetail: React.FC = () => {
     const [qnas, setQnas] = useState<LectureQna[]>([]);
     const [reviews, setReviews] = useState<LectureReview[]>([]);
     const [resources,setResources] = useState<Resource[]>([]);
+    const [enrollmentStatus, setEnrollmentStatus] = useState<string | null>(null);
 
     const [activeSection, setActiveSection] = useState<string>('contents');
     const [newNotice, setNewNotice] = useState<NewNotice>({ title: '', content: '' });
@@ -83,6 +84,19 @@ const LectureDetail: React.FC = () => {
                     loadReviews(lectureData.id),
                     loadResources(lectureData.id)
                 ]);
+
+                // 로그인한 사용자인 경우 수강 신청 상태 확인
+                if (isLoggedIn()) {
+                    try {
+                        const response = await fetch(`/api/lectures/${lectureData.id}/enrollments/status?userId=${getCurrentUser()}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            setEnrollmentStatus(data.status);
+                        }
+                    } catch (error) {
+                        console.error('수강 신청 상태 확인 실패', error);
+                    }
+                }
             } catch (error) {
                 alert('강의 정보를 불러오지 못했습니다.');
                 console.error(error);
@@ -489,6 +503,50 @@ const LectureDetail: React.FC = () => {
     return (
         <div className="lecture-container">
             <div className="lecture-header">
+                {isLoggedIn() && (
+                    <>
+                        {(enrollmentStatus === null || enrollmentStatus === 'NONE') && (
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        const response = await fetch(`/api/lectures/${lecture.id}/enrollments`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify({
+                                                userId: getCurrentUser(),
+                                            }),
+                                        });
+
+                                        if (!response.ok) {
+                                            const errorData = await response.json();
+                                            throw new Error(errorData.message || '신청 실패');
+                                        }
+
+                                        alert('수강 신청이 완료되었습니다!');
+                                        setEnrollmentStatus('PENDING');
+                                    } catch (error) {
+                                        alert('수강 신청 중 오류가 발생했습니다.');
+                                        console.error(error);
+                                    }
+                                }}
+                                className="lecture-enroll-btn"
+                            >
+                                수강 신청하기
+                            </button>
+                        )}
+                        {enrollmentStatus === 'PENDING' && (
+                            <div className="enrollment-status pending">신청 대기 중</div>
+                        )}
+                        {enrollmentStatus === 'APPROVED' && (
+                            <div className="enrollment-status approved">수강 승인됨</div>
+                        )}
+                        {enrollmentStatus === 'REJECTED' && (
+                            <div className="enrollment-status rejected">신청 거절됨</div>
+                        )}
+                    </>
+                )}
                 <h1 className="lecture-title">{lecture.title}</h1>
                 <div className="lecture-author-container">
                     <span className="lecture-author-badge">강사</span>

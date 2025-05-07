@@ -7,13 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
-    @Query(value = """
-        SELECT * FROM exam_result r
-        WHERE r.id IN (
-            SELECT MAX(id)
-            FROM exam_result
-            GROUP BY user_id, exam_id
-        )
-        """, nativeQuery = true)
+    @Query("SELECT er FROM ExamResult er ORDER BY er.submittedAt DESC")
     List<ExamResult> findLatestResults();
+    
+    List<ExamResult> findByUserId(Long userId);
 }
