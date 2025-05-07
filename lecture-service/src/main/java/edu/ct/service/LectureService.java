@@ -28,5 +28,18 @@ public class LectureService {
                 .collect(Collectors.toList());
     }
 
+    public List<LectureDto> getAllLectures() {
+        return lectureRepository.findAll().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
 
+    private LectureDto toDto(Lecture lecture) {
+        return LectureDto.builder()
+                .id(lecture.getId())
+                .title(lecture.getTitle())
+                .category(lecture.getCategory())
+                .thumbnail(lecture.getThumbnail())
+                .build();
+    }
 }

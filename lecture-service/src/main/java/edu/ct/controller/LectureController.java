@@ -151,4 +151,9 @@ public class LectureController {
     public List<LectureDto> getLecturesByUser(@PathVariable Long userId) {
         return lectureService.getLecturesByUser(userId);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<LectureDto>> getAllLectures() {
+        return ResponseEntity.ok(lectureService.getAllLectures());
+    }
 }
