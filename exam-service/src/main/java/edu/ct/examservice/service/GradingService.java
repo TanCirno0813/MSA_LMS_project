@@ -123,15 +123,82 @@ public class GradingService {
     }
 
     public ExamResultResponse toResponse(ExamResult result) {
+        // exam ID와 question ID 정보로 원래 문제 정보를 가져옴
+        Exam exam = examRepository.findById(result.getExam().getId())
+                .orElseThrow(() -> new RuntimeException("시험 정보를 찾을 수 없습니다."));
+        
+        String questionsJson = exam.getQuestion();
+        String answersJson = result.getAnswers();
+        
+        JSONArray questions = new JSONArray(questionsJson);
+        JSONObject answers = new JSONObject(answersJson);
+        
+        List<QuestionResult> questionResults = new ArrayList<>();
+        String examIdStr = String.valueOf(result.getExam().getId());
+        
+        // 여기에 전체 정답 수를 기록
+        int correctCount = 0;
+
+        for (int i = 0; i < questions.length(); i++) {
+            JSONObject q = questions.getJSONObject(i);
+            String type = q.getString("type");
+            int questionId = q.getInt("id");
+            String key = examIdStr + "_" + questionId;
+            
+            String userAnswer = answers.has(key) ? answers.getString(key) : "";
+            String correctAnswer = q.optString("answer", "");
+            
+            // 조건에 따라 정답 판정
+            boolean isCorrect = false;
+            
+            if (userAnswer.equals(correctAnswer)) {
+                // 완전 일치하면 정답
+                isCorrect = true;
+            } else if (normalize(userAnswer).equals(normalize(correctAnswer))) {
+                // 정규화 후 일치하면 정답
+                isCorrect = true;
+            } else if ("subjective".equals(type)) {
+                // 주관식인 경우 키워드 포함 여부로 판단
+                List<String> keywords = Arrays.stream(correctAnswer.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .toList();
+                
+                isCorrect = !keywords.isEmpty() && 
+                           keywords.stream().allMatch(k -> 
+                               normalize(userAnswer).contains(normalize(k)));
+            }
+            
+            if (isCorrect) {
+                correctCount++;
+            }
+            
+            QuestionResult qr = new QuestionResult();
+            qr.setQuestionId(questionId);
+            qr.setQuestion(q.getString("question"));
+            qr.setUserAnswer(userAnswer);
+            qr.setCorrectAnswer(correctAnswer);
+            qr.setCorrect(isCorrect);
+            questionResults.add(qr);
+        }
+        
+        // 저장된 correctAnswers와 새롭게 계산된 correctCount가 다르면 로그 출력
+        if (result.getCorrectAnswers() != correctCount) {
+            System.out.println("경고: 저장된 정답 수와 다시 계산한 정답 수가 다릅니다.");
+            System.out.println("원래 저장된 정답 수: " + result.getCorrectAnswers());
+            System.out.println("다시 계산한 정답 수: " + correctCount);
+        }
+        
         return ExamResultResponse.builder()
                 .id(result.getId())
                 .examId(result.getExam().getId())
                 .userId(result.getUserId())
                 .totalQuestions(result.getTotalQuestions())
-                .correctAnswers(result.getCorrectAnswers())
-                .score(result.getScore())
-                .passed(result.getPassed())
+                .correctAnswers(correctCount)  // 새로 계산한 정답 수 사용
+                .score((double)correctCount / questions.length() * 100.0)  // 점수 다시 계산
+                .passed(correctCount >= (questions.length() / 2.0))  // 합격 여부 다시 계산
                 .examTitle(result.getExam().getTitle())
+                .questionResults(questionResults)
                 .build();
     }
 }

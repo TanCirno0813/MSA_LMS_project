@@ -26,7 +26,9 @@ import LectureManagement from './pages/LectureManagement';
 import ReviewList from './pages/ReviewList.tsx';
 import ChatWidget from "./components/chat/ChatWidget.tsx"
 import EnrollmentManagement from './pages/EnrollmentManagement';
-
+import RequireGuest from  './components/RequireGuest.tsx'
+import RequireAdmin from './components/RequireAdmin.tsx'
+import {handleRegister} from "@/utils/registerUtils.ts";
 
 const App: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
@@ -82,8 +84,8 @@ const App: React.FC = () => {
             <Routes>
                 <Route path="/" element={<HomeView />}/>
 
-                <Route path="/login" element={<Logins onLogin={handleLogin} />} />
-                <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<RequireGuest><Logins onLogin={handleLogin} /></RequireGuest>}/>
+                <Route path="/register" element={<RequireGuest><Register onRegister={handleRegister} /></RequireGuest>}/>
                 <Route path="/mypage" element={<Mypage />} />
                 <Route path="/reviews" element={<ReviewList />} />
                 <Route path="/notices" element={<NoticeList />} />
@@ -95,13 +97,15 @@ const App: React.FC = () => {
                 <Route path="/lectures/:id" element={<LectureDetail />} />
                 <Route path="/lectures/:lectureId/video/:videoId" element={<VideoPage />} />
                 <Route path="/result" element={<ResultReportPage />} />
-                <Route path="/admin" element={<AdminDashboard />}>
+                
+                {/* 관리자 라우트 보호 */}
+                <Route path="/admin" element={<RequireAdmin><AdminDashboard /></RequireAdmin>}>
                     <Route path="users" element={<Users />} />
                     <Route path="lectures" element={<LectureAdminPage />} />
                     <Route path="enrollments" element={<EnrollmentManagement />} />
                 </Route>
-                <Route path="/admin/lectures" element={<LectureManagement />} />
-                <Route path="/admin/lectures/:lectureId/contents" element={<ContentManagement />} />
+                <Route path="/admin/lectures" element={<RequireAdmin><LectureManagement /></RequireAdmin>} />
+                <Route path="/admin/lectures/:lectureId/contents" element={<RequireAdmin><ContentManagement /></RequireAdmin>} />
             </Routes>
 
             <ChatWidget />

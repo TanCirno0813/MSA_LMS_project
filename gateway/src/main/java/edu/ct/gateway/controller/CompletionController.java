@@ -93,11 +93,21 @@ public class CompletionController {
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestParam Long lectureId,
             @RequestParam String contentTitle) {
+
         String token = authorizationHeader.replace("Bearer ", "");
         String username = jwtUtil.extractUsername(token);
         Long userId = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"))
                 .getId();
+
+        // 🔥 URL 디코딩 추가
+        try {
+            contentTitle = java.net.URLDecoder.decode(contentTitle, java.nio.charset.StandardCharsets.UTF_8.name());
+        } catch (Exception e) {
+            log.warn("❗ 디코딩 실패: {}", e.getMessage());
+        }
+
+        log.info("🎯 디코딩된 contentTitle = {}", contentTitle);
 
         Optional<CompletionHistory> optional = completionRepository
                 .findByUserIdAndLectureIdAndContentTitle(userId, lectureId, contentTitle);
@@ -107,9 +117,11 @@ public class CompletionController {
             result.put("resumeTime", optional.get().getResumeTime());
             return ResponseEntity.ok(result);
         } else {
+            log.warn("❌ 이수 기록 없음 - userId={}, lectureId={}, contentTitle={}", userId, lectureId, contentTitle);
             return ResponseEntity.notFound().build();
         }
     }
+
 
     /**
      * [GET] 로그인한 사용자의 이수 이력 조회

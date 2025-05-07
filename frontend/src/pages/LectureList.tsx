@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate  } from 'react-router-dom';
 import axios from 'axios';
 import './LectureList.css';
-import './LectureFilterBar';
+import './LectureFilterBar.tsx';
 import LectureFilterBar from "./LectureFilterBar.tsx";
 
 
@@ -129,23 +129,27 @@ const LectureList: React.FC = () => {
                     <>
                         <div className="lecture-grid">
                             {lectures.map((lecture) => (
-                                <div key={lecture.id} className="lecture-card"    onClick={() => navigate(`/lectures/${lecture.id}`)}>
+                                <div
+                                    key={lecture.id}
+                                    className="lecture-card"
+                                    onClick={() => navigate(`/lectures/${lecture.id}`)}
+                                >
                                     <img src={lecture.thumbnail} alt="썸네일" className="lecture-thumbnail" />
                                     <div className="lecture-info">
                                         <h3>{lecture.title}</h3>
-                                        <p className="lecture-meta">
-                                            <span
-                                                style={{ cursor: 'pointer', color: lecture.liked ? 'red' : 'gray' }}
+                                        <div className="lecture-meta">
+                                            <div
+                                                className="like-container"
                                                 onClick={(e) => {
-                                                    e.stopPropagation();  // ✅ 카드 클릭 막기
+                                                    e.stopPropagation();
                                                     handleToggleLike(lecture.id);
                                                 }}
                                             >
-                                                ❤️ {lecture.likes}
-                                            </span>
-                                            &nbsp; | &nbsp;
-                                            {lecture.category || '공통'}
-                                        </p>
+                                                <span className={`like-icon ${lecture.liked ? 'liked' : ''}`}>❤️</span>
+                                                <span className="like-count">{lecture.likes}</span>
+                                            </div>
+                                            <span className="lecture-category">{lecture.category || '공통'}</span>
+                                        </div>
                                     </div>
                                 </div>
                             ))}

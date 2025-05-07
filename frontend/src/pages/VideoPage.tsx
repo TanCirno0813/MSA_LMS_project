@@ -24,10 +24,11 @@ const VideoPage: React.FC = () => {
     const [currentContent, setCurrentContent] = useState<Content | null>(null);
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
     const [showNextButton, setShowNextButton] = useState(false);
-    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [showResumeDialog, setShowResumeDialog] = useState(false);
+    const [isPlayerReady, setIsPlayerReady] = useState(false);
+    const [shouldResume, setShouldResume] = useState(false);
     const playerRef = useRef<any>(null);
     const resumeTimeRef = useRef<number>(0);
-
     const username = localStorage.getItem("username");
 
     useEffect(() => {
@@ -35,14 +36,11 @@ const VideoPage: React.FC = () => {
 
         axios.get(`/api/lectures/${lectureId}`)
             .then(res => {
-                const allContents: Content[] = res.data.contents;
-                const videoContents = allContents.filter(c => c.type === 'video');
+                const videoContents: Content[] = res.data.contents.filter((c: Content) => c.type === 'video');
                 setContents(videoContents);
-                const index = videoContents.findIndex(c => c.url === videoId);
+                const index = videoContents.findIndex((c: Content) => c.url === videoId);
                 setCurrentIndex(index);
-                if (index !== -1) {
-                    setCurrentContent(videoContents[index]);
-                }
+                if (index !== -1) setCurrentContent(videoContents[index]);
             })
             .catch(err => console.error('콘텐츠 로딩 실패:', err));
     }, [lectureId, videoId]);
@@ -63,11 +61,12 @@ const VideoPage: React.FC = () => {
                     }
                 });
 
-                if (res.data?.resumeTime > 0) {
+                if (res.data?.resumeTime > 5) {
                     resumeTimeRef.current = res.data.resumeTime;
+                    setShowResumeDialog(true);
                 }
             } catch (err) {
-                console.log("📭 이어보기 기록 없음 (resumeTime 없음)");
+                console.log("📭 이어보기 기록 없음");
             }
         };
 
@@ -83,15 +82,17 @@ const VideoPage: React.FC = () => {
         };
 
         const createPlayer = () => {
-            if (playerRef.current) playerRef.current.destroy();
+            if (playerRef.current) {
+                playerRef.current.destroy();
+            }
 
             playerRef.current = new window.YT.Player("ytplayer", {
+                videoId: videoId,
                 events: {
                     onReady: (event: any) => {
-                        console.log("🎬 플레이어 준비 완료");
-                        if (resumeTimeRef.current > 0) {
-                            event.target.seekTo(resumeTimeRef.current, true);
-                        }
+                        setIsPlayerReady(true);
+                        if (!showResumeDialog) event.target.seekTo(0, true);
+                        if (shouldResume) event.target.seekTo(resumeTimeRef.current, true);
                     },
                     onStateChange: (event: any) => {
                         if (event.data === window.YT.PlayerState.ENDED) {
@@ -112,14 +113,21 @@ const VideoPage: React.FC = () => {
         } else {
             createPlayer();
         }
-    }, [videoId, currentContent]);
+
+        return () => {
+            if (playerRef.current) playerRef.current.destroy();
+        };
+    }, [videoId, currentContent, showResumeDialog, shouldResume]);
 
     useEffect(() => {
         const intervalId = setInterval(() => {
-            if (playerRef.current && currentContent && lectureId && username) {
+            if (
+                playerRef.current &&
+                typeof playerRef.current.getCurrentTime === 'function' &&
+                currentContent && lectureId && username
+            ) {
                 const currentTime = playerRef.current.getCurrentTime();
                 const duration = playerRef.current.getDuration();
-
                 if (duration > 0) {
                     const accessToken = localStorage.getItem("token");
 
@@ -134,10 +142,8 @@ const VideoPage: React.FC = () => {
                             Authorization: `Bearer ${accessToken}`
                         }
                     }).then(() => {
-                        console.log(`📤 진행률 전송: ${currentContent.title} - ${Math.floor((currentTime / duration) * 100)}%`);
-                    }).catch(err => {
-                        console.error("❌ 진행률 저장 실패:", err);
-                    });
+                        console.log(`📤 진행률 전송: ${Math.floor((currentTime / duration) * 100)}%`);
+                    }).catch(err => console.error("❌ 진행률 저장 실패:", err));
                 }
             }
         }, 5000);
@@ -170,36 +176,72 @@ const VideoPage: React.FC = () => {
         const nextContent = contents[currentIndex + 1];
         if (nextContent) {
             setShowNextButton(false);
-
             if (currentContent && playerRef.current) {
                 const duration = playerRef.current.getDuration();
                 registerCompletion(currentContent, duration + 1);
             }
-
-            const nextUrl = `/lectures/${lectureId}/video/${nextContent.url}`;
-            setTimeout(() => {
-                window.location.href = nextUrl;
-            }, 500);
+            navigate(`/lectures/${lectureId}/video/${nextContent.url}`);
         } else {
             alert("모든 영상을 시청했습니다. 확인 문제로 이동합니다.");
-            window.location.href = `/quiz/${lectureId}`;
+            navigate(`/quiz/${lectureId}`);
         }
     };
 
     return (
         <div style={{ padding: '20px' }}>
             <h2>📺 강의 영상 {currentContent ? `- ${currentContent.title}` : ''}</h2>
-            <iframe
-                ref={iframeRef}
-                id="ytplayer"
-                width="100%"
-                height="600"
-                src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1`}
-                title="강의 영상"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-            ></iframe>
+
+            <div id="ytplayer" style={{ width: '100%', height: '600px' }}></div>
+
+            {showResumeDialog && isPlayerReady && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 9999,
+                    display: 'flex', justifyContent: 'center', alignItems: 'center'
+                }}>
+                    <div style={{ background: '#fff', padding: 30, borderRadius: 10, textAlign: 'center' }}>
+                        <h3>이어보기를 하시겠습니까?</h3>
+                        <p>{resumeTimeRef.current}초부터 이어볼 수 있습니다.</p>
+                        <button
+                            onClick={() => {
+                                setShouldResume(true);
+                                setShowResumeDialog(false);
+                            }}
+                            style={{
+                                backgroundColor: '#3f51b5',
+                                color: 'white',
+                                padding: '8px 16px',
+                                borderRadius: '20px',
+                                fontSize: '16px',
+                                border: 'none',
+                                marginRight: '10px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                             이어보기
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                setShouldResume(false);
+                                setShowResumeDialog(false);
+                            }}
+                            style={{
+                                backgroundColor: '#3f51b5',
+                                color: 'white',
+                                padding: '8px 16px',
+                                borderRadius: '20px',
+                                fontSize: '16px',
+                                border: 'none',
+                                cursor: 'pointer'
+                            }}
+                        >
+                             처음부터
+                        </button>
+
+                    </div>
+                </div>
+            )}
 
             <div style={{ marginTop: '20px' }}>
                 <button onClick={() => navigate(-1)} style={{ padding: '8px 16px', fontSize: '16px' }}>

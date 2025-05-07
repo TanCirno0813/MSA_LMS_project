@@ -13,13 +13,11 @@ interface LectureFilterBarProps {
 }
 
 const categories = ['전체', '공통 필수', '신입사원', '사무 기획', '리더십/관리자', '자기개발','디지털 시대'];
-const levels = ['전체', '초급', '중급', '고급'];
+
 
 const LectureFilterBar: React.FC<LectureFilterBarProps> = ({
                                                                selectedCategory,
-                                                               selectedLevel,
                                                                onCategoryChange,
-                                                               onLevelChange,
                                                                keyword,
                                                                onKeywordChange,
                                                                onSearch
@@ -51,18 +49,7 @@ const LectureFilterBar: React.FC<LectureFilterBarProps> = ({
                 ))}
             </div>
 
-            {/* 🎯 레벨 필터 */}
-            <div className="filter-group">
-                {levels.map((lvl) => (
-                    <button
-                        key={lvl}
-                        className={selectedLevel === lvl ? 'active' : ''}
-                        onClick={() => onLevelChange(lvl)}
-                    >
-                        {lvl}
-                    </button>
-                ))}
-            </div>
+
         </div>
     );
 };

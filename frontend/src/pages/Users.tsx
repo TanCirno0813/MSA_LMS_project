@@ -176,6 +176,7 @@ const Users: React.FC = () => {
   const fetchUserExamResults = async (userId: number) => {
     // 이미 로드되었으면 다시 로드하지 않음
     if (userExamResults[userId] && userExamResults[userId].length > 0) {
+      console.log('이미 로드된 시험 결과:', userExamResults[userId]);
       return;
     }
     
@@ -186,12 +187,40 @@ const Users: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
+      console.log(`사용자 ${userId}의 시험 결과 응답:`, response.data);
+      
+      // 응답 데이터 구조 검증
+      if (!response.data || !Array.isArray(response.data)) {
+        console.error('API 응답이 예상된 형식이 아닙니다:', response.data);
+        setUserExamResults(prev => ({
+          ...prev,
+          [userId]: []
+        }));
+        return;
+      }
+      
+      // 각 결과에 questionResults 필드가 있는지 확인
+      const validatedResults = response.data.map(result => {
+        if (!result.questionResults) {
+          console.warn('시험 결과에 questionResults 필드가 없습니다:', result);
+          return {
+            ...result,
+            questionResults: []
+          };
+        }
+        return result;
+      });
+      
       setUserExamResults(prev => ({
         ...prev,
-        [userId]: response.data
+        [userId]: validatedResults
       }));
     } catch (error) {
       console.error(`사용자 ID ${userId}의 시험 결과를 불러오는데 실패했습니다.`, error);
+      setUserExamResults(prev => ({
+        ...prev,
+        [userId]: []
+      }));
     } finally {
       setLoadingExamResults(false);
     }
@@ -219,6 +248,12 @@ const Users: React.FC = () => {
   };
 
   const openExamResultDetail = (result: ExamResultResponse) => {
+    console.log('시험 결과 상세 정보:', result);
+    if (!result || !result.questionResults) {
+      console.error('시험 결과 또는 문제 정보가 없습니다:', result);
+      alert('시험 결과 데이터를 불러올 수 없습니다.');
+      return;
+    }
     setSelectedExamResult(result);
     setExamResultDialogOpen(true);
   };
@@ -644,77 +679,189 @@ const Users: React.FC = () => {
         fullWidth
       >
         <DialogTitle className="admin-modal-title">
-          시험 결과 상세 정보
-          {selectedExamResult && (
-            <Box sx={{ mt: 1 }}>
-              <Typography variant="subtitle1">
-                {selectedExamResult.examTitle}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                <Chip 
-                  label={`${selectedExamResult.score}점`} 
-                  color={selectedExamResult.passed ? "success" : "error"}
-                  sx={{ mr: 1 }}
-                />
-                <Chip 
-                  icon={selectedExamResult.passed ? <CheckCircleIcon /> : <CancelIcon />} 
-                  label={selectedExamResult.passed ? "합격" : "불합격"} 
-                  color={selectedExamResult.passed ? "success" : "error"}
-                />
-                <Typography variant="body2" sx={{ ml: 2 }}>
-                  맞은 문제: {selectedExamResult?.correctAnswers} / {selectedExamResult?.totalQuestions}
-                </Typography>
-              </Box>
-            </Box>
-          )}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6">성적표</Typography>
+            {selectedExamResult && (
+              <Chip 
+                icon={selectedExamResult.passed ? <CheckCircleIcon /> : <CancelIcon />}
+                label={selectedExamResult.passed ? "합격" : "불합격"} 
+                color={selectedExamResult.passed ? "success" : "error"}
+                size="medium"
+              />
+            )}
+          </Box>
         </DialogTitle>
         <DialogContent dividers>
-          {selectedExamResult && selectedExamResult.questionResults && (
-            <List>
-              {selectedExamResult.questionResults.map((qResult, idx) => (
-                <React.Fragment key={`q-${qResult.questionId}`}>
-                  <ListItem alignItems="flex-start">
-                    <Box sx={{ width: '100%' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mr: 1 }}>
-                          문제 {idx + 1}:
-                        </Typography>
-                        <Typography variant="subtitle1">{qResult.question}</Typography>
-                        {qResult.isCorrect ? (
-                          <CheckCircleIcon color="success" sx={{ ml: 1 }} />
-                        ) : (
-                          <CancelIcon color="error" sx={{ ml: 1 }} />
-                        )}
+          {selectedExamResult && (
+            <Box sx={{ mb: 3 }}>
+              <Paper variant="outlined" sx={{ p: 2, mb: 3, borderColor: 'divider' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="subtitle1">시험 제목</Typography>
+                    <Typography variant="subtitle1" fontWeight="bold">{selectedExamResult.examTitle}</Typography>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="subtitle1">응시일</Typography>
+                    <Typography variant="subtitle1">{new Date().toLocaleDateString('ko-KR')}</Typography>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="subtitle1">총 문항 수</Typography>
+                    <Typography variant="subtitle1">{selectedExamResult.totalQuestions}문제</Typography>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="subtitle1">정답 개수</Typography>
+                    <Typography variant="subtitle1">{selectedExamResult.correctAnswers}개</Typography>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="subtitle1">점수</Typography>
+                    <Typography 
+                      variant="subtitle1" 
+                      fontWeight="bold" 
+                      color={selectedExamResult.passed ? "success.main" : "error.main"}
+                    >
+                      {selectedExamResult.score}점
+                    </Typography>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="subtitle1">결과</Typography>
+                    <Typography 
+                      variant="subtitle1" 
+                      fontWeight="bold" 
+                      color={selectedExamResult.passed ? "success.main" : "error.main"}
+                    >
+                      {selectedExamResult.passed ? "합격" : "불합격"}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Paper>
+
+              <Typography variant="h6" sx={{ mt: 4, mb: 2, fontWeight: 'bold', borderBottom: '2px solid', borderColor: 'primary.main', pb: 1 }}>
+               답안 비교
+              </Typography>
+              
+              {selectedExamResult.questionResults && selectedExamResult.questionResults.length > 0 ? (
+                selectedExamResult.questionResults.map((qResult, idx) => (
+                  <Paper 
+                    key={`q-${qResult.questionId}`} 
+                    variant="outlined" 
+                    sx={{ 
+                      p: 2, 
+                      mb: 3, 
+                      borderColor: 'divider',
+                      borderWidth: 1
+                    }}
+                  >
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      mb: 2, 
+                      p: 1,
+                      backgroundColor: 'background.paper',
+                      borderRadius: 1
+                    }}>
+                      <Box 
+                        sx={{ 
+                          minWidth: 32, 
+                          height: 32, 
+                          borderRadius: '50%', 
+                          backgroundColor: 'primary.main',
+                          color: 'white', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          mr: 2
+                        }}
+                      >
+                        {idx + 1}
                       </Box>
-                      
-                      <Box sx={{ mb: 1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>정답:</Typography>
-                        <Alert severity="success" sx={{ mt: 0.5 }}>
-                          {qResult.correctAnswer}
-                        </Alert>
-                      </Box>
-                      
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                          사용자 답변:
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                          {qResult.question}
                         </Typography>
-                        <Alert 
-                          severity={qResult.isCorrect ? "success" : "error"} 
-                          sx={{ mt: 0.5 }}
-                        >
-                          {qResult.userAnswer || '(답변 없음)'}
-                        </Alert>
+                      
                       </Box>
                     </Box>
-                  </ListItem>
-                  {idx < selectedExamResult.questionResults.length - 1 && <Divider component="li" />}
-                </React.Fragment>
-              ))}
-            </List>
+                    
+                    <Box sx={{ ml: 7, mb: 2 }}>
+                      <Typography variant="body2" sx={{ 
+                        fontWeight: 'bold', 
+                        color: 'text.primary', 
+                        mb: 0.5,
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}>
+                        정답:
+                      </Typography>
+                      <Box sx={{ 
+                        p: 1.5, 
+                        backgroundColor: '#e3f2fd', 
+                        borderRadius: 1,
+                        borderLeft: '4px solid',
+                        borderColor: 'primary.main'
+                      }}>
+                        <Typography sx={{ whiteSpace: 'pre-wrap' }}>{qResult.correctAnswer}</Typography>
+                      </Box>
+                    </Box>
+                    
+                    <Box sx={{ ml: 7 }}>
+                      <Typography variant="body2" sx={{ 
+                        fontWeight: 'bold', 
+                        color: 'text.primary', 
+                        mb: 0.5,
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}>
+                        응시자 답변:
+                      </Typography>
+                      <Box sx={{ 
+                        p: 1.5, 
+                        backgroundColor: '#f5f5f5', 
+                        borderRadius: 1,
+                        borderLeft: '4px solid',
+                        borderColor: 'grey.500'
+                      }}>
+                        <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                          {qResult.userAnswer ? qResult.userAnswer : '(답변 없음)'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Paper>
+                ))
+              ) : (
+                <Box sx={{ textAlign: 'center', p: 3, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
+                  <Typography variant="body1" color="text.secondary">
+                    문제 데이터가 없습니다.
+                  </Typography>
+                  <Button 
+                    variant="outlined" 
+                    color="primary" 
+                    sx={{ mt: 2 }}
+                    onClick={() => {
+                      if (selectedExamResult) {
+                        console.log('시험 결과를 다시 불러오는 중...', selectedExamResult);
+                      }
+                    }}
+                  >
+                    다시 불러오기
+                  </Button>
+                </Box>
+              )}
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setExamResultDialogOpen(false)}>닫기</Button>
+          
+          <Button 
+            variant="outlined"
+            onClick={() => setExamResultDialogOpen(false)}
+          >
+            닫기
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
