@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import './RecruitmentList.css';
 
@@ -18,16 +18,31 @@ const RecruitmentList = () => {
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState<string>('');
     const [filter, setFilter] = useState<string>('');
-
     const [searchParams, setSearchParams] = useSearchParams();
-    useNavigate();
-// 페이지 번호를 쿼리에서 가져오기 (기본값: 1)
+
+    // 페이지 번호를 쿼리에서 가져오기 (기본값: 1)
     const page = parseInt(searchParams.get('page') || '1', 10);
+
+    // 검색어 상태와 필터를 쿼리에서 가져오기
+    const querySearch = searchParams.get('search') || '';
+    const queryFilter = searchParams.get('filter') || '';
+
+    // 검색 버튼 클릭 핸들러
+    const handleSearch = () => {
+        setSearchParams({ page: '1', search, filter });
+    };
+
+    // 엔터 키로 검색 실행
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            handleSearch();
+        }
+    };
 
     // 페이지 변경 핸들러
     const handlePageChange = (newPage: number) => {
         if (newPage > 0) {
-            setSearchParams({ page: newPage.toString() });
+            setSearchParams({ page: newPage.toString(), search, filter });
         }
     };
 
@@ -44,16 +59,16 @@ const RecruitmentList = () => {
             const response = await axios.get<Recruitment[]>(`/api/recruitments?${params.toString()}`);
             setRecruitments(response.data);
         } catch {
-            setError('데이터 불러오기 실패');
+            setError('');
         } finally {
             setLoading(false);
         }
     };
 
-    // 페이지 변경 감지하여 데이터 로드
+    // 데이터 가져오기 (페이지, 검색어, 필터 변경 시)
     useEffect(() => {
-        fetchRecruitments(page, search, filter);
-    }, [page, search, filter]);
+        fetchRecruitments(page, querySearch, queryFilter);
+    }, [page, querySearch, queryFilter]);
 
     return (
         <div className="recruitment-list">
@@ -66,6 +81,7 @@ const RecruitmentList = () => {
                     placeholder="제목 검색"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={handleKeyDown}  // 엔터 키로 검색
                 />
                 <select
                     className="recruitment-list__filter"
@@ -77,11 +93,16 @@ const RecruitmentList = () => {
                     <option value="R2020">경력</option>
                     <option value="R2030">신입+경력</option>
                 </select>
+                <button
+                    className="recruitment-list__search-button"
+                    onClick={handleSearch}
+                >
+                    검색
+                </button>
             </div>
 
             {error && <p className="recruitment-list__error">{error}</p>}
 
-            {/* 테이블 구조를 고정하고 데이터만 갱신 */}
             <table className="recruitment-list__table">
                 <thead>
                 <tr>
@@ -130,7 +151,6 @@ const RecruitmentList = () => {
                 </tbody>
             </table>
 
-            {/* 페이징 버튼 */}
             <div className="recruitment-list__pagination">
                 <button
                     className="recruitment-list__button"

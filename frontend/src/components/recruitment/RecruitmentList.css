@@ -126,3 +126,19 @@
     font-size: 1.1rem;
     color: #333;
 }
+
+.recruitment-list__search-button {
+    padding: 8px 12px;
+    margin-left: 5px;
+    font-size: 1rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.recruitment-list__search-button:hover {
+    background-color: #45a049;
+}
