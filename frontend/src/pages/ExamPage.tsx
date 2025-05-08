@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import './ExamPage.css';
 
 interface Question {
     id: number;
@@ -68,22 +69,20 @@ const ExamPage: React.FC = () => {
             .then(res => {
                 console.log("✅ 서버 응답:", res.data);
 
-                // 강의 ID와 사용자 ID를 함께 사용하여 퀴즈 완료 정보 저장
                 if (lectureId) {
                     localStorage.setItem(`quizCompleted_${lectureId}_${userId}`, 'true');
                 }
 
-                const result = res.data[0]; // ✅ 결과 배열에서 첫 번째 결과 꺼냄
-                result.lectureId = parseInt(lectureId || '1', 10); // 필요 시 추가 필드
+                const result = res.data[0];
+                result.lectureId = parseInt(lectureId || '1', 10);
 
-                navigate('/result', { state: result }); // ✅ 올바른 구조로 넘기기
+                navigate('/result', { state: result });
             })
             .catch(() => alert('채점 실패'));
     };
 
     const parseQuestions = (json: string): Question[] => {
         if (!json) return [];
-        
         try {
             const parsed = JSON.parse(json);
             return Array.isArray(parsed) ? parsed : [];
@@ -93,64 +92,59 @@ const ExamPage: React.FC = () => {
     };
 
     if (loading) {
-        return <div style={{ textAlign: 'center', padding: '2rem' }}>시험 목록을 불러오는 중...</div>;
+        return <div className="exam-loading">시험 목록을 불러오는 중...</div>;
     }
 
     if (error) {
-        return <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>{error}</div>;
+        return <div className="exam-error">{error}</div>;
     }
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-            <div style={{ maxWidth: '800px', width: '100%' }}>
-                <h2>📝 확인 문제</h2>
+        <div className="exam-container">
+            <h2 className="exam-header">📝 확인 문제</h2>
 
-                {exams && exams.length > 0 ? (
-                    exams.map(exam => (
-                        <div key={exam.id} style={{ marginBottom: '2rem' }}>
-                            <h3><strong>{exam.title}</strong> - {exam.description}</h3>
-                            {exam.question && parseQuestions(exam.question).map(q => (
-                                <div key={q.id} style={{ marginBottom: '1rem' }}>
-                                    <p><strong>Q{q.id}.</strong> {q.question}</p>
-                                    {q.type === 'objective' && q.choices && q.choices.length > 0 ? (
-                                        q.choices.map((choice, idx) => (
-                                            <label key={idx} style={{ display: 'block' }}>
-                                                <input
-                                                    type="radio"
-                                                    name={`${exam.id}_${q.id}`}
-                                                    value={choice}
-                                                    onChange={e =>
-                                                        handleAnswerChange(exam.id, q.id, e.target.value)
-                                                    }
-                                                />{' '}
-                                                {choice}
-                                            </label>
-                                        ))
-                                    ) : (
-                                        <textarea
-                                            rows={3}
-                                            style={{ width: '100%' }}
-                                            value={answers[`${exam.id}_${q.id}`] || ''}
-                                            onChange={e =>
-                                                handleAnswerChange(exam.id, q.id, e.target.value)
-                                            }
-                                            placeholder="답변을 입력하세요"
-                                        />
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    ))
-                ) : (
-                    <p>이 강의에 등록된 시험이 없습니다.</p>
-                )}
+            {exams && exams.length > 0 ? (
+                exams.map(exam => (
+                    <div key={exam.id} className="exam-section">
+                        <h3 className="exam-title">{exam.title}</h3>
+                        <p className="exam-description">{exam.description}</p>
+                        {exam.question && parseQuestions(exam.question).map(q => (
+                            <div key={q.id} className="exam-question-block">
+                                <p className="exam-question"><strong>Q{q.id}.</strong> {q.question}</p>
+                                {q.type === 'objective' && q.choices && q.choices.length > 0 ? (
+                                    q.choices.map((choice, idx) => (
+                                        <label key={idx} className="exam-choice">
+                                            <input
+                                                type="radio"
+                                                name={`${exam.id}_${q.id}`}
+                                                value={choice}
+                                                onChange={e => handleAnswerChange(exam.id, q.id, e.target.value)}
+                                            />{' '}
+                                            {choice}
+                                        </label>
+                                    ))
+                                ) : (
+                                    <textarea
+                                        className="exam-textarea"
+                                        rows={3}
+                                        value={answers[`${exam.id}_${q.id}`] || ''}
+                                        onChange={e => handleAnswerChange(exam.id, q.id, e.target.value)}
+                                        placeholder="답변을 입력하세요"
+                                    />
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ))
+            ) : (
+                <p className="no-exam-message">이 강의에 등록된 시험이 없습니다.</p>
+            )}
 
-                {exams && exams.length > 0 && (
-                    <button onClick={handleSubmit} style={{ marginTop: '1rem' }}>
-                        답안 제출
-                    </button>
-                )}
-            </div>
+            {exams && exams.length > 0 && (
+                <button onClick={handleSubmit} className="submit-button">
+                    답안 제출
+                </button>
+            )}
         </div>
     );
 };

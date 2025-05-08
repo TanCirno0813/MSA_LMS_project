@@ -183,7 +183,7 @@
 }
 
 .video-progress-bar-bg {
-  width: 100%;
+  width: 240px;
   background-color: #e0e0e0;
   height: 10px;
   border-radius: 10px;

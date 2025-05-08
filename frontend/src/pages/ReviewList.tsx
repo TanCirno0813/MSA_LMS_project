@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './ReviewList.css';
 import {
-  Grid, Card, CardContent, CardHeader, Typography,
+   Card, CardContent, CardHeader, Typography,
   Container, Divider, FormControl, InputLabel, Select,
-  MenuItem, Box, SelectChangeEvent, Rating, Chip
+  MenuItem, Box, SelectChangeEvent, Chip, Paper, Badge, Avatar, Tooltip
 } from '@mui/material';
+import { DateRange, School, Sort, RateReview, Bookmark, Forum, Person } from '@mui/icons-material';
+
 
 interface ReviewDTO {
   id: number;
@@ -13,7 +16,7 @@ interface ReviewDTO {
   content: string;
   createdAt: string;
   title: string;
-  rating?: number;
+
 }
 
 const ReviewList: React.FC = () => {
@@ -62,6 +65,35 @@ const ReviewList: React.FC = () => {
       return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     });
 
+  // 프로필 이미지 생성 함수 - 사용자 이름 기반 임의 색상 할당
+  const getProfileColor = (name: string) => {
+    const colors = ['#028267', '#5e35b1', '#d81b60', '#039be5', '#fb8c00', '#546e7a'];
+    const hash = name.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
+    return colors[hash % colors.length];
+  };
+
+  // 날짜 포맷팅
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return '오늘';
+    } else if (diffDays === 1) {
+      return '어제';
+    } else if (diffDays < 7) {
+      return `${diffDays}일 전`;
+    } else {
+      return date.toLocaleDateString('ko-KR', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+  };
+
   if (loading) {
     return <Container sx={{ my: 4 }}><Typography>리뷰를 불러오는 중입니다...</Typography></Container>;
   }
@@ -71,88 +103,133 @@ const ReviewList: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ my: 4 }}>
-      <Typography variant="h4" gutterBottom>전체 리뷰 목록</Typography>
-      
-      <Box sx={{ mb: 4, display: 'flex', gap: 2 }}>
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>강의 선택</InputLabel>
-          <Select
-            value={selectedLecture}
-            label="강의 선택"
-            onChange={handleLectureChange}
+    <Container maxWidth="lg" className="review-list-container">
+      <Box className="review-list-header">
+        <Box className="review-list-header-top">
+          <Typography variant="h4" className="review-list-title">
+            전체 리뷰 목록
+          </Typography>
+          <Badge 
+            badgeContent={filteredAndSortedReviews.length} 
+            color="primary" 
+            showZero
+            sx={{ 
+              '& .MuiBadge-badge': { 
+                display: 'none' 
+              } 
+            }}
           >
-            {getUniqueLectures().map((lecture) => (
-              <MenuItem key={lecture} value={lecture}>
-                {lecture === 'all' ? '전체 강의' : lecture}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <span className="review-count-badge">
+              {filteredAndSortedReviews.length}개
+            </span>
+          </Badge>
+        </Box>
 
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>정렬 기준</InputLabel>
-          <Select
-            value={sortBy}
-            label="정렬 기준"
-            onChange={handleSortChange}
-          >
-            <MenuItem value="newest">최신순</MenuItem>
-            <MenuItem value="oldest">오래된순</MenuItem>
-          </Select>
-        </FormControl>
+        <Typography variant="body1" className="review-list-subtitle">
+          수강생들이 직접 남긴 리뷰를 통해 강의의 품질을 확인해보세요.<br />
+          리뷰를 참고하면 더 나은 학습 선택에 도움이 됩니다.
+        </Typography>
+
+        <RateReview className="review-header-icon" />
       </Box>
+      
+      <Paper elevation={0} className="review-filter-container">
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+          <FormControl sx={{ minWidth: 220, flex: { xs: '1 1 100%', sm: '0 1 auto' } }}>
+            <InputLabel>강의 선택</InputLabel>
+            <Select
+              value={selectedLecture}
+              label="강의 선택"
+              onChange={handleLectureChange}
+              startAdornment={<School sx={{ mr: 1, ml: -0.5, color: '#028267' }} />}
+            >
+              {getUniqueLectures().map((lecture) => (
+                <MenuItem key={lecture} value={lecture}>
+                  {lecture === 'all' ? '전체 강의' : lecture}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl sx={{ minWidth: 220, flex: { xs: '1 1 100%', sm: '0 1 auto' } }}>
+            <InputLabel>정렬 기준</InputLabel>
+            <Select
+              value={sortBy}
+              label="정렬 기준"
+              onChange={handleSortChange}
+              startAdornment={<Sort sx={{ mr: 1, ml: -0.5, color: '#028267' }} />}
+            >
+              <MenuItem value="newest">최신순</MenuItem>
+              <MenuItem value="oldest">오래된순</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      </Paper>
 
       {filteredAndSortedReviews.length === 0 ? (
-        <Typography>작성된 리뷰가 없습니다.</Typography>
+        <Box className="review-empty">
+          <Forum sx={{ fontSize: 60, color: '#ccc', mb: 2 }} />
+          <Typography variant="h6">작성된 리뷰가 없습니다.</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            선택된 강의에 대한 리뷰가 아직 없습니다. 다른 강의를 선택하거나 나중에 다시 확인해주세요.
+          </Typography>
+        </Box>
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mt: 3 }}>
           {filteredAndSortedReviews.map((review) => (
-            <Box key={review.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CardHeader
-                  title={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="h6">{review.title}</Typography>
-                      {review.rating && (
-                        <Rating value={review.rating} readOnly size="small" />
-                      )}
-                    </Box>
-                  }
-                  subheader={
-                    <Box sx={{ mt: 1 }}>
-                      <Chip 
-                        label={review.lectureTitle} 
-                        size="small" 
-                        color="primary" 
-                        sx={{ mr: 1 }} 
-                      />
-                      <Typography variant="body2" component="span">
-                        작성자: {review.author}
-                      </Typography>
-                    </Box>
-                  }
-                />
-                <Divider />
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      mb: 2,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {review.content}
+            <Card key={review.id} className="review-card">
+              <CardHeader
+                avatar={
+                  <Tooltip title={review.author}>
+                    <Avatar 
+                      sx={{ 
+                        bgcolor: getProfileColor(review.author),
+                        width: 40,
+                        height: 40
+                      }}
+                    >
+                      {review.author.charAt(0).toUpperCase()}
+                    </Avatar>
+                  </Tooltip>
+                }
+                title={
+                  <Typography className="review-title">{review.title}</Typography>
+                }
+                subheader={
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Chip 
+                      label={review.lectureTitle} 
+                      size="small" 
+                      color="primary" 
+                      variant="outlined"
+                      className="review-chip"
+                      icon={<Bookmark sx={{ fontSize: '0.9rem', color: '#028267' }} />}
+                    />
+
+                  </Box>
+                }
+              />
+              <Divider />
+              <CardContent>
+                <Typography 
+                  className="review-content"
+                >
+                  {review.content}
+                </Typography>
+                <Box className="review-meta">
+                  <Typography className="review-author" variant="body2">
+                    <Person sx={{ fontSize: '1rem', verticalAlign: 'middle', mr: 0.5 }} />
+                    {review.author}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    작성일: {new Date(review.createdAt).toLocaleDateString('ko-KR')}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Box>
+                  <Box className="review-date">
+                    <DateRange fontSize="small" sx={{ mr: 0.5, fontSize: '1rem', color: 'text.secondary' }} />
+                    <Typography variant="body2" color="text.secondary">
+                      {formatDate(review.createdAt)}
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
           ))}
         </Box>
       )}

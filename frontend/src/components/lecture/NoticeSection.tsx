@@ -136,7 +136,7 @@ const NoticeSection: React.FC<NoticeSectionProps> = ({
                                         <span>{new Date(notice.createdAt).toLocaleDateString()}</span>
                                     </div>
                                 </li>
-                            ))}
+                                ))}
                         </ul>
                     )}
                 </>

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './VideoPage.css';
+
 
 interface Content {
     id: number;
@@ -191,7 +193,7 @@ const VideoPage: React.FC = () => {
         <div style={{ padding: '20px' }}>
             <h2>📺 강의 영상 {currentContent ? `- ${currentContent.title}` : ''}</h2>
 
-            <div id="ytplayer" style={{ width: '100%', height: '600px' }}></div>
+            <div id="ytplayer" className="youtube-player"></div>
 
             {showResumeDialog && isPlayerReady && (
                 <div style={{
@@ -199,26 +201,19 @@ const VideoPage: React.FC = () => {
                     backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 9999,
                     display: 'flex', justifyContent: 'center', alignItems: 'center'
                 }}>
-                    <div style={{ background: '#fff', padding: 30, borderRadius: 10, textAlign: 'center' }}>
+                    <div style={{background: '#fff', padding: 30, borderRadius: 10, textAlign: 'center'}}>
                         <h3>이어보기를 하시겠습니까?</h3>
-                        <p>{resumeTimeRef.current}초부터 이어볼 수 있습니다.</p>
+                        <p>
+                            {Math.floor(resumeTimeRef.current / 60)}분 {resumeTimeRef.current % 60}초부터 이어볼 수 있습니다.
+                        </p>
                         <button
                             onClick={() => {
                                 setShouldResume(true);
                                 setShowResumeDialog(false);
                             }}
-                            style={{
-                                backgroundColor: '#3f51b5',
-                                color: 'white',
-                                padding: '8px 16px',
-                                borderRadius: '20px',
-                                fontSize: '16px',
-                                border: 'none',
-                                marginRight: '10px',
-                                cursor: 'pointer'
-                            }}
+                            className="resume-dialog-button"
                         >
-                             이어보기
+                            이어보기
                         </button>
 
                         <button
@@ -226,36 +221,26 @@ const VideoPage: React.FC = () => {
                                 setShouldResume(false);
                                 setShowResumeDialog(false);
                             }}
-                            style={{
-                                backgroundColor: '#3f51b5',
-                                color: 'white',
-                                padding: '8px 16px',
-                                borderRadius: '20px',
-                                fontSize: '16px',
-                                border: 'none',
-                                cursor: 'pointer'
-                            }}
+                            className="resume-dialog-button"
                         >
-                             처음부터
+                            처음부터
                         </button>
 
                     </div>
                 </div>
             )}
 
-            <div style={{ marginTop: '20px' }}>
-                <button onClick={() => navigate(-1)} style={{ padding: '8px 16px', fontSize: '16px' }}>
+            <div className="video-button-group">
+            <button onClick={() => navigate(-1)} className="video-button">
                     ⬅ 뒤로가기
                 </button>
                 {showNextButton && (
-                    <button
-                        onClick={handleNext}
-                        style={{ marginLeft: '10px', padding: '8px 16px', fontSize: '16px' }}
-                    >
+                    <button onClick={handleNext} className="video-button">
                         ▶ 다음 영상 보기
                     </button>
                 )}
             </div>
+
         </div>
     );
 };

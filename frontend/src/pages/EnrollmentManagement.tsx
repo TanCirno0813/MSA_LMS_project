@@ -19,7 +19,7 @@ import {
   DialogContentText,
   DialogTitle
 } from '@mui/material';
-import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon } from '@mui/icons-material';
+import { CheckCircle as CheckCircleIcon, Cancel as CancelIcon, Refresh as RefreshIcon } from '@mui/icons-material';
 
 // 수강 신청 데이터 타입 정의
 interface Enrollment {
@@ -48,41 +48,40 @@ const EnrollmentManagement: React.FC = () => {
   const [actionType, setActionType] = useState<'approve' | 'reject'>('approve');
   const [lectures, setLectures] = useState<Record<number, string>>({});
 
-  // 모든 수강 신청 목록 불러오기
-  useEffect(() => {
-    const fetchEnrollments = async () => {
-      try {
-        setLoading(true);
-        // AdminEnrollmentController의 경로에 맞게 수정
-        const response = await fetch('/api/admins/enrollments');
-        
-        if (!response.ok) {
-          throw new Error(`수강 신청 목록을 불러오는데 실패했습니다. 상태 코드: ${response.status}`);
-        }
-        
-        // 응답 ContentType 확인
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          throw new Error(`API에서 예상치 못한 응답 형식을 반환했습니다: ${contentType}`);
-        }
-        
-        const data = await response.json();
-        setEnrollments(data);
-
-        // 강의 ID 목록 추출
-        const lectureIds = [...new Set(data.map((item: Enrollment) => item.lectureId))].filter(id => typeof id === 'number') as number[];
-        
-        // 각 강의 정보 가져오기
-        await fetchLectureTitles(lectureIds);
-      } catch (error) {
-        console.error('수강 신청 목록 불러오기 오류:', error);
-        setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
-      } finally {
-        setLoading(false);
+  // 모든 수강 신청 목록을 다시 불러오는 함수
+  const fetchAllEnrollments = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admins/enrollments');
+      
+      if (!response.ok) {
+        throw new Error(`수강 신청 목록을 불러오는데 실패했습니다. 상태 코드: ${response.status}`);
       }
-    };
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error(`API에서 예상치 못한 응답 형식을 반환했습니다: ${contentType}`);
+      }
+      
+      const data = await response.json();
+      setEnrollments(data);
 
-    fetchEnrollments();
+      // 강의 ID 목록 추출
+      const lectureIds = [...new Set(data.map((item: Enrollment) => item.lectureId))].filter(id => typeof id === 'number') as number[];
+      
+      // 각 강의 정보 가져오기
+      await fetchLectureTitles(lectureIds);
+    } catch (error) {
+      console.error('수강 신청 목록 불러오기 오류:', error);
+      setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 최초 데이터 로딩
+  useEffect(() => {
+    fetchAllEnrollments();
   }, []);
 
   // 강의 제목 가져오기
@@ -121,6 +120,7 @@ const EnrollmentManagement: React.FC = () => {
   // 수강 신청 승인 처리
   const handleApprove = async (id: number) => {
     try {
+      setLoading(true);
       // AdminEnrollmentController의 경로에 맞게 수정
       const response = await fetch(`/api/admins/enrollments/${id}/approve`, {
         method: 'PUT',
@@ -133,21 +133,20 @@ const EnrollmentManagement: React.FC = () => {
         throw new Error(`수강 신청 승인에 실패했습니다. 상태 코드: ${response.status}`);
       }
 
-      // 승인 후 목록 업데이트
-      setEnrollments(enrollments.map(enrollment => 
-        enrollment.id === id ? { ...enrollment, status: 'APPROVED' } : enrollment
-      ));
-      
       setOpenDialog(false);
+      // 승인 후 목록 새로고침
+      await fetchAllEnrollments();
     } catch (error) {
       console.error('수강 신청 승인 오류:', error);
       alert(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
+      setLoading(false);
     }
   };
 
   // 수강 신청 거절 처리
   const handleReject = async (id: number) => {
     try {
+      setLoading(true);
       // AdminEnrollmentController의 경로에 맞게 수정
       const response = await fetch(`/api/admins/enrollments/${id}/reject`, {
         method: 'PUT',
@@ -160,15 +159,13 @@ const EnrollmentManagement: React.FC = () => {
         throw new Error(`수강 신청 거절에 실패했습니다. 상태 코드: ${response.status}`);
       }
 
-      // 거절 후 목록 업데이트
-      setEnrollments(enrollments.map(enrollment => 
-        enrollment.id === id ? { ...enrollment, status: 'REJECTED' } : enrollment
-      ));
-      
       setOpenDialog(false);
+      // 거절 후 목록 새로고침
+      await fetchAllEnrollments();
     } catch (error) {
       console.error('수강 신청 거절 오류:', error);
       alert(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
+      setLoading(false);
     }
   };
 
@@ -229,9 +226,17 @@ const EnrollmentManagement: React.FC = () => {
         <Typography variant="h4" className="admin-title">
           수강 신청 관리
         </Typography>
-        <Typography variant="subtitle1" className="admin-subtitle">
+        <Typography variant="subtitle1" className="admin-subtitle" sx={{ mb: 2 }}>
           사용자들의 수강 신청을 승인하거나 거절합니다.
         </Typography>
+        <Button 
+          variant="outlined" 
+          startIcon={<RefreshIcon />} 
+          onClick={fetchAllEnrollments}
+          sx={{ mb: 2 }}
+        >
+          새로고침
+        </Button>
       </Box>
 
       <TableContainer component={Paper}>
@@ -299,7 +304,7 @@ const EnrollmentManagement: React.FC = () => {
       {/* 확인 다이얼로그 */}
       <Dialog
         open={openDialog}
-        onClose={() => setOpenDialog(false)}
+        onClose={() => !loading && setOpenDialog(false)}
       >
         <DialogTitle>
           {actionType === 'approve' ? '수강 신청 승인' : '수강 신청 거절'}
@@ -315,9 +320,14 @@ const EnrollmentManagement: React.FC = () => {
               </>
             )}
           </DialogContentText>
+          {loading && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+              <CircularProgress size={24} />
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} color="inherit">
+          <Button onClick={() => setOpenDialog(false)} color="inherit" disabled={loading}>
             취소
           </Button>
           {selectedEnrollment && (
@@ -328,6 +338,7 @@ const EnrollmentManagement: React.FC = () => {
               } 
               color={actionType === 'approve' ? 'success' : 'error'}
               autoFocus
+              disabled={loading}
             >
               {actionType === 'approve' ? '승인하기' : '거절하기'}
             </Button>

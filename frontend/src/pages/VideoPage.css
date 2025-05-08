@@ -1,0 +1,47 @@
+.video-button-group {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 300px;
+}
+.video-button {
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: #028267; /* 초록색 */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.video-button + .video-button {
+    margin-left: 10px;
+}
+
+
+.youtube-player {
+    width: 70%;           /* 가로 폭 줄이기 */
+    height: 700px;        /* 높이도 줄이기 */
+    margin: 0 auto;       /* 가운데 정렬 */
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/*이어보기 부분*/
+.resume-dialog-button {
+    background-color: #028267;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.resume-dialog-button:hover {
+    background-color: #4f856a;
+}

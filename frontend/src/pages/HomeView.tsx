@@ -6,7 +6,8 @@ import './HomeView.css';
 
 import axios from '../api/axios'; // 경로는 프로젝트 구조에 맞게
 import {Link, useNavigate} from 'react-router-dom';
-import {Box, Button} from "@mui/material";
+import { Typography} from "@mui/material";
+import { Forum } from '@mui/icons-material';
 
 
 interface BannerSlide {
@@ -60,8 +61,18 @@ const categoryCards = [
   },
 ];
 
+interface Review {
+  id: number;
+  title: string;
+  author: string;
+  content: string;
+  lectureTitle: string;
+  createdAt: string;
+}
+
 const HomeView = () => {
   const bannerRef = useRef<HTMLDivElement>(null);
+  const [recentReviews, setRecentReviews] = useState<Review[]>([]);
 
   useEffect(() => {
     const swiper = new Swiper('.bannerSwiper', {
@@ -99,12 +110,49 @@ const HomeView = () => {
     axios.get('/notices').then(res => {
       setNotices(res.data.slice(0, 5)); // 최근 5개만
     });
+    
+    // 최근 리뷰 가져오기
+    axios.get('/reviews').then(res => {
+      // 최근 리뷰 3개만 표시
+      setRecentReviews(res.data.slice(0, 3));
+    }).catch(err => {
+      console.error('리뷰 로딩 오류:', err);
+    });
   }, []);
 
 
   const navigate = useNavigate();
   const handleCategoryClick = (category: string) => {
     navigate(`/lectures?page=1&category=${encodeURIComponent(category)}`);
+  };
+
+  // 프로필 이미지 색상 생성 함수
+  const getProfileColor = (name: string) => {
+    const colors = ['#028267', '#5e35b1', '#d81b60', '#039be5', '#fb8c00', '#546e7a'];
+    const hash = name.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
+    return colors[hash % colors.length];
+  };
+
+  // 날짜 포맷팅
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return '오늘';
+    } else if (diffDays === 1) {
+      return '어제';
+    } else if (diffDays < 7) {
+      return `${diffDays}일 전`;
+    } else {
+      return date.toLocaleDateString('ko-KR', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
   };
 
 
@@ -173,30 +221,81 @@ const HomeView = () => {
           </div>
         </section>
 
-        <section className="home-notice-preview" style={{padding: '20px 40px'}}>
-          <h2 style={{marginBottom: '10px'}}>📢 공지사항</h2>
-          <ul style={{listStyle: 'none', padding: 0}}>
+        {/* 공지사항 섹션 */}
+        <section className="home-notice-preview">
+          <div>
+          <h2>📢 공지사항</h2>
+          <ul className="notice-list">
             {notices.map(notice => (
-                <li key={notice.id} style={{marginBottom: '6px'}}>
-                  <Link to={`/notices/${notice.id}`} style={{textDecoration: 'none', color: '#333'}}>
-                    {notice.title} <span style={{fontSize: '0.8rem', color: '#888'}}>
-            ({new Date(notice.createdAt).toLocaleDateString()})
-          </span>
+                <li key={notice.id} className="notice-item">
+                  <Link to={`/notices/${notice.id}`} className="notice-link">
+                    <span className="notice-title">{notice.title}</span>
+                    <span className="notice-date">
+                      {new Date(notice.createdAt).toLocaleDateString()}
+                    </span>
                   </Link>
                 </li>
             ))}
           </ul>
-          <Box display="flex" justifyContent="flex-end" mt={1}>
-            <Button
-                size="small"
-                component={Link}
-                to="/notices"
-                variant="text"
-                sx={{textTransform: 'none'}}
-            >
+          <div>
+            <Link to="/notices" className="more-button">
               더보기 →
-            </Button>
-          </Box>
+            </Link>
+          </div>
+          </div>
+        </section>
+
+        {/* 최근 리뷰 섹션 */}
+        <section className="home-reviews-preview">
+          <div className="home-reviews-header">
+            <h2 className="home-reviews-title">💬 최근 리뷰</h2>
+            <Link to="/reviews" className="reviews-button">
+              모든 리뷰 보기
+            </Link>
+          </div>
+          
+          {recentReviews.length === 0 ? (
+            <div className="empty-reviews">
+              <Forum className="empty-icon" />
+              <Typography variant="h6">아직 등록된 리뷰가 없습니다.</Typography>
+              <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                첫 번째 리뷰를 작성해보세요. 강의를 수강한 후 리뷰를 남겨주시면 다른 수강생들에게 도움이 됩니다.
+              </Typography>
+            </div>
+          ) : (
+            <div className="reviews-grid">
+              {recentReviews.map((review) => (
+                <div key={review.id} className="review-card">
+                  <div className="review-content">
+                    <div className="review-header">
+                      <div 
+                        className="review-avatar"
+                        style={{ backgroundColor: getProfileColor(review.author) }}
+                      >
+                        {review.author.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="review-info">
+                        <div className="review-title">{review.title}</div>
+                        <div className="review-meta">
+                          {review.author} • {formatDate(review.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <hr className="review-divider" />
+                    
+                    <div className="lecture-chip">
+                      {review.lectureTitle}
+                    </div>
+                    
+                    <div className="review-text">
+                      {review.content}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
       </div>

@@ -13,7 +13,7 @@ const LectureSidebar: React.FC<LectureSidebarProps> = ({
     notices,
     activeSection, 
     onSectionChange,
-                                                           completionRate // ✅ props 받기
+    completionRate // ✅ props 받기
 }) => {
     return (
         <div className="lecture-sidebar">

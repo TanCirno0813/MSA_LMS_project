@@ -30,9 +30,9 @@
 .search-bar button {
     padding: 0 20px;
     font-size: 1rem;
-    background-color: #5a48d0;
+    background-color: #028267;
     color: white;
-    border: 1px solid #5a48d0;
+    border: 1px solid #028267;
     border-left: none;
     border-radius: 0 20px 20px 0;
     cursor: pointer;
@@ -62,9 +62,9 @@
 }
 
 .filter-group .active {
-    background-color: #5a48d0;
+    background-color: #028267;
     color: #fff;
-    border-color: #5a48d0;
+    border-color: #028267;
 }
 /* 메인 검색창 */
 .main-search-bar {
@@ -87,9 +87,9 @@
 .main-search-bar button {
     padding: 0 20px;
     font-size: 1rem;
-    background-color: #5a48d0;
+    background-color: #028267;
     color: white;
-    border: 1px solid #5a48d0;
+    border: 1px solid #028267;
     border-left: none;
     border-radius: 0 20px 20px 0;
     cursor: pointer;
