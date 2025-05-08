@@ -9,6 +9,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gateway/MSA_LMS_project.gateway.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gateway/MSA_LMS_project.gateway.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lecture-service/MSA_LMS_project.lecture-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/lecture-service/MSA_LMS_project.lecture-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/notice-service/MSA_LMS_project.notice-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/notice-service/MSA_LMS_project.notice-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/recruitment-service/MSA_LMS_project.recruitment-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/recruitment-service/MSA_LMS_project.recruitment-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/review-service/MSA_LMS_project.review-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/review-service/MSA_LMS_project.review-service.main.iml" />
     </modules>
   </component>

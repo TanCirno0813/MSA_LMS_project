@@ -1,0 +1,35 @@
+server:
+  port: 7979
+
+spring:
+  application:
+    name: recruitment-service
+  datasource:
+    url: jdbc:mysql://localhost:3309/lms?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: user
+    password: user123
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# 로깅 설정
+logging:
+  level:
+    org.springframework.web.client.RestTemplate: DEBUG
+    edu.ct.admin: DEBUG
+
+api:
+  service:
+    key: lmNclzwIue7M4FhXxtpNonBSyWscgAIA1OIl5WJgsKYc%2BHtrEc5xrl7OfLuqecUoO6ZHRadeqR5RLuT35qUu6g%3D%3D

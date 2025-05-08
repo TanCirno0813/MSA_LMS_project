@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "gateway-service")
+@FeignClient(name = "lecture-service")
 public interface LectureClient {
     @GetMapping("/api/lectures/user/{userId}")
     List<LectureDto> getLecturesByUser(@PathVariable("userId") Long userId);

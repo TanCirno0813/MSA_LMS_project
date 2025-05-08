@@ -33,4 +33,3 @@ logging:
   level:
     org.springframework.web.client.RestTemplate: DEBUG
     edu.ct.admin: DEBUG
-

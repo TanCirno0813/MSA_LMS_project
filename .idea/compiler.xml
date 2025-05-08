@@ -14,6 +14,7 @@
         <module name="MSA_LMS_project.admin-service.main" />
         <module name="MSA_LMS_project.gateway.main" />
         <module name="MSA_LMS_project.notice-service.main" />
+        <module name="MSA_LMS_project.recruitment-service.main" />
         <module name="MSA_LMS_project.eureka-server.main" />
       </profile>
     </annotationProcessing>
@@ -44,6 +45,9 @@
       <module name="MSA_LMS_project.notice-service" options="-parameters" />
       <module name="MSA_LMS_project.notice-service.main" options="-parameters" />
       <module name="MSA_LMS_project.notice-service.test" options="-parameters" />
+      <module name="MSA_LMS_project.recruitment-service" options="-parameters" />
+      <module name="MSA_LMS_project.recruitment-service.main" options="-parameters" />
+      <module name="MSA_LMS_project.recruitment-service.test" options="-parameters" />
       <module name="MSA_LMS_project.review-service" options="-parameters" />
       <module name="MSA_LMS_project.review-service.main" options="-parameters" />
       <module name="MSA_LMS_project.review-service.test" options="-parameters" />

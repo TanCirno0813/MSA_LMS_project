@@ -37,6 +37,19 @@
 | POST | `/api/lectures` | 강의 생성 (제목, 작성자, 설명, 썸네일, 카테고리) |
 | PUT | `/api/lectures/{id}` | 강의 정보 수정 (제목, 작성자, 설명, 썸네일, 카테고리) |
 | DELETE | `/api/lectures/{id}` | 강의 삭제 |
+| GET | `/api/lectures/user/{userId}` | 특정 사용자의 강의 목록 조회 |
+| GET | `/api/lectures/all` | 전체 강의 목록 조회 (페이징 없음) |
+| POST | `/api/lectures/{id}/like` | 강의 좋아요 토글 (JWT 토큰 필요) |
+| GET | `/api/lectures/{id}/likes` | 강의 좋아요 수 조회 |
+
+### Lecture Enrollment API (`/api/lectures/{lectureId}/enrollments`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/lectures/{lectureId}/enrollments` | 강의 수강 신청 |
+| GET | `/api/lectures/{lectureId}/enrollments/status` | 강의 수강 신청 상태 확인 |
+| GET | `/api/enrollments/all` | 전체 수강 신청 목록 조회 (관리자용) |
+| PUT | `/api/enrollments/{id}/approve` | 수강 신청 승인 (관리자용) |
+| PUT | `/api/enrollments/{id}/reject` | 수강 신청 거절 (관리자용) |
 
 ### Content API (`/api/contents`)
 | Method | Endpoint | Description |
@@ -115,6 +128,13 @@
 | POST | `/api/chat/{userId}` | 사용자의 채팅 메시지 전송 및 AI 응답 |
 
 ## 6. Admin Service API
+
+### Enrollment Admin API (`/api/admins/enrollments`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admins/enrollments` | 전체 수강 신청 목록 조회 |
+| PUT | `/api/admins/enrollments/{id}/approve` | 수강 신청 승인 처리 |
+| PUT | `/api/admins/enrollments/{id}/reject` | 수강 신청 거절 처리 |
 
 ### Content Admin API (`/api/admins/contents`)
 | Method | Endpoint | Description |
