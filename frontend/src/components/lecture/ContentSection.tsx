@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lecture } from '../../utils/LectureDetailUtils';
+import './ContentSection.css';
 
 interface ContentSectionProps {
     lecture: Lecture;
+    setCompletionRate: (rate: number) => void;
 }
 
 interface CompletionData {
@@ -12,9 +14,10 @@ interface CompletionData {
     totalDuration: number;
 }
 
-const ContentSection: React.FC<ContentSectionProps> = ({ lecture }) => {
+const ContentSection: React.FC<ContentSectionProps> = ({ lecture, setCompletionRate }) => {
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [currentUser, setCurrentUser] = useState<string | null>(null);
     const [completionMap, setCompletionMap] = useState<Record<string, CompletionData>>({});
 
     useEffect(() => {
@@ -22,6 +25,19 @@ const ContentSection: React.FC<ContentSectionProps> = ({ lecture }) => {
         setIsLoggedIn(!!token);
 
         if (token) {
+            fetch('/api/users/me', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+                .then((res) => res.json())
+                .then((userData) => {
+                    setCurrentUser(userData.id);
+                })
+                .catch((err) => {
+                    console.error('사용자 정보 불러오기 실패:', err);
+                });
+
             fetch('/api/completions/me', {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -51,9 +67,42 @@ const ContentSection: React.FC<ContentSectionProps> = ({ lecture }) => {
             setIsLoggedIn(!!newToken);
         };
 
+        const totalContents = lecture.contents.length;
+        let completedCount = 0;
+
+
+        lecture.contents.forEach((content) => {
+            let progress = 0;
+
+            if (content.type === 'video') {
+                progress = calculateProgress(content.title);
+            } else if (content.type === 'quiz') {
+                const isQuizCompleted = localStorage.getItem(`quizCompleted_${lecture.id}_${currentUser}`) === 'true';
+                progress = isQuizCompleted ? 100 : 0;
+            }
+
+            if (progress >= 100) completedCount += 1;
+        });
+
+        const rate = Math.round((completedCount / totalContents) * 100);
+        setCompletionRate(rate);
+
         window.addEventListener('auth-change', handleAuthChange);
-        return () => window.removeEventListener('auth-change', handleAuthChange);
-    }, [lecture.id]);
+
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key && e.key.startsWith('quizCompleted_')) {
+                // 강제로 상태 갱신 (setCompletionMap 등)
+                setCompletionMap((prev) => ({ ...prev }));
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('auth-change', handleAuthChange);
+        };
+    }, [lecture.id, completionMap, lecture.contents, currentUser]);
 
     const handleContentClick = (e: React.MouseEvent, isVideo: boolean, contentUrl?: string) => {
         if (!isLoggedIn) {

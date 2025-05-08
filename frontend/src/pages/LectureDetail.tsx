@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import LectureSidebar from '../components/LectureSidebar.tsx';
 import NoticeSection from '../components/lecture/NoticeSection';
 import QnaSection from '../components/lecture/QnaSection';
@@ -61,6 +61,9 @@ const LectureDetail: React.FC = () => {
     const [isWritingReview, setIsWritingReview] = useState(false);
     const [isEditingReview, setIsEditingReview] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+
+
+    const [completionRate, setCompletionRate] = useState<number>(0);
 
     // 자료실 업로드
     const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
@@ -413,9 +416,8 @@ const LectureDetail: React.FC = () => {
         }
     };
 
-    const handleReviewClick = (review: LectureReview) => {
+    const handleReviewClick = (review: LectureReview | null) => {
         setSelectedReview(review);
-        setIsEditingReview(false);
     };
     
     const handleWriteReviewClick = () => {
@@ -490,21 +492,35 @@ const LectureDetail: React.FC = () => {
 
     if (isLoading) return (
         <div className="loading-container">
-            <p className="loading-text">로딩 중...</p>
+            <div className="loading-spinner">
+                <div className="spinner"></div>
+            </div>
+            <p className="loading-text">강의 정보를 불러오는 중입니다...</p>
         </div>
     );
 
     if (!lecture) return (
-        <div className="loading-container">
-            <p className="loading-text">강의 정보가 없습니다</p>
+        <div className="error-container">
+            <div className="error-icon">❌</div>
+            <p className="error-text">강의 정보를 찾을 수 없습니다</p>
+            <button className="btn btn-primary" onClick={() => window.history.back()}>
+                이전 페이지로 돌아가기
+            </button>
         </div>
     );
 
     return (
         <div className="lecture-container">
             <div className="lecture-header">
+                <h1 className="lecture-title">{lecture.title}</h1>
+                <div className="lecture-author-container">
+                    <span className="lecture-author-badge">강사</span>
+                    <p className="lecture-author">{lecture.author}</p>
+                </div>
+                <p className="lecture-description">{lecture.description}</p>
+                
                 {isLoggedIn() && (
-                    <>
+                    <div>
                         {(enrollmentStatus === null || enrollmentStatus === 'NONE') && (
                             <button
                                 onClick={async () => {
@@ -537,22 +553,47 @@ const LectureDetail: React.FC = () => {
                             </button>
                         )}
                         {enrollmentStatus === 'PENDING' && (
-                            <div className="enrollment-status pending">신청 대기 중</div>
+                            <div className="enrollment-status pending">신청 대기 중 - 승인 후 강의를 수강할 수 있습니다</div>
                         )}
                         {enrollmentStatus === 'APPROVED' && (
                             <div className="enrollment-status approved">수강 승인됨</div>
                         )}
                         {enrollmentStatus === 'REJECTED' && (
-                            <div className="enrollment-status rejected">신청 거절됨</div>
+                            <>
+                                <div className="enrollment-status rejected">신청 거절됨</div>
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const response = await fetch(`/api/lectures/${lecture.id}/enrollments`, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                                body: JSON.stringify({
+                                                    userId: getCurrentUser(),
+                                                }),
+                                            });
+
+                                            if (!response.ok) {
+                                                const errorData = await response.json();
+                                                throw new Error(errorData.message || '신청 실패');
+                                            }
+
+                                            alert('수강 신청이 완료되었습니다!');
+                                            setEnrollmentStatus('PENDING');
+                                        } catch (error) {
+                                            alert('수강 신청 중 오류가 발생했습니다.');
+                                            console.error(error);
+                                        }
+                                    }}
+                                    className="lecture-enroll-btn"
+                                >
+                                    다시 신청하기
+                                </button>
+                            </>
                         )}
-                    </>
+                    </div>
                 )}
-                <h1 className="lecture-title">{lecture.title}</h1>
-                <div className="lecture-author-container">
-                    <span className="lecture-author-badge">강사</span>
-                    <p className="lecture-author">{lecture.author}</p>
-                </div>
-                <p className="lecture-description">{lecture.description}</p>
             </div>
 
             <div className="lecture-content-container">
@@ -561,6 +602,7 @@ const LectureDetail: React.FC = () => {
                     notices={notices} 
                     onSectionChange={handleSectionChange} 
                     activeSection={activeSection}
+                    completionRate={completionRate}
                 />
                 
                 {activeSection === 'notice' && (
@@ -627,26 +669,293 @@ const LectureDetail: React.FC = () => {
                 )}
                 
                 {activeSection === 'contents' && (
-                    <ContentSection lecture={lecture} />
+                    <>
+                        {!isLoggedIn() ? (
+                            <div className="content-wrapper">
+                                <div className="content-blurred">
+                                    <ContentSection lecture={lecture} setCompletionRate={setCompletionRate} />
+                                </div>
+                                <div className="content-access-message">
+                                    <h3>로그인 필요</h3>
+                                    <p>강의 콘텐츠를 보려면 로그인 후 수강 신청을 해주세요.</p>
+                                    <Link to="/login" className="login-button">로그인 페이지로 이동</Link>
+                                </div>
+                            </div>
+                        ) : enrollmentStatus === 'APPROVED' ? (
+                            <ContentSection lecture={lecture} setCompletionRate={setCompletionRate} />
+                        ) : enrollmentStatus === 'PENDING' ? (
+                            <div className="content-wrapper">
+                                <div className="content-blurred">
+                                    <ContentSection lecture={lecture} setCompletionRate={setCompletionRate} />
+                                </div>
+                                <div className="content-access-message">
+                                    <h3>수강 신청 대기 중</h3>
+                                    <p>관리자의 승인 후에 강의 콘텐츠를 볼 수 있습니다.</p>
+                                    <Link to="/" className="login-button">
+                                        메인 페이지로 이동
+                                    </Link>
+                                </div>
+                            </div>
+                        ) : enrollmentStatus === 'REJECTED' ? (
+                            <div className="content-wrapper">
+                                <div className="content-blurred">
+                                    <ContentSection lecture={lecture} setCompletionRate={setCompletionRate} />
+                                </div>
+                                <div className="content-access-message">
+                                    <h3>수강 신청이 거절되었습니다</h3>
+                                    <p>수강 신청이 거절되었습니다. 다시 신청하시거나 관리자에게 문의해주세요.</p>
+                                    <button 
+                                        onClick={async () => {
+                                            try {
+                                                const response = await fetch(`/api/lectures/${lecture.id}/enrollments`, {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                    },
+                                                    body: JSON.stringify({
+                                                        userId: getCurrentUser(),
+                                                    }),
+                                                });
+
+                                                if (!response.ok) {
+                                                    const errorData = await response.json();
+                                                    throw new Error(errorData.message || '신청 실패');
+                                                }
+
+                                                alert('수강 신청이 완료되었습니다!');
+                                                setEnrollmentStatus('PENDING');
+                                            } catch (error) {
+                                                alert('수강 신청 중 오류가 발생했습니다.');
+                                                console.error(error);
+                                            }
+                                        }}
+                                        className="enroll-button"
+                                    >
+                                        다시 신청하기
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="content-wrapper">
+                                <div className="content-blurred">
+                                    <ContentSection lecture={lecture} setCompletionRate={setCompletionRate} />
+                                </div>
+                                <div className="content-access-message">
+                                    <h3>수강 신청 필요</h3>
+                                    <p>강의 콘텐츠를 보려면 수강 신청을 해주세요.</p>
+                                    <button 
+                                        onClick={async () => {
+                                            try {
+                                                const response = await fetch(`/api/lectures/${lecture.id}/enrollments`, {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                    },
+                                                    body: JSON.stringify({
+                                                        userId: getCurrentUser(),
+                                                    }),
+                                                });
+
+                                                if (!response.ok) {
+                                                    const errorData = await response.json();
+                                                    throw new Error(errorData.message || '신청 실패');
+                                                }
+
+                                                alert('수강 신청이 완료되었습니다!');
+                                                setEnrollmentStatus('PENDING');
+                                            } catch (error) {
+                                                alert('수강 신청 중 오류가 발생했습니다.');
+                                                console.error(error);
+                                            }
+                                        }}
+                                        className="enroll-button"
+                                    >
+                                        수강 신청하기
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {activeSection === 'progress' && (
-                    <ResourcesSection
-                        resources={resources}
-                        selectedResource={selectedResource}
-                        isUploading={isUploading}
-                        userIsAdmin={userIsAdmin}
-                        onUploadClick={() => setIsUploading(true)}
-                        onCancelUpload={() => {
-                            setIsUploading(false);
-                            setSelectedFile(null);
-                        }}
-                        onFileChange={setSelectedFile}
-                        onUploadSubmit={handleUpload}
-                        onResourceClick={setSelectedResource}
-                        onDeleteResource={handleDelete}
-                    />
+                    <>
+                        {!isLoggedIn() ? (
+                            <div className="content-wrapper">
+                                <div className="content-blurred">
+                                    <ResourcesSection
+                                        resources={resources}
+                                        selectedResource={selectedResource}
+                                        isUploading={isUploading}
+                                        userIsAdmin={userIsAdmin}
+                                        onUploadClick={() => setIsUploading(true)}
+                                        onCancelUpload={() => {
+                                            setIsUploading(false);
+                                            setSelectedFile(null);
+                                        }}
+                                        onFileChange={setSelectedFile}
+                                        onUploadSubmit={handleUpload}
+                                        onResourceClick={setSelectedResource}
+                                        onDeleteResource={handleDelete}
+                                    />
+                                </div>
+                                <div className="content-access-message">
+                                    <h3>로그인 필요</h3>
+                                    <p>강의 자료를 보려면 로그인 후 수강 신청을 해주세요.</p>
+                                    <Link to="/login" className="login-button">로그인 페이지로 이동</Link>
+                                </div>
+                            </div>
+                        ) : enrollmentStatus === 'APPROVED' || userIsAdmin ? (
+                            <ResourcesSection
+                                resources={resources}
+                                selectedResource={selectedResource}
+                                isUploading={isUploading}
+                                userIsAdmin={userIsAdmin}
+                                onUploadClick={() => setIsUploading(true)}
+                                onCancelUpload={() => {
+                                    setIsUploading(false);
+                                    setSelectedFile(null);
+                                }}
+                                onFileChange={setSelectedFile}
+                                onUploadSubmit={handleUpload}
+                                onResourceClick={setSelectedResource}
+                                onDeleteResource={handleDelete}
+                            />
+                        ) : enrollmentStatus === 'PENDING' ? (
+                            <div className="content-wrapper">
+                                <div className="content-blurred">
+                                    <ResourcesSection
+                                        resources={resources}
+                                        selectedResource={selectedResource}
+                                        isUploading={isUploading}
+                                        userIsAdmin={userIsAdmin}
+                                        onUploadClick={() => setIsUploading(true)}
+                                        onCancelUpload={() => {
+                                            setIsUploading(false);
+                                            setSelectedFile(null);
+                                        }}
+                                        onFileChange={setSelectedFile}
+                                        onUploadSubmit={handleUpload}
+                                        onResourceClick={setSelectedResource}
+                                        onDeleteResource={handleDelete}
+                                    />
+                                </div>
+                                <div className="content-access-message">
+                                    <h3>수강 신청 대기 중</h3>
+                                    <p>관리자의 승인 후에 강의 자료를 볼 수 있습니다.</p>
+                                    <Link to="/" className="login-button">
+                                        메인 페이지로 이동
+                                    </Link>
+                                </div>
+                            </div>
+                        ) : enrollmentStatus === 'REJECTED' ? (
+                            <div className="content-wrapper">
+                                <div className="content-blurred">
+                                    <ResourcesSection
+                                        resources={resources}
+                                        selectedResource={selectedResource}
+                                        isUploading={isUploading}
+                                        userIsAdmin={userIsAdmin}
+                                        onUploadClick={() => setIsUploading(true)}
+                                        onCancelUpload={() => {
+                                            setIsUploading(false);
+                                            setSelectedFile(null);
+                                        }}
+                                        onFileChange={setSelectedFile}
+                                        onUploadSubmit={handleUpload}
+                                        onResourceClick={setSelectedResource}
+                                        onDeleteResource={handleDelete}
+                                    />
+                                </div>
+                                <div className="content-access-message">
+                                    <h3>수강 신청이 거절되었습니다</h3>
+                                    <p>수강 신청이 거절되었습니다. 다시 신청하시거나 관리자에게 문의해주세요.</p>
+                                    <button 
+                                        onClick={async () => {
+                                            try {
+                                                const response = await fetch(`/api/lectures/${lecture.id}/enrollments`, {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                    },
+                                                    body: JSON.stringify({
+                                                        userId: getCurrentUser(),
+                                                    }),
+                                                });
 
+                                                if (!response.ok) {
+                                                    const errorData = await response.json();
+                                                    throw new Error(errorData.message || '신청 실패');
+                                                }
+
+                                                alert('수강 신청이 완료되었습니다!');
+                                                setEnrollmentStatus('PENDING');
+                                            } catch (error) {
+                                                alert('수강 신청 중 오류가 발생했습니다.');
+                                                console.error(error);
+                                            }
+                                        }}
+                                        className="enroll-button"
+                                    >
+                                        다시 신청하기
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="content-wrapper">
+                                <div className="content-blurred">
+                                    <ResourcesSection
+                                        resources={resources}
+                                        selectedResource={selectedResource}
+                                        isUploading={isUploading}
+                                        userIsAdmin={userIsAdmin}
+                                        onUploadClick={() => setIsUploading(true)}
+                                        onCancelUpload={() => {
+                                            setIsUploading(false);
+                                            setSelectedFile(null);
+                                        }}
+                                        onFileChange={setSelectedFile}
+                                        onUploadSubmit={handleUpload}
+                                        onResourceClick={setSelectedResource}
+                                        onDeleteResource={handleDelete}
+                                    />
+                                </div>
+                                <div className="content-access-message">
+                                    <h3>수강 신청 필요</h3>
+                                    <p>강의 자료를 보려면 수강 신청을 해주세요.</p>
+                                    <button 
+                                        onClick={async () => {
+                                            try {
+                                                const response = await fetch(`/api/lectures/${lecture.id}/enrollments`, {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                    },
+                                                    body: JSON.stringify({
+                                                        userId: getCurrentUser(),
+                                                    }),
+                                                });
+
+                                                if (!response.ok) {
+                                                    const errorData = await response.json();
+                                                    throw new Error(errorData.message || '신청 실패');
+                                                }
+
+                                                alert('수강 신청이 완료되었습니다!');
+                                                setEnrollmentStatus('PENDING');
+                                            } catch (error) {
+                                                alert('수강 신청 중 오류가 발생했습니다.');
+                                                console.error(error);
+                                            }
+                                        }}
+                                        className="enroll-button"
+                                    >
+                                        수강 신청하기
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>

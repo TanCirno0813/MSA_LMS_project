@@ -1,4 +1,5 @@
 import React from 'react';
+import './NoticeSection.css';
 import { Notice, NewNotice } from '../../utils/LectureDetailUtils';
 
 interface NoticeSectionProps {
@@ -35,10 +36,10 @@ const NoticeSection: React.FC<NoticeSectionProps> = ({
     setNewNotice
 }) => {
     return (
-        <section id="lectureNotice" className="notice-section">
+        <section id="lectureNotices" className="notice-section">
             <div className="notice-header">
                 <h2 className="section-title">
-                    📢 강의 공지사항
+                    📢 공지사항
                 </h2>
                 {!isWriting && !isEditing && userIsAdmin && (
                     <button onClick={onWriteClick} className="notice-write-btn">
@@ -92,16 +93,14 @@ const NoticeSection: React.FC<NoticeSectionProps> = ({
             ) : selectedNotice ? (
                 <div className="notice-detail">
                     <h3 className="notice-title">{selectedNotice.title}</h3>
-                    <p className="notice-meta">
-                        <span>작성자: {selectedNotice.author}</span>
+                    <div className="notice-meta">
                         <span>{new Date(selectedNotice.createdAt).toLocaleDateString()}</span>
-                        <span>조회수: {selectedNotice.views}</span>
-                    </p>
+                    </div>
                     <p className="notice-content">{selectedNotice.content}</p>
                     <div className="notice-action-buttons">
                         <button 
-                            onClick={() => onNoticeClick(null)} 
-                            className="notice-write-btn"
+                            onClick={() => onNoticeClick(null as any)} 
+                            className="btn btn-primary"
                         >
                             목록으로
                         </button>
@@ -116,7 +115,7 @@ const NoticeSection: React.FC<NoticeSectionProps> = ({
                                 </button>
                                 <button 
                                     onClick={() => onDeleteNotice(selectedNotice.id)}
-                                    className="notice-delete-btn-1"
+                                    className="notice-delete-btn"
                                 >
                                     삭제
                                 </button>
@@ -129,28 +128,16 @@ const NoticeSection: React.FC<NoticeSectionProps> = ({
                     {notices.length === 0 ? (
                         <p className="notice-empty">등록된 공지사항이 없습니다.</p>
                     ) : (
-                        <table className="notice-table">
-                            <thead>
-                                <tr>
-                                    <th className="notice-number">번호</th>
-                                    <th>제목</th>
-                                    <th className="notice-author">작성자</th>
-                                    <th className="notice-date">작성일</th>
-                                    <th className="notice-views">조회수</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {notices.map((notice, index) => (
-                                    <tr key={notice.id} onClick={() => onNoticeClick(notice)} style={{ cursor: 'pointer' }}>
-                                        <td className="notice-number">{notices.length - index}</td>
-                                        <td>{notice.title}</td>
-                                        <td className="notice-author">{notice.author}</td>
-                                        <td className="notice-date">{new Date(notice.createdAt).toLocaleDateString()}</td>
-                                        <td className="notice-views">{notice.views}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <ul className="notice-list">
+                            {notices.map((notice) => (
+                                <li key={notice.id} className="notice-item" onClick={() => onNoticeClick(notice)}>
+                                    <div className="notice-title">{notice.title}</div>
+                                    <div className="notice-meta">
+                                        <span>{new Date(notice.createdAt).toLocaleDateString()}</span>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
                     )}
                 </>
             )}

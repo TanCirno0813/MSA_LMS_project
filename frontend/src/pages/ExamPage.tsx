@@ -53,7 +53,7 @@ const ExamPage: React.FC = () => {
             alert('제출할 시험이 없습니다.');
             return;
         }
-        const userId = parseInt(localStorage.getItem('userId') || '0', 10);
+        const userId = localStorage.getItem('userId');
 
         const payload = exams.map(exam => ({
             examId: exam.id,
@@ -66,7 +66,12 @@ const ExamPage: React.FC = () => {
 
         axios.post('/api/grading/submit', payload)
             .then(res => {
-                console.log("✅ 서버 응답:", res.data); // ← 이 로그로 구조 확인 가능
+                console.log("✅ 서버 응답:", res.data);
+
+                // 강의 ID와 사용자 ID를 함께 사용하여 퀴즈 완료 정보 저장
+                if (lectureId) {
+                    localStorage.setItem(`quizCompleted_${lectureId}_${userId}`, 'true');
+                }
 
                 const result = res.data[0]; // ✅ 결과 배열에서 첫 번째 결과 꺼냄
                 result.lectureId = parseInt(lectureId || '1', 10); // 필요 시 추가 필드

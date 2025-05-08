@@ -1,0 +1,298 @@
+.resource-section {
+  margin-bottom: 40px;
+  flex: 1;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  padding: 25px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.resource-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.resource-upload-btn {
+  background-color: #1976d2;
+  background-image: linear-gradient(135deg, #1976d2, #1565c0);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(25, 118, 210, 0.2);
+  letter-spacing: 0.3px;
+  font-size: 15px;
+}
+
+.resource-upload-btn:hover {
+  background-image: linear-gradient(135deg, #1565c0, #0d47a1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(25, 118, 210, 0.3);
+}
+
+.resource-empty {
+  text-align: center;
+  padding: 40px 0;
+  color: #607d8b;
+  font-style: italic;
+  font-size: 16px;
+}
+
+.resource-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.resource-table th,
+.resource-table td {
+  padding: 15px 20px;
+  text-align: left;
+  border-bottom: 1px solid #e8eef3;
+}
+
+.resource-table th {
+  background-color: #f9fafc;
+  font-weight: 600;
+  color: #1a1a2e;
+  letter-spacing: 0.3px;
+  font-size: 15px;
+}
+
+.resource-table tr {
+  transition: all 0.3s ease;
+  background-color: #fff;
+}
+
+.resource-table tr:hover {
+  background-color: #f0f7ff;
+}
+
+.resource-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* 컬럼 정렬 */
+.resource-table th:first-child,
+.resource-table td:first-child {
+  width: 60px;
+  text-align: center;
+}
+
+.resource-table th:last-child,
+.resource-table td:last-child {
+  width: 120px;
+  text-align: center;
+}
+
+/* 업로드 폼 */
+.resource-form {
+  background-color: #f9fafc;
+  border: 1px solid #e8eef3;
+  border-radius: 12px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  margin-bottom: 30px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.resource-form-title {
+  font-size: 20px;
+  color: #1a1a2e;
+  margin-bottom: 10px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.resource-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resource-form-label {
+  font-weight: 600;
+  color: #455a64;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+}
+
+.resource-form-file {
+  padding: 12px;
+  border: 1px dashed #1976d2;
+  border-radius: 8px;
+  background-color: #f0f7ff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.resource-form-file:hover {
+  background-color: #e3f2fd;
+}
+
+.resource-form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.resource-submit-btn {
+  background-color: #4caf50;
+  background-image: linear-gradient(135deg, #4caf50, #43a047);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
+  letter-spacing: 0.3px;
+}
+
+.resource-submit-btn:hover {
+  background-image: linear-gradient(135deg, #43a047, #388e3c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(76, 175, 80, 0.3);
+}
+
+.resource-cancel-btn {
+  background-color: #eceff1;
+  color: #455a64;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+}
+
+.resource-cancel-btn:hover {
+  background-color: #cfd8dc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 상세 보기 */
+.resource-detail {
+  margin-top: 20px;
+  padding: 25px;
+  background-color: #fff;
+  border: 1px solid #e8eef3;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.resource-title {
+  font-size: 24px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+  display: block;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: -0.5px;
+}
+
+.resource-meta {
+  font-size: 15px;
+  background-color: #f9fafc;
+  padding: 15px;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  line-height: 1.6;
+  color: #607d8b;
+}
+
+.resource-action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.resource-download-btn {
+  background-color: #1976d2;
+  background-image: linear-gradient(135deg, #1976d2, #1565c0);
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(25, 118, 210, 0.2);
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resource-download-btn:hover {
+  background-image: linear-gradient(135deg, #1565c0, #0d47a1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(25, 118, 210, 0.3);
+}
+
+.resource-delete-btn {
+  background-color: #e53935;
+  background-image: linear-gradient(135deg, #e53935, #c62828);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(229, 57, 53, 0.2);
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resource-delete-btn:hover {
+  background-image: linear-gradient(135deg, #c62828, #b71c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(229, 57, 53, 0.3);
+}
+
+.resource-back-btn {
+  background-color: #eceff1;
+  color: #455a64;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resource-back-btn:hover {
+  background-color: #cfd8dc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+} 

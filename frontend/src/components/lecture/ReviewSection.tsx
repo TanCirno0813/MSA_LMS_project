@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import './ReviewSection.css';
 import { LectureReview, NewReview } from '../../utils/LectureDetailUtils';
 
 interface ReviewSectionProps {
@@ -9,7 +10,7 @@ interface ReviewSectionProps {
     isWritingReview: boolean;
     isEditingReview: boolean;
     userIsAdmin: boolean;
-    onReviewClick: (review: LectureReview) => void;
+    onReviewClick: (review: LectureReview | null) => void;
     onWriteReviewClick: () => void;
     onEditReviewClick: () => void;
     onDeleteReview: (reviewId: number) => void;

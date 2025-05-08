@@ -1,4 +1,5 @@
 import React from 'react';
+import './ResourcesSection.css';
 import { Resource } from '../../utils/LectureDetailUtils';
 
 interface ResourcesSectionProps {

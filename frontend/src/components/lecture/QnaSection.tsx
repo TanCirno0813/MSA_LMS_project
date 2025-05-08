@@ -1,4 +1,5 @@
 import React from 'react';
+import './QnaSection.css';
 import { LectureQna, NewQuestion } from '../../utils/LectureDetailUtils';
 
 interface QnaSectionProps {

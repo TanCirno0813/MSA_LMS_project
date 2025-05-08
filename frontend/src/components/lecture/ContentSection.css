@@ -1,0 +1,214 @@
+.content-section {
+  margin-bottom: 40px;
+  flex: 1;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  padding: 25px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.content-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 20px;
+}
+
+.content-item {
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e8eef3;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.content-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+}
+
+.content-link {
+  display: flex;
+  align-items: center;
+  padding: 18px 20px;
+  text-decoration: none;
+  color: #1a1a2e;
+  transition: all 0.3s ease;
+}
+
+.video-icon {
+  background-color: #e53935;
+  background-image: linear-gradient(135deg, #e53935, #c62828);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 18px;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 4px 10px rgba(229, 57, 53, 0.2);
+  transition: all 0.3s ease;
+}
+
+.content-link:hover .video-icon {
+  transform: scale(1.1);
+  box-shadow: 0 6px 14px rgba(229, 57, 53, 0.3);
+}
+
+.quiz-button {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 18px 20px;
+  text-align: left;
+  color: #1a1a2e;
+  transition: all 0.3s ease;
+}
+
+.quiz-icon {
+  background-color: #1976d2;
+  background-image: linear-gradient(135deg, #1976d2, #1565c0);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 18px;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 4px 10px rgba(25, 118, 210, 0.2);
+  transition: all 0.3s ease;
+}
+
+.quiz-button:hover .quiz-icon {
+  transform: scale(1.1);
+  box-shadow: 0 6px 14px rgba(25, 118, 210, 0.3);
+}
+
+.content-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1a1a2e;
+  letter-spacing: -0.3px;
+}
+
+.content-type {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: #607d8b;
+}
+
+.progress-section {
+  background-color: #f9fafc;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #e8eef3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+  transition: all 0.3s ease;
+}
+
+.progress-section:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+}
+
+.progress-title {
+  font-size: 20px;
+  color: #1a1a2e;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.progress-icon {
+  margin-right: 12px;
+  color: #1976d2;
+  font-size: 24px;
+}
+
+.progress-bar-container {
+  background-color: #e9ecef;
+  height: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+  background-color: #4caf50;
+  background-image: linear-gradient(135deg, #4caf50, #43a047);
+  height: 100%;
+  box-shadow: 0 1px 3px rgba(76, 175, 80, 0.3);
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.progress-note {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #607d8b;
+  line-height: 1.6;
+}
+
+.video-progress-bar-wrapper {
+  margin-top: 10px;
+}
+
+.video-progress-bar-bg {
+  width: 100%;
+  background-color: #e0e0e0;
+  height: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.video-progress-bar-fill {
+  height: 100%;
+  background-color: #4caf50;
+  background-image: linear-gradient(135deg, #4caf50, #43a047);
+  width: 0%;
+  transition: width 0.3s ease-in-out;
+  box-shadow: 0 1px 3px rgba(76, 175, 80, 0.3);
+}
+
+.video-progress-label {
+  font-size: 0.85rem;
+  color: #455a64;
+  margin-top: 6px;
+  display: inline-block;
+  font-weight: 500;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+} 

@@ -6,12 +6,14 @@ interface LectureSidebarProps {
     notices: any[];
     activeSection: string;
     onSectionChange: (section: string) => void;
+    completionRate: number;  // ✅ 이거 추가
 }
 
 const LectureSidebar: React.FC<LectureSidebarProps> = ({
     notices,
     activeSection, 
-    onSectionChange 
+    onSectionChange,
+                                                           completionRate // ✅ props 받기
 }) => {
     return (
         <div className="lecture-sidebar">
@@ -64,6 +66,15 @@ const LectureSidebar: React.FC<LectureSidebarProps> = ({
                             <span className="sidebar-icon">📁</span>
                             자료실
                         </button>
+                    </li>
+
+                    {/* ✅ 여기 추가 */}
+                    <li className="sidebar-menu-item completion-rate">
+                        <div className="completion-rate-label">
+                            <span className="sidebar-icon">📈</span> 이수율
+                        </div>
+                        <progress value={completionRate} max={100}></progress>
+                        <span>{completionRate}% </span>
                     </li>
                 </ul>
             </nav>

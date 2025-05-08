@@ -29,6 +29,14 @@ interface Enrollment {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   appliedAt: string;
   approvedAt: string | null;
+  lectureTitle?: string; // 강의 제목 필드 추가
+}
+
+// 강의 데이터 타입 정의
+interface Lecture {
+  id: number;
+  title: string;
+  // 다른 강의 관련 필드들...
 }
 
 const EnrollmentManagement: React.FC = () => {
@@ -38,6 +46,7 @@ const EnrollmentManagement: React.FC = () => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [selectedEnrollment, setSelectedEnrollment] = useState<Enrollment | null>(null);
   const [actionType, setActionType] = useState<'approve' | 'reject'>('approve');
+  const [lectures, setLectures] = useState<Record<number, string>>({});
 
   // 모든 수강 신청 목록 불러오기
   useEffect(() => {
@@ -59,6 +68,12 @@ const EnrollmentManagement: React.FC = () => {
         
         const data = await response.json();
         setEnrollments(data);
+
+        // 강의 ID 목록 추출
+        const lectureIds = [...new Set(data.map((item: Enrollment) => item.lectureId))].filter(id => typeof id === 'number') as number[];
+        
+        // 각 강의 정보 가져오기
+        await fetchLectureTitles(lectureIds);
       } catch (error) {
         console.error('수강 신청 목록 불러오기 오류:', error);
         setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
@@ -69,6 +84,39 @@ const EnrollmentManagement: React.FC = () => {
 
     fetchEnrollments();
   }, []);
+
+  // 강의 제목 가져오기
+  const fetchLectureTitles = async (lectureIds: number[]) => {
+    try {
+      const lectureMap: Record<number, string> = {};
+      
+      // 각 강의 정보를 병렬로 가져오기
+      await Promise.all(lectureIds.map(async (id) => {
+        try {
+          const response = await fetch(`/api/lectures/${id}`);
+          if (response.ok) {
+            const lecture = await response.json();
+            lectureMap[id] = lecture.title;
+          } else {
+            lectureMap[id] = `강의 ${id}`;
+          }
+        } catch (error) {
+          console.error(`강의 ${id} 정보 가져오기 실패:`, error);
+          lectureMap[id] = `강의 ${id}`;
+        }
+      }));
+      
+      setLectures(lectureMap);
+      
+      // 기존 enrollments에 강의 제목 추가
+      setEnrollments(prev => prev.map(enrollment => ({
+        ...enrollment,
+        lectureTitle: lectureMap[enrollment.lectureId] || `강의 ${enrollment.lectureId}`
+      })));
+    } catch (error) {
+      console.error('강의 정보 가져오기 오류:', error);
+    }
+  };
 
   // 수강 신청 승인 처리
   const handleApprove = async (id: number) => {
@@ -191,7 +239,7 @@ const EnrollmentManagement: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell>신청 ID</TableCell>
-              <TableCell>강의 ID</TableCell>
+              <TableCell>강의명</TableCell>
               <TableCell>사용자 ID</TableCell>
               <TableCell>상태</TableCell>
               <TableCell>신청일</TableCell>
@@ -210,7 +258,7 @@ const EnrollmentManagement: React.FC = () => {
               enrollments.map((enrollment) => (
                 <TableRow key={enrollment.id}>
                   <TableCell>{enrollment.id}</TableCell>
-                  <TableCell>{enrollment.lectureId}</TableCell>
+                  <TableCell>{enrollment.lectureTitle || `강의 ${enrollment.lectureId}`}</TableCell>
                   <TableCell>{enrollment.userId}</TableCell>
                   <TableCell>{getStatusChip(enrollment.status)}</TableCell>
                   <TableCell>{formatDate(enrollment.appliedAt)}</TableCell>
@@ -261,8 +309,8 @@ const EnrollmentManagement: React.FC = () => {
             {selectedEnrollment && (
               <>
                 {actionType === 'approve' 
-                  ? `사용자 ${selectedEnrollment.userId}의 강의 ${selectedEnrollment.lectureId} 수강 신청을 승인하시겠습니까?`
-                  : `사용자 ${selectedEnrollment.userId}의 강의 ${selectedEnrollment.lectureId} 수강 신청을 거절하시겠습니까?`
+                  ? `사용자 ${selectedEnrollment.userId}의 강의 "${selectedEnrollment.lectureTitle || `강의 ${selectedEnrollment.lectureId}`}" 수강 신청을 승인하시겠습니까?`
+                  : `사용자 ${selectedEnrollment.userId}의 강의 "${selectedEnrollment.lectureTitle || `강의 ${selectedEnrollment.lectureId}`}" 수강 신청을 거절하시겠습니까?`
                 }
               </>
             )}
