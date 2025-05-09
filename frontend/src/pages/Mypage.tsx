@@ -6,7 +6,7 @@ import {
     Chip, Avatar, MenuItem, Modal, CircularProgress
 } from '@mui/material';
 import api from '../api/axios';
-import '../styles/Mypage.css'; // CSS 파일 임포트
+import './Mypage.css'; // CSS 파일 임포트
 
 interface Completion {
     lectureId: number;
@@ -385,7 +385,7 @@ const Mypage: React.FC = () => {
                 ) : (
                     Object.entries(groupedCompletions).map(([lectureId, completions]) => (
                         <Box key={lectureId} className="lecture-group">
-                            <Box className="lecture-header">
+                            <Box className="lecture-header-my">
                                 <Avatar className="lecture-avatar">
                                     {completions[0].lectureTitle.charAt(0)}
                                 </Avatar>
