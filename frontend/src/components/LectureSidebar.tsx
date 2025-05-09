@@ -17,8 +17,18 @@ const LectureSidebar: React.FC<LectureSidebarProps> = ({
 }) => {
     return (
         <div className="lecture-sidebar">
+
             <nav className="sidebar-nav">
+
                 <ul className="sidebar-menu">
+                    {/* ✅ 여기 추가 */}
+                    <li className="sidebar-menu-item completion-rate">
+                        <div className="completion-rate-label">
+                            <span className="sidebar-icon">📈</span> 이수율
+                        </div>
+                        <progress value={completionRate} max={100}></progress>
+                        <span>{completionRate}% </span>
+                    </li>
                     <li className="sidebar-menu-item">
                         <button 
                             className={`sidebar-link ${activeSection === 'contents' ? 'active' : ''}`}
@@ -68,14 +78,7 @@ const LectureSidebar: React.FC<LectureSidebarProps> = ({
                         </button>
                     </li>
 
-                    {/* ✅ 여기 추가 */}
-                    <li className="sidebar-menu-item completion-rate">
-                        <div className="completion-rate-label">
-                            <span className="sidebar-icon">📈</span> 이수율
-                        </div>
-                        <progress value={completionRate} max={100}></progress>
-                        <span>{completionRate}% </span>
-                    </li>
+
                 </ul>
             </nav>
         </div>
