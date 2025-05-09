@@ -9,20 +9,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/recruitments")
+@RequiredArgsConstructor
 public class RecruitmentController {
 
     private final RecruitmentService recruitmentService;
 
-    public RecruitmentController(RecruitmentService recruitmentService) {
-        this.recruitmentService = recruitmentService;
-    }
-
     @GetMapping
-    public List<RecruitmentDto> getRecruitments(
-            @RequestParam(value = "pageNo", required = false) Integer pageNo,
-            @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "filter", required = false) String filter) {
-        return recruitmentService.fetchRecruitments(pageNo, search, filter);
+    public List<RecruitmentDto> getRecruitments(@RequestParam(defaultValue = "1") int pageNo) {
+        return recruitmentService.getRecruitments(pageNo);
     }
 }
-

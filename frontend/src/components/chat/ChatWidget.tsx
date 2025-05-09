@@ -97,7 +97,7 @@ const ChatWidget: React.FC = () => {
             {open ? (
                 <div className="chat-box">
                     <div className="chat-header">
-                        AI 도우미 채팅
+                        강의 추천 bot
                         <button onClick={() => setOpen(false)} style={{ background: 'none', color: '#fff', border: 'none', fontSize: '16px' }}>✕</button>
                     </div>
                     <div className="chat-messages" ref={chatBoxRef}>

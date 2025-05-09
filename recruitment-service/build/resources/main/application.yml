@@ -4,15 +4,19 @@ server:
 spring:
   application:
     name: recruitment-service
-  datasource:
-    url: jdbc:mysql://localhost:3309/lms?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: user
-    password: user123
-  jpa:
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    hibernate:
-      ddl-auto: update
+#  datasource:
+#    url: jdbc:mysql://localhost:3309/lms?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    username: user
+#    password: user123
+#  jpa:
+#    database-platform: org.hibernate.dialect.MySQL8Dialect
+#    hibernate:
+#      ddl-auto: update
+  data:
+    redis:
+      port: 6379
+      host: localhost
 
 eureka:
   client:
@@ -32,4 +36,8 @@ logging:
 
 api:
   service:
-    key: lmNclzwIue7M4FhXxtpNonBSyWscgAIA1OIl5WJgsKYc%2BHtrEc5xrl7OfLuqecUoO6ZHRadeqR5RLuT35qUu6g%3D%3D
+    key: 6v8OZeCdxYl0aFV3k9UwkZDTKov50OEPJOILNm7DSSCLHw38daWB8QZJIFjmfBE0X0%2F%2BWrJL90hXrl0TnbmsiQ%3D%3D
+
+#api:
+#  service:
+#    key: lmNclzwIue7M4FhXxtpNonBSyWscgAIA1OIl5WJgsKYc%2BHtrEc5xrl7OfLuqecUoO6ZHRadeqR5RLuT35qUu6g%3D%3D

@@ -1,106 +1,92 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route, useSearchParams} from 'react-router-dom';
 import axios from 'axios';
 import './RecruitmentList.css';
 
 interface Recruitment {
-    wantedAuthNo: string;
-    recrutPbancTtl: string;
-    instNm: string;
-    recrutSe: string;
-    hireTypeLst: string;
-    detailUrl: string;
+    recrutPblntSn: string;  // 공고번호
+    recrutPbancTtl: string; // 채용공고제목
+    instNm: string;         // 기관명
+    recrutSe: string;       // 채용구분
+    hireTypeLst: string;    // 고용유형목록
+    detailUrl: string;      // 상세보기 URL
+}
+
+// 코드 변환 함수
+const translateRecrutSe = (code: string): string => {
+    switch (code) {
+        case "R2010":
+            return "신입";
+        case "R2020":
+            return "경력";
+        case "R2030":
+            return "신입+경력";
+        case "R2040":
+            return "외국인 전형";
+        default:
+            return "기타";
+    }
+};
+
+const translateHireTypeLst = (code: string): string => {
+    switch (code) {
+        case "R1010":
+            return "정규직";
+        case "R1020":
+            return "계약직";
+        case "R1030":
+            return "무기계약직";
+        case "R1040":
+            return "비정규직";
+        case "R1050":
+            return "청년인턴";
+        case "R1060":
+            return "청년인턴(체험형)";
+        case "R1070":
+            return "청년인턴(채용형)";
+        default:
+            return "기타";
+    }
 }
 
 const RecruitmentList = () => {
     const [recruitments, setRecruitments] = useState<Recruitment[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [search, setSearch] = useState<string>('');
-    const [filter, setFilter] = useState<string>('');
+
+    // URL 쿼리 파라미터 관리
     const [searchParams, setSearchParams] = useSearchParams();
-
-    // 페이지 번호를 쿼리에서 가져오기 (기본값: 1)
-    const page = parseInt(searchParams.get('page') || '1', 10);
-
-    // 검색어 상태와 필터를 쿼리에서 가져오기
-    const querySearch = searchParams.get('search') || '';
-    const queryFilter = searchParams.get('filter') || '';
-
-    // 검색 버튼 클릭 핸들러
-    const handleSearch = () => {
-        setSearchParams({ page: '1', search, filter });
-    };
-
-    // 엔터 키로 검색 실행
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Enter') {
-            handleSearch();
-        }
-    };
+    const pageNo = parseInt(searchParams.get("pageNo") || "1", 10);
 
     // 페이지 변경 핸들러
-    const handlePageChange = (newPage: number) => {
+    const changePage = (newPage: number) => {
         if (newPage > 0) {
-            setSearchParams({ page: newPage.toString(), search, filter });
+            setSearchParams({ pageNo: newPage.toString() });
         }
     };
 
-    // 데이터 호출 함수
-    const fetchRecruitments = async (pageNo: number, search: string, filter: string) => {
-        setLoading(true);
-        setError(null);
+    // 채용 정보 가져오기
+    const fetchRecruitments = async () => {
         try {
-            const params = new URLSearchParams();
-            if (pageNo > 1) params.append('pageNo', pageNo.toString());
-            if (search) params.append('search', search);
-            if (filter) params.append('filter', filter);
-
-            const response = await axios.get<Recruitment[]>(`/api/recruitments?${params.toString()}`);
+            setLoading(true);
+            const response = await axios.get<Recruitment[]>(`/api/recruitments?pageNo=${pageNo}`);
             setRecruitments(response.data);
-        } catch {
-            setError('');
+            setError(null);
+        } catch (err) {
+            console.error("데이터 불러오기 실패:", err);
+            setError("데이터를 불러오는 중 오류가 발생했습니다.");
         } finally {
             setLoading(false);
         }
     };
 
-    // 데이터 가져오기 (페이지, 검색어, 필터 변경 시)
     useEffect(() => {
-        fetchRecruitments(page, querySearch, queryFilter);
-    }, [page, querySearch, queryFilter]);
+        fetchRecruitments();
+    }, [pageNo]);
 
     return (
         <div className="recruitment-list">
-            <h2 className="recruitment-list__title">채용 공고 목록 (페이지: {page})</h2>
-
-            <div className="recruitment-list__controls">
-                <input
-                    type="text"
-                    className="recruitment-list__search"
-                    placeholder="제목 검색"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onKeyDown={handleKeyDown}  // 엔터 키로 검색
-                />
-                <select
-                    className="recruitment-list__filter"
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                >
-                    <option value="">전체</option>
-                    <option value="R2010">신입</option>
-                    <option value="R2020">경력</option>
-                    <option value="R2030">신입+경력</option>
-                </select>
-                <button
-                    className="recruitment-list__search-button"
-                    onClick={handleSearch}
-                >
-                    검색
-                </button>
-            </div>
-
+            <h2 className="recruitment-list__title">채용 공고 목록</h2>
             {error && <p className="recruitment-list__error">{error}</p>}
 
             <table className="recruitment-list__table">
@@ -117,55 +103,33 @@ const RecruitmentList = () => {
                 <tbody>
                 {loading ? (
                     <tr>
-                        <td colSpan={6} className="recruitment-list__loading">
-                            로딩 중...
-                        </td>
+                        <td colSpan={6} className="recruitment-list__loading">로딩 중...</td>
                     </tr>
                 ) : recruitments.length > 0 ? (
-                    recruitments.map(item => (
-                        <tr key={item.wantedAuthNo}>
-                            <td>{item.wantedAuthNo}</td>
+                    recruitments.map((item, index) => (
+                        <tr key={`${item.recrutPblntSn}-${index}`}>
+                            <td>{item.recrutPblntSn}</td>
                             <td>{item.recrutPbancTtl}</td>
                             <td>{item.instNm}</td>
-                            <td>{item.recrutSe}</td>
-                            <td>{item.hireTypeLst}</td>
+                            <td>{translateRecrutSe(item.recrutSe)}</td>
+                            <td>{translateHireTypeLst(item.hireTypeLst)}</td>
                             <td>
-                                <a
-                                    href={item.detailUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="recruitment-list__link"
-                                >
-                                    보기
-                                </a>
+                                <a href={item.detailUrl} target="_blank" rel="noopener noreferrer">보기</a>
                             </td>
                         </tr>
                     ))
                 ) : (
                     <tr>
-                        <td colSpan={6} className="recruitment-list__no-data">
-                            데이터가 없습니다.
-                        </td>
+                        <td colSpan={6} className="recruitment-list__no-data">채용 정보가 없습니다.</td>
                     </tr>
                 )}
                 </tbody>
             </table>
 
-            <div className="recruitment-list__pagination">
-                <button
-                    className="recruitment-list__button"
-                    onClick={() => handlePageChange(page - 1)}
-                    disabled={page === 1}
-                >
-                    이전
-                </button>
-                <span className="recruitment-list__page">페이지 {page}</span>
-                <button
-                    className="recruitment-list__button"
-                    onClick={() => handlePageChange(page + 1)}
-                >
-                    다음
-                </button>
+            <div className="pagination">
+                <button onClick={() => changePage(pageNo - 1)} disabled={pageNo === 1}>이전</button>
+                <span>페이지 {pageNo}</span>
+                <button onClick={() => changePage(pageNo + 1)}>다음</button>
             </div>
         </div>
     );
