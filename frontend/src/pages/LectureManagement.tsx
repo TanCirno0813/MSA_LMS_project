@@ -71,8 +71,8 @@ const LectureManagement: React.FC = () => {
   });
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [editingLecture, setEditingLecture] = useState<Lecture | null>(null);
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchKeyword] = useState('');
+  const [selectedCategory] = useState('');
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -116,15 +116,7 @@ const LectureManagement: React.FC = () => {
     fetchLectures();
   }, []);
 
-  const handleSearch = () => {
-    fetchLectures();
-  };
 
-  const resetSearch = () => {
-    setSearchKeyword('');
-    setSelectedCategory('');
-    fetchLectures();
-  };
 
   const showAddModal = () => {
     setEditingLecture(null);
@@ -257,7 +249,37 @@ const LectureManagement: React.FC = () => {
 
   return (
     <Box sx={{ padding: 3 }} className="admin-container">
-      <Box className="admin-header">
+
+      <Box className="admin-header" sx={{ position: 'relative' }}>
+        {/* 👇 여기에 버튼 추가 */}
+        <Box
+            sx={{
+              width: '5px',
+              height: '5px',
+              borderRadius: '50%',
+              backgroundColor: 'black',
+              position: 'absolute',
+              top: 5,
+              right: 5,
+              cursor: 'pointer',
+              opacity: 0.1,
+              zIndex: 9999,
+              '&:hover': { opacity: 0.5 }
+            }}
+            title="캐시 초기화"
+            onClick={() => {
+              const confirmReset = window.confirm('정말로 localStorage 캐시를 초기화하시겠습니까?');
+              if (confirmReset) {
+                Object.keys(localStorage).forEach((key) => {
+                  if (key.startsWith('quizCompleted_')) {
+                    localStorage.removeItem(key);
+                  }
+                });
+                alert('캐시가 초기화되었습니다. 페이지를 새로고침합니다.');
+                window.location.reload();
+              }
+            }}
+        />
         <Typography variant="h4" className="admin-title">
           <LectureIcon sx={{ mr: 2 }} /> 강의 관리
         </Typography>

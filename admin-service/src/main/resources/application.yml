@@ -28,4 +28,5 @@ eureka:
 logging:
   level:
     org.springframework.web.client.RestTemplate: DEBUG
-    edu.ct.admin: DEBUG 
+    edu.ct.admin: DEBUG
+
