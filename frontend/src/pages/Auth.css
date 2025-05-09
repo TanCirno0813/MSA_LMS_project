@@ -105,6 +105,11 @@
   margin: 0.8rem 0 !important;
 }
 
+.register-input .MuiOutlinedInput-root, .username-input .MuiOutlinedInput-root, .address-input .MuiOutlinedInput-root {
+  height: 56px !important;
+  box-sizing: border-box !important;
+}
+
 .register-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
   border-color: #028267 !important;
 }
@@ -124,7 +129,7 @@
 /* 아이디 중복확인 버튼 컨테이너 */
 .username-container {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 10px;
   margin: 0.8rem 0;
 }
@@ -145,6 +150,8 @@
   border-radius: 4px !important;
   font-size: 0.9rem !important;
   font-weight: 500 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .register-check-button:hover {
@@ -190,7 +197,7 @@
 /* 주소 관련 스타일 */
 .address-container {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 10px;
   margin: 0.8rem 0;
 }
@@ -213,6 +220,8 @@
   border-radius: 4px !important;
   font-size: 0.9rem !important;
   font-weight: 500 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .address-search-button:hover {

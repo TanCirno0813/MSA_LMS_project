@@ -234,6 +234,7 @@ const Register: React.FC = () => {
                                 onClick={handleUsernameCheck}
                                 disabled={form.username.length < 7 || usernameChecking}
                                 className="register-check-button"
+                                sx={{ height: '56px' }}
                             >
                                 {usernameChecking ? '확인 중' : '중복 확인'}
                             </Button>
@@ -439,6 +440,7 @@ const Register: React.FC = () => {
                                     setOpen(true);
                                 }}
                                 className="address-search-button"
+                                sx={{ height: '56px' }}
                             >
                                 주소 검색
                             </Button>

@@ -32,6 +32,10 @@ import {
   Badge,
   Divider,
   Alert,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -53,7 +57,10 @@ interface User {
   password: string;
   name: string;
   email: string;
+  role : string;
   birthDate: string; // 생년월일 추가
+  phone: string; // 전화번호 추가
+  address: string; // 주소 추가
 }
 
 interface UserCompletion {
@@ -110,6 +117,9 @@ const Users: React.FC = () => {
     name: '',
     email: '',
     birthDate:'',
+    role:'',
+    phone: '',
+    address: '',
   });
   
   // 탭 관련 상태
@@ -272,7 +282,7 @@ const Users: React.FC = () => {
 
   const handleAdd = () => {
     setIsEdit(false);
-    setUserForm({ id: 0, username: '', password: '', name: '', email: '', birthDate: '' });
+    setUserForm({ id: 0, username: '', password: '', name: '', email: '', birthDate: '',role: '', phone: '', address: '' });
     setDialogOpen(true);
   };
 
@@ -295,11 +305,27 @@ const Users: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      if (isEdit) {
-        await api.put(`/users/${userForm.id}`, userForm);
+      // 날짜 형식 처리 및 제출용 데이터 준비
+      const formToSubmit: Partial<User> = {
+        ...userForm
+      };
+      
+      // 비밀번호가 비어있는 경우 수정 요청에서 제외
+      if (isEdit && !formToSubmit.password) {
+        const { password, ...restForm } = formToSubmit;
+        if (isEdit) {
+          await api.put(`/users/${userForm.id}`, restForm);
+        } else {
+          await api.post('/users', formToSubmit);
+        }
       } else {
-        await api.post('/users', userForm);
+        if (isEdit) {
+          await api.put(`/users/${userForm.id}`, formToSubmit);
+        } else {
+          await api.post('/users', formToSubmit);
+        }
       }
+      
       setDialogOpen(false);
       fetchUsers();
     } catch (error) {
@@ -338,17 +364,18 @@ const Users: React.FC = () => {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell>사용자명</TableCell>
+                <TableCell>사용자 ID</TableCell>
                 <TableCell>이름</TableCell>
                 <TableCell>이메일</TableCell>
                 <TableCell>생년월일</TableCell>
+                <TableCell>권한</TableCell>
                 <TableCell>작업</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
+                  <TableCell colSpan={9} align="center">
                     등록된 사용자가 없습니다.
                   </TableCell>
                 </TableRow>
@@ -360,6 +387,13 @@ const Users: React.FC = () => {
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.birthDate}</TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={user.role === "ADMIN" ? "관리자" : "일반 사용자"} 
+                      color={user.role === "ADMIN" ? "primary" : "default"} 
+                      size="small" 
+                    />
+                  </TableCell>
                   <TableCell>
                       <IconButton onClick={() => handleEdit(user)} className="admin-action-icon">
                       <EditIcon />
@@ -623,7 +657,7 @@ const Users: React.FC = () => {
           <Box sx={{ mt: 1 }}>
             <TextField
               fullWidth
-              label="사용자명"
+              label="사용자 ID"
               value={userForm.username}
               onChange={(e) => setUserForm({ ...userForm, username: e.target.value })}
               className="admin-form-field"
@@ -633,7 +667,7 @@ const Users: React.FC = () => {
               fullWidth
               label="비밀번호"
               type="password"
-              value={userForm.password}
+            
               onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
               className="admin-form-field"
               sx={{ mb: 2 }}
@@ -660,8 +694,37 @@ const Users: React.FC = () => {
               value={userForm.birthDate}
               onChange={(e) => setUserForm({ ...userForm, birthDate: e.target.value })}
               className="admin-form-field"
+              sx={{ mb: 2 }}
               placeholder="YYYY-MM-DD"
             />
+            <TextField
+              fullWidth
+              label="전화번호"
+              value={userForm.phone}
+              onChange={(e) => setUserForm({ ...userForm, phone: e.target.value })}
+              className="admin-form-field"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="주소"
+              value={userForm.address}
+              onChange={(e) => setUserForm({ ...userForm, address: e.target.value })}
+              className="admin-form-field"
+              sx={{ mb: 2 }}
+            />
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel id="role-select-label">권한</InputLabel>
+              <Select
+                labelId="role-select-label"
+                value={userForm.role || 'USER'}
+                onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
+                label="권한"
+              >
+                <MenuItem value="USER">일반 사용자</MenuItem>
+                <MenuItem value="ADMIN">관리자</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
         </DialogContent>
         <DialogActions>
@@ -799,7 +862,7 @@ const Users: React.FC = () => {
                       </Typography>
                       <Box sx={{ 
                         p: 1.5, 
-                        backgroundColor: '#e3f2fd', 
+                        backgroundColor: '#e3f2fd',
                         borderRadius: 1,
                         borderLeft: '4px solid',
                         borderColor: 'primary.main'
