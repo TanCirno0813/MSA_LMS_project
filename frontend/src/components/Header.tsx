@@ -14,7 +14,7 @@ const Header = ({ username, role,onLogout }: HeaderProps) => {
         {/* 로고 + 검색창 */}
         <div className="header-left">
           <h1 className="logo">
-            <Link to="/">📝 <span>LMS 샘플</span></Link>
+            <Link to="/">📝 <span>LMS 플랫폼</span></Link>
           </h1>
         </div>
 

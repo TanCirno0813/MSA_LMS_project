@@ -46,6 +46,16 @@ public class UserController {
 
     @PostMapping
     public User createUser(@RequestBody User user) {
+        // 비밀번호 암호화
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        
+        // role이 설정되지 않은 경우 기본값 USER 설정
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("USER");
+        }
+        
         return userRepository.save(user);
     }
 
@@ -54,9 +64,28 @@ public class UserController {
         return userRepository.findById(id)
                 .map(user -> {
                     user.setUsername(userDetails.getUsername());
-                    user.setPassword(userDetails.getPassword());
                     user.setName(userDetails.getName());
                     user.setEmail(userDetails.getEmail());
+                    user.setRole(userDetails.getRole());
+                    user.setPhone(userDetails.getPhone());
+                    user.setAddress(userDetails.getAddress());
+                    
+                    // 비밀번호가 비어있지 않은 경우에만 암호화 처리
+                    if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+                        user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+                    }
+                    
+                    // birthDate 처리
+                    if (userDetails.getBirthDate() != null) {
+                        try {
+                            // 이미 LocalDate 타입이므로 직접 설정
+                            user.setBirthDate(userDetails.getBirthDate());
+                        } catch (Exception e) {
+                            // 날짜 형식 오류 처리
+                            System.out.println("날짜 처리 오류: " + e.getMessage());
+                        }
+                    }
+                    
                     return ResponseEntity.ok(userRepository.save(user));
                 })
                 .orElse(ResponseEntity.notFound().build());

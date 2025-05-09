@@ -6,6 +6,7 @@ import {
     Chip, Avatar, MenuItem, Modal, CircularProgress
 } from '@mui/material';
 import api from '../api/axios';
+import '../styles/Mypage.css'; // CSS 파일 임포트
 
 interface Completion {
     lectureId: number;
@@ -238,20 +239,20 @@ const Mypage: React.FC = () => {
     };
 
     const renderInfoView = () => (
-        <Box component={Paper} p={3} sx={{ borderRadius: 2 }}>
-            <Typography variant="h6" gutterBottom>내 정보</Typography>
+        <Box component={Paper} className="info-card">
+            <Typography variant="h6" className="section-title">내 정보</Typography>
             <TextField label="아이디" fullWidth disabled value={userInfo.username || ''} margin="normal" />
             <TextField label="이름" fullWidth disabled value={userInfo.name || ''} margin="normal" />
             <TextField label="이메일" fullWidth disabled value={userInfo.email || ''} margin="normal" />
             <TextField label="전화번호" fullWidth disabled value={userInfo.phone || ''} margin="normal" />
             <TextField label="주소" fullWidth disabled value={userInfo.address || ''} margin="normal" />
             <TextField label="생년월일" fullWidth disabled value={userInfo.birthDate || ''} margin="normal" />
-            <Button variant="contained" color="primary" onClick={() => setView('edit')} sx={{ mt: 2 }}>
+            <Button variant="contained" className="edit-button" onClick={() => setView('edit')}>
                 정보 수정
             </Button>
 
-            <Box mt={4} sx={{ borderTop: '1px solid #e0e0e0', pt: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Box className="history-section">
+                <Box className="history-header">
                     <Typography variant="h6">최근 이수 이력</Typography>
                     <Button variant="text" color="primary" size="small" onClick={() => setView('history')}>
                         전체보기
@@ -264,20 +265,18 @@ const Mypage: React.FC = () => {
                 ) : (
                     <List>
                         {completionHistory.slice(0, 3).map((item, idx) => (
-                            <ListItem key={idx} disablePadding sx={{ mb: 1 }}>
+                            <ListItem key={idx} disablePadding className="history-item">
                                 <Box sx={{ width: '100%' }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                        <Typography variant="subtitle1" fontWeight="bold">{item.contentTitle}</Typography>
+                                    <Box className="history-item-header">
+                                        <Typography variant="subtitle1" className="history-item-title">{item.contentTitle}</Typography>
                                         <Chip
                                             size="small"
                                             label={item.isCompleted ? "이수완료" : "진행 중"}
                                             color={item.isCompleted ? "success" : "default"}
-                                            sx={{ height: 24 }}
+                                            className={`completion-chip ${item.isCompleted ? 'completed' : ''}`}
                                         />
-
-
                                     </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', color: 'text.secondary', fontSize: '0.875rem' }}>
+                                    <Box className="history-item-info">
                                         <span>{item.lectureTitle}</span>
                                         <span>{formatDate(item.completedAt)}</span>
                                     </Box>
@@ -296,8 +295,8 @@ const Mypage: React.FC = () => {
         const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString().padStart(2, '0'));
 
         return (
-            <Box component={Paper} p={3} sx={{ borderRadius: 2 }}>
-                <Typography variant="h6" gutterBottom>정보 수정</Typography>
+            <Box component={Paper} className="info-card">
+                <Typography variant="h6" className="section-title">정보 수정</Typography>
                 <TextField label="아이디" fullWidth disabled value={userInfo.username || ''} margin="normal" />
                 <TextField label="이름" name="name" fullWidth value={userInfo.name || ''} onChange={handleChange} margin="normal" />
                 <TextField label="현재 비밀번호" name="currentPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
@@ -305,7 +304,7 @@ const Mypage: React.FC = () => {
                 <TextField label="새 비밀번호 확인" name="confirmNewPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
 
                 <Typography variant="subtitle1" sx={{ mt: 2 }}>생년월일</Typography>
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                <Box className="form-row">
                     <TextField select label="년" name="birthYear" value={userInfo.birthYear || ''} onChange={handleChange} sx={{ flex: 1 }}>
                         {years.map(year => (
                             <MenuItem key={year} value={year.toString()}>{year}년</MenuItem>
@@ -323,7 +322,7 @@ const Mypage: React.FC = () => {
                     </TextField>
                 </Box>
 
-                <Typography variant="h6">전화번호 인증</Typography>
+                <Typography variant="h6" className="section-title" sx={{mt: 3}}>전화번호 인증</Typography>
                 <TextField label="전화번호" fullWidth value={userInfo.phone || ''} onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })} margin="normal" variant="outlined" />
 
                 <Button variant="contained" color="primary" onClick={sendAuthCode} disabled={sending || sent} sx={{ mt: 2 }}>
@@ -340,18 +339,32 @@ const Mypage: React.FC = () => {
                 )}
 
                 <TextField label="이메일" name="email" fullWidth value={userInfo.email || ''} onChange={handleChange} margin="normal" />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <TextField label="주소" name="address" fullWidth value={userInfo.address || ''} onChange={handleChange} margin="normal" />
-                    <Button variant="contained" onClick={() => setAddressModalOpen(true)} sx={{ mt: 2 }}>주소 검색</Button>
-                </div>
+                <Box className="address-input">
+                    <TextField 
+                        label="주소" 
+                        name="address" 
+                        fullWidth 
+                        value={userInfo.address || ''} 
+                        onChange={handleChange} 
+                        variant="outlined"
+                    />
+                    <Button 
+                        variant="contained" 
+                        className="address-search-btn"
+                        onClick={() => setAddressModalOpen(true)}
+                        disableElevation
+                    >
+                        주소 검색
+                    </Button>
+                </Box>
                 <TextField label="상세 주소" name="addressDetail" fullWidth value={userInfo.addressDetail || ''} onChange={handleChange} margin="normal" />
 
                 <Box mt={9} display="flex" gap={2}>
-                    <Button variant="contained" color="primary" onClick={handleUpdate}>저장</Button>
-                    <Button variant="outlined" onClick={() => setView('info')}>취소</Button>
+                    <Button variant="contained" className="edit-button" onClick={handleUpdate}>저장</Button>
+                    <Button variant="outlined" className="cancel-button" onClick={() => setView('info')}>취소</Button>
                 </Box>
                 <Modal open={addressModalOpen} onClose={() => setAddressModalOpen(false)}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'white', p: 2 }}>
+                    <Box className="address-modal">
                         <DaumPostcode onComplete={handleAddressComplete} />
                     </Box>
                 </Modal>
@@ -362,8 +375,8 @@ const Mypage: React.FC = () => {
     const renderHistoryView = () => {
         const groupedCompletions = groupCompletionsByLecture();
         return (
-            <Box component={Paper} p={3} sx={{ borderRadius: 2 }}>
-                <Typography variant="h6" gutterBottom>이수 이력</Typography>
+            <Box component={Paper} className="info-card">
+                <Typography variant="h6" className="section-title">이수 이력</Typography>
 
                 {Object.keys(groupedCompletions).length === 0 ? (
                     <Typography color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
@@ -371,49 +384,51 @@ const Mypage: React.FC = () => {
                     </Typography>
                 ) : (
                     Object.entries(groupedCompletions).map(([lectureId, completions]) => (
-                        <Box key={lectureId} sx={{ mb: 3 }}>
-                            <Box sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                mb: 1,
-                                pb: 1,
-                                borderBottom: '1px solid #eee'
-                            }}>
-                                <Avatar sx={{ bgcolor: 'primary.main', mr: 2, width: 32, height: 32, fontSize: '0.875rem' }}>
+                        <Box key={lectureId} className="lecture-group">
+                            <Box className="lecture-header">
+                                <Avatar className="lecture-avatar">
                                     {completions[0].lectureTitle.charAt(0)}
                                 </Avatar>
-                                <Typography variant="h6" fontSize="1.1rem">
+                                <Typography className="lecture-title" noWrap sx={{ maxWidth: { xs: '150px', sm: '250px', md: '300px' } }}>
                                     {completions[0].lectureTitle}
                                 </Typography>
                                 <Chip
                                     size="small"
                                     label={`${completions.length}개 수료`}
                                     color="primary"
-                                    sx={{ ml: 'auto', height: 24 }}
+                                    sx={{ ml: 'auto' }}
                                 />
                             </Box>
 
                             <List disablePadding>
                                 {completions.map((completion, idx) => (
-                                    <ListItem key={idx} sx={{
-                                        py: 1,
-                                        px: 2,
-                                        borderLeft: '3px solid #e0e0e0',
-                                        mb: 1,
-                                        borderRadius: '4px',
-                                        bgcolor: 'background.paper'
-                                    }}>
-                                        <Box sx={{ width: '100%' }}>
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                <Typography fontWeight="medium">
+                                    <ListItem key={idx} className="content-item" disablePadding>
+                                        <Box sx={{ 
+                                            width: '100%', 
+                                            overflow: 'hidden'
+                                        }}>
+                                            <Box className="lecture-content-header">
+                                                <Typography 
+                                                    className="content-title" 
+                                                    noWrap 
+                                                    sx={{ 
+                                                        maxWidth: { xs: '120px', sm: '180px', md: '250px' },
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis'
+                                                    }}
+                                                >
                                                     {completion.contentTitle}
                                                 </Typography>
-                                                <Typography color="text.secondary" fontSize="0.875rem">
+                                                <Typography 
+                                                    className="content-date"
+                                                    sx={{
+                                                        flexShrink: 0
+                                                    }}
+                                                >
                                                     {completion.isCompleted
                                                         ? `${formatDate(completion.completedAt)} 수료`
                                                         : "진행 중"}
                                                 </Typography>
-
                                             </Box>
                                         </Box>
                                     </ListItem>
@@ -428,19 +443,10 @@ const Mypage: React.FC = () => {
 
 
     return (
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
-            <Box sx={{ display: 'flex', position: 'relative' }}>
-                <Box
-                    sx={{
-                        width: 200,
-                        flexShrink: 0,
-                        position: { xs: 'relative', md: 'sticky' },
-                        top: 16,
-                        height: 'fit-content',
-                        alignSelf: 'flex-start'
-                    }}
-                >
-                    <Paper elevation={1} sx={{ borderRadius: 2 }}>
+        <Container maxWidth="lg" className="mypage-container">
+            <Box className="mypage-layout">
+                <Box className="mypage-sidebar">
+                    <Paper elevation={1} className="sidebar-nav">
                         <List component="nav" aria-label="mypage navigation">
                             <ListItem disablePadding>
                                 <ListItemButton selected={view === 'info'} onClick={() => setView('info')}>
@@ -461,8 +467,8 @@ const Mypage: React.FC = () => {
                     </Paper>
                 </Box>
 
-                <Box sx={{ flexGrow: 1, ml: { xs: 2, md: 4 } }}>
-                    <Typography variant="h4" gutterBottom>마이페이지</Typography>
+                <Box className="mypage-content">
+                    <Typography variant="h4" className="mypage-title">마이페이지</Typography>
                     {view === 'info' && renderInfoView()}
                     {view === 'edit' && renderEditView()}
                     {view === 'history' && renderHistoryView()}

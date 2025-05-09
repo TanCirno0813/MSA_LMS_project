@@ -1,0 +1,320 @@
+/* 마이페이지 스타일 */
+
+/* 전체 컨테이너 */
+.mypage-container {
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 사이드바와 콘텐츠 레이아웃 */
+.mypage-layout {
+  display: flex;
+  position: relative;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 사이드바 */
+.mypage-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 16px;
+  height: fit-content;
+  align-self: flex-start;
+}
+
+.sidebar-nav {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-nav .MuiListItemButton-root {
+  padding: 12px 20px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-nav .MuiListItemButton-root:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-nav .MuiListItemButton-root.Mui-selected {
+  background-color: #f1f8ff;
+  border-left: 3px solid #1976d2;
+}
+
+.sidebar-nav .MuiListItemText-primary {
+  font-weight: 500;
+}
+
+/* 메인 콘텐츠 */
+.mypage-content {
+  flex: 1;
+  margin-left: 2rem;
+  max-width: calc(100% - 220px);
+  word-break: break-word;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.mypage-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+/* 정보 카드 스타일 */
+.info-card {
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  background-color: #fff;
+  transition: box-shadow 0.3s ease;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.info-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eaeaea;
+}
+
+/* 버튼 스타일 */
+.edit-button {
+  margin-top: 1rem;
+  background-color: #1976d2;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.edit-button:hover {
+  background-color: #1565c0;
+}
+
+.cancel-button {
+  margin-top: 1rem;
+  margin-left: 0.5rem;
+  border: 1px solid #1976d2;
+  color: #1976d2;
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+/* 이수 이력 목록 */
+.history-section {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.history-item {
+  margin-bottom: 1rem;
+}
+
+.history-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.history-item-title {
+  font-weight: 600;
+}
+
+.history-item-info {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+/* 이수 완료 칩 스타일 */
+.completion-chip {
+  height: 24px;
+  font-size: 0.75rem;
+}
+
+.completion-chip.completed {
+  background-color: #4caf50;
+  color: white;
+}
+
+/* 강의 이력 상세 */
+.lecture-group {
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #eaeaea;
+  width: 100%;
+}
+
+.lecture-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #eaeaea;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.lecture-avatar {
+  background-color: #1976d2;
+  margin-right: 1rem;
+  width: 32px;
+  height: 32px;
+  font-size: 0.875rem;
+}
+
+.lecture-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.content-item {
+  padding: 0.8rem 1rem;
+  border-left: 3px solid #e0e0e0;
+  margin: 0.5rem 1rem;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  width: auto;
+  max-width: calc(100% - 2.6rem);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* content-item-header 클래스 이름 변경 */
+.lecture-content-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  min-width: 0;
+}
+
+.content-title {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+
+.content-date {
+  color: #666;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 폼 스타일 */
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* 주소 검색 관련 스타일 개선 */
+.address-input {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  position: relative;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+
+.address-input .MuiFormControl-root {
+  margin-top: 0;
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+/* 주소 검색 버튼 줄바꿈 방지 및 높이 조정 */
+.address-search-btn {
+  white-space: nowrap;
+  min-width: 90px;
+  height: 40px !important;
+  margin: 0 0 9px 0 !important;
+  align-self: flex-end;
+}
+
+/* 주소 검색 모달 */
+.address-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  background-color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+  .mypage-layout {
+    flex-direction: column;
+  }
+  
+  .mypage-sidebar {
+    width: 100%;
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  
+  .mypage-content {
+    margin-left: 0;
+    max-width: 100%;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  /* 반응형에서 주소 검색 입력 처리 */
+  .address-input {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+  
+  .address-search-btn {
+    height: 40px !important;
+    margin: 0 0 9px 0 !important;
+  }
+
+  .content-item {
+    max-width: calc(100% - 2rem);
+    margin: 0.5rem 0.5rem;
+  }
+} 

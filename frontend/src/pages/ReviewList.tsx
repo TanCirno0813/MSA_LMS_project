@@ -119,9 +119,7 @@ const ReviewList: React.FC = () => {
               } 
             }}
           >
-            <span className="review-count-badge">
-              {filteredAndSortedReviews.length}개
-            </span>
+            
           </Badge>
         </Box>
 

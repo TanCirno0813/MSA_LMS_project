@@ -34,7 +34,7 @@ const Footer = () => {
         <div>
           <h3>📝 LMS 사이트</h3>
           <p>
-            샘플 사이트 입니다.<br />
+            LMS 플랫폼 사이트 입니다.<br />
           </p>
         </div>
 
