@@ -1,42 +1,34 @@
 /* 공통 스타일 */
 .recruitment-list {
-    margin: 20px auto;
-    padding: 15px;
-    max-width: 800px;
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 40px auto;
+    padding: 20px;
+    max-width: 1300px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .recruitment-list__title {
     font-size: 1.8rem;
-    margin-bottom: 15px;
-    text-align: center;
-    color: #333;
-}
-
-/* 검색 및 필터 영역 */
-.recruitment-list__controls {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    align-items: center;
+    gap: 8px;
 }
 
-.recruitment-list__search,
-.recruitment-list__filter {
-    padding: 8px 12px;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    transition: all 0.3s ease;
+.recruitment-list__title-icon {
+    font-size: 1.5rem;
+    color: #028267;
 }
 
-.recruitment-list__search:focus,
-.recruitment-list__filter:focus {
-    outline: none;
-    border-color: #4CAF50;
+.recruitment-list__title-divider {
+    margin: 0.5rem 0;
+    height: 2px;
+    width: 60px;
+    background-color: #028267;
 }
 
 /* 테이블 스타일 */
@@ -46,99 +38,92 @@
     margin-top: 10px;
 }
 
+.recruitment-list__thead {
+    background-color: #028267;
+    color: #fff;
+}
+
+.recruitment-list__thead th {
+    padding: 14px 20px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
 .recruitment-list__table th,
 .recruitment-list__table td {
-    padding: 12px;
-    text-align: center;
-    border: 1px solid #ddd;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
 }
 
-.recruitment-list__table th {
-    background-color: #f0f0f0;
-    font-weight: bold;
-    color: #333;
+.recruitment-list__table td a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-.recruitment-list__table tr:nth-child(even) {
-    background-color: #f8f8f8;
-}
-
-.recruitment-list__table tr:hover {
-    background-color: #e8f4e8;
-}
-
-/* 링크 스타일 */
-.recruitment-list__link {
-    color: #0066cc;
+.recruitment-list__table td a:hover {
+    color: #0056b3;
     text-decoration: none;
 }
 
-.recruitment-list__link:hover {
-    text-decoration: underline;
+/* 테이블 행 스타일 */
+.recruitment-list__table tr {
+    transition: background-color 0.2s;
 }
 
-/* 로딩 중 스타일 */
-.recruitment-list__loading {
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: #555;
-    background-color: #f0f0f0;
-}
-
+/* 상태 표시 */
+.recruitment-list__loading,
 .recruitment-list__no-data {
     text-align: center;
-    font-style: italic;
-    color: #888;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #555;
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 6px;
 }
 
-/* 페이징 버튼 스타일 */
-.recruitment-list__pagination {
+/* 버튼 스타일 */
+.pagination {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 10px;
     margin: 20px 0;
 }
 
-.recruitment-list__button {
-    padding: 8px 14px;
-    font-size: 1rem;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.recruitment-list__button:hover:not(:disabled) {
-    background-color: #45a049;
-}
-
-.recruitment-list__button:disabled {
-    background-color: #ddd;
-    color: #888;
-    cursor: not-allowed;
-}
-
-.recruitment-list__page {
-    padding: 8px 14px;
+.pagination button {
+    padding: 8px 16px;
     font-size: 1.1rem;
-    color: #333;
-}
-
-.recruitment-list__search-button {
-    padding: 8px 12px;
-    margin-left: 5px;
-    font-size: 1rem;
-    background-color: #4CAF50;
+    background-color: #028267;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    min-width: 80px;
+    text-align: center;
+    line-height: 1.5;
 }
 
-.recruitment-list__search-button:hover {
-    background-color: #45a049;
+.pagination span {
+    padding: 8px 16px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 6px;
+    min-width: 80px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.pagination button:hover {
+    background-color: #025c49;
+}
+
+.pagination button:disabled {
+    background-color: #b0bec5;
+    color: #fff;
+    cursor: not-allowed;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import {BrowserRouter as Router, Routes, Route, useSearchParams} from 'react-router-dom';
+import { useSearchParams} from 'react-router-dom';
 import axios from 'axios';
 import './RecruitmentList.css';
 
@@ -86,41 +86,45 @@ const RecruitmentList = () => {
 
     return (
         <div className="recruitment-list">
-            <h2 className="recruitment-list__title">채용 공고 목록</h2>
+            <div className="recruitment-list__title">
+                📢 채용 공고 목록
+            </div>
+            <div className="recruitment-list__title-divider"></div>
+
             {error && <p className="recruitment-list__error">{error}</p>}
 
             <table className="recruitment-list__table">
-                <thead>
+                <thead className="recruitment-list__thead">
                 <tr>
                     <th>공고 번호</th>
                     <th>채용 공고 제목</th>
                     <th>기관명</th>
                     <th>채용 구분</th>
                     <th>고용 유형</th>
-                    <th>상세 URL</th>
                 </tr>
                 </thead>
                 <tbody>
                 {loading ? (
                     <tr>
-                        <td colSpan={6} className="recruitment-list__loading">로딩 중...</td>
+                        <td colSpan={5} className="recruitment-list__loading">로딩 중...</td>
                     </tr>
                 ) : recruitments.length > 0 ? (
                     recruitments.map((item, index) => (
                         <tr key={`${item.recrutPblntSn}-${index}`}>
                             <td>{item.recrutPblntSn}</td>
-                            <td>{item.recrutPbancTtl}</td>
+                            <td>
+                                <a href={item.detailUrl} target="_blank" rel="noopener noreferrer">
+                                    {item.recrutPbancTtl}
+                                </a>
+                            </td>
                             <td>{item.instNm}</td>
                             <td>{translateRecrutSe(item.recrutSe)}</td>
                             <td>{translateHireTypeLst(item.hireTypeLst)}</td>
-                            <td>
-                                <a href={item.detailUrl} target="_blank" rel="noopener noreferrer">보기</a>
-                            </td>
                         </tr>
                     ))
                 ) : (
                     <tr>
-                        <td colSpan={6} className="recruitment-list__no-data">채용 정보가 없습니다.</td>
+                        <td colSpan={5} className="recruitment-list__no-data">채용 정보가 없습니다.</td>
                     </tr>
                 )}
                 </tbody>
