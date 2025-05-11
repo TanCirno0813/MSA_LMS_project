@@ -15,8 +15,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -56,11 +59,14 @@ public class RecruitmentService {
      * Redis에서 페이지네이션된 데이터 조회
      */
     @SuppressWarnings("unchecked")
-    public List<RecruitmentDto> getRecruitments(int pageNo) {
+    public Map<String, Object> getRecruitments(int pageNo, String searchKeyword) {
         // 페이지 번호 유효성 검사
-        if (pageNo < 1 || pageNo > MAX_PAGE) {
+        if (pageNo < 1) {
             log.warn("유효하지 않은 페이지 번호: {}", pageNo);
-            return Collections.emptyList();
+            Map<String, Object> result = new HashMap<>();
+            result.put("items", Collections.emptyList());
+            result.put("totalItems", 0);
+            return result;
         }
 
         String cacheKey = "recruitment_data_all";
@@ -74,15 +80,36 @@ public class RecruitmentService {
             }
         }
 
-        // 페이지네이션 처리
-        int startIndex = (pageNo - 1) * PAGE_SIZE;
-        int endIndex = Math.min(startIndex + PAGE_SIZE, allRecruitments.size());
-        
-        if (startIndex >= allRecruitments.size()) {
-            return Collections.emptyList();
+        // 검색어가 있는 경우 필터링
+        if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+            String keyword = searchKeyword.toLowerCase().trim();
+            allRecruitments = allRecruitments.stream()
+                .filter(recruitment -> 
+                    recruitment.getRecrutPbancTtl().toLowerCase().contains(keyword))
+                .collect(Collectors.toList());
         }
 
-        return allRecruitments.subList(startIndex, endIndex);
+        int totalItems = allRecruitments.size();
+        int maxPage = (int) Math.ceil((double) totalItems / PAGE_SIZE);
+
+        // 페이지 번호가 최대 페이지를 초과하는 경우
+        if (pageNo > maxPage) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("items", Collections.emptyList());
+            result.put("totalItems", totalItems);
+            return result;
+        }
+
+        // 페이지네이션 처리
+        int startIndex = (pageNo - 1) * PAGE_SIZE;
+        int endIndex = Math.min(startIndex + PAGE_SIZE, totalItems);
+        
+        List<RecruitmentDto> pageItems = allRecruitments.subList(startIndex, endIndex);
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("items", pageItems);
+        result.put("totalItems", totalItems);
+        return result;
     }
 
     /**
