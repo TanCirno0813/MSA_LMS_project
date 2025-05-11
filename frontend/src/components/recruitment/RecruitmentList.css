@@ -32,7 +32,6 @@
 /* 테이블 컨테이너 */
 .recruitment-list__table-container {
     height: 400px;
-    overflow-y: auto;
     margin: 20px 0 10px 0;
     border-radius: 8px;
 }
