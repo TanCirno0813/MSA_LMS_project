@@ -34,10 +34,10 @@ logging:
     org.springframework.web.client.RestTemplate: DEBUG
     edu.ct.admin: DEBUG
 
-api:
-  service:
-    key: 6v8OZeCdxYl0aFV3k9UwkZDTKov50OEPJOILNm7DSSCLHw38daWB8QZJIFjmfBE0X0%2F%2BWrJL90hXrl0TnbmsiQ%3D%3D
-
 #api:
 #  service:
-#    key: lmNclzwIue7M4FhXxtpNonBSyWscgAIA1OIl5WJgsKYc%2BHtrEc5xrl7OfLuqecUoO6ZHRadeqR5RLuT35qUu6g%3D%3D
+#    key: 6v8OZeCdxYl0aFV3k9UwkZDTKov50OEPJOILNm7DSSCLHw38daWB8QZJIFjmfBE0X0%2F%2BWrJL90hXrl0TnbmsiQ%3D%3D
+
+api:
+  service:
+    key: lmNclzwIue7M4FhXxtpNonBSyWscgAIA1OIl5WJgsKYc%2BHtrEc5xrl7OfLuqecUoO6ZHRadeqR5RLuT35qUu6g%3D%3D

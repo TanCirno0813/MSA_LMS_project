@@ -15,5 +15,5 @@ public class RecruitmentDto {
     private String instNm;         // 기관명
     private String recrutSe;       // 채용구분
     private String hireTypeLst;    // 고용유형목록
-    private String detailUrl;      // 상세보기 URL
+    private String srcUrl;         // 상세보기 URL
 }

@@ -9,8 +9,10 @@ interface Recruitment {
     instNm: string;         // 기관명
     recrutSe: string;       // 채용구분
     hireTypeLst: string;    // 고용유형목록
-    detailUrl: string;      // 상세보기 URL
+    srcUrl: string;      // 상세보기 URL
 }
+
+const MAX_PAGE = 20;  // 최대 페이지 수 제한
 
 // 코드 변환 함수
 const translateRecrutSe = (code: string): string => {
@@ -54,13 +56,22 @@ const RecruitmentList = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
+    // URL 처리 함수 추가
+    const formatUrl = (url: string): string => {
+        if (url === 'N/A') return '#';
+        if (url.startsWith('www.')) {
+            return `https://${url}`;
+        }
+        return url;
+    };
+
     // URL 쿼리 파라미터 관리
     const [searchParams, setSearchParams] = useSearchParams();
     const pageNo = parseInt(searchParams.get("pageNo") || "1", 10);
 
     // 페이지 변경 핸들러
     const changePage = (newPage: number) => {
-        if (newPage > 0) {
+        if (newPage > 0 && newPage <= MAX_PAGE) {
             setSearchParams({ pageNo: newPage.toString() });
         }
     };
@@ -113,7 +124,7 @@ const RecruitmentList = () => {
                         <tr key={`${item.recrutPblntSn}-${index}`}>
                             <td>{item.recrutPblntSn}</td>
                             <td>
-                                <a href={item.detailUrl} target="_blank" rel="noopener noreferrer">
+                                <a href={formatUrl(item.srcUrl)} target="_blank" rel="noopener noreferrer">
                                     {item.recrutPbancTtl}
                                 </a>
                             </td>
@@ -131,9 +142,19 @@ const RecruitmentList = () => {
             </table>
 
             <div className="pagination">
-                <button onClick={() => changePage(pageNo - 1)} disabled={pageNo === 1}>이전</button>
-                <span>페이지 {pageNo}</span>
-                <button onClick={() => changePage(pageNo + 1)}>다음</button>
+                <button 
+                    onClick={() => changePage(pageNo - 1)} 
+                    disabled={pageNo === 1}
+                >
+                    이전
+                </button>
+                <span>페이지 {pageNo} / {MAX_PAGE}</span>
+                <button 
+                    onClick={() => changePage(pageNo + 1)} 
+                    disabled={pageNo >= MAX_PAGE}
+                >
+                    다음
+                </button>
             </div>
         </div>
     );

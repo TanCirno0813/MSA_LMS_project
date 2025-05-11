@@ -25,6 +25,9 @@ public class RecruitmentService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final String baseUrl = "https://apis.data.go.kr/1051000/recruitment";
+    private static final int PAGE_SIZE = 5;
+    private static final int TOTAL_ITEMS = 100;
+    private static final int MAX_PAGE = 20;  // 최대 페이지 수 제한
 
     @Value("${api.service.key}")
     private String serviceKey;
@@ -33,63 +36,72 @@ public class RecruitmentService {
     private static final long CACHE_EXPIRATION = 1800; // 30분
 
     /**
-     * 주기적으로 공공 API에서 최신 채용 데이터를 페이지별로 가져와 Redis에 저장
+     * 주기적으로 공공 API에서 최신 채용 데이터를 가져와 Redis에 저장
      */
     @Scheduled(fixedRate = 300000) // 30분마다 실행
     public void updateRecruitmentData() {
         log.info("자동 채용 데이터 갱신 시작");
-        int pageNo = 1;
-        while (true) {
-            try {
-                List<RecruitmentDto> recruitments = fetchRecruitmentsFromApi(pageNo);
-                if (recruitments.isEmpty()) break;
-                cacheRecruitments(recruitments, pageNo);
-                log.info("페이지 {} 갱신 완료: {}건", pageNo, recruitments.size());
-                pageNo++;
-            } catch (Exception e) {
-                log.error("데이터 갱신 중 오류 발생 (페이지 {}): {}", pageNo, e.getMessage());
-                break;
+        try {
+            List<RecruitmentDto> allRecruitments = fetchRecruitmentsFromApi();
+            if (!allRecruitments.isEmpty()) {
+                cacheAllRecruitments(allRecruitments);
+                log.info("총 {}건의 채용 데이터를 갱신했습니다.", allRecruitments.size());
             }
+        } catch (Exception e) {
+            log.error("데이터 갱신 중 오류 발생: {}", e.getMessage());
         }
     }
 
     /**
-     * Redis에서 데이터 조회
+     * Redis에서 페이지네이션된 데이터 조회
      */
     @SuppressWarnings("unchecked")
     public List<RecruitmentDto> getRecruitments(int pageNo) {
-        String cacheKey = "recruitment_data_" + pageNo;
-        List<RecruitmentDto> cachedData = (List<RecruitmentDto>) redisTemplate.opsForValue().get(cacheKey);
-        if (cachedData != null && !cachedData.isEmpty()) {
-            log.info("Redis에서 페이지 {}의 채용 데이터를 조회했습니다.", pageNo);
-            return cachedData;
+        // 페이지 번호 유효성 검사
+        if (pageNo < 1 || pageNo > MAX_PAGE) {
+            log.warn("유효하지 않은 페이지 번호: {}", pageNo);
+            return Collections.emptyList();
         }
 
-        log.info("Redis에 데이터가 없으므로 API에서 페이지 {}의 채용 정보를 가져옵니다.", pageNo);
-        List<RecruitmentDto> recruitments = fetchRecruitmentsFromApi(pageNo);
-        if (!recruitments.isEmpty()) {
-            cacheRecruitments(recruitments, pageNo);
+        String cacheKey = "recruitment_data_all";
+        List<RecruitmentDto> allRecruitments = (List<RecruitmentDto>) redisTemplate.opsForValue().get(cacheKey);
+        
+        if (allRecruitments == null || allRecruitments.isEmpty()) {
+            log.info("Redis에 데이터가 없으므로 API에서 채용 정보를 가져옵니다.");
+            allRecruitments = fetchRecruitmentsFromApi();
+            if (!allRecruitments.isEmpty()) {
+                cacheAllRecruitments(allRecruitments);
+            }
         }
-        return recruitments;
+
+        // 페이지네이션 처리
+        int startIndex = (pageNo - 1) * PAGE_SIZE;
+        int endIndex = Math.min(startIndex + PAGE_SIZE, allRecruitments.size());
+        
+        if (startIndex >= allRecruitments.size()) {
+            return Collections.emptyList();
+        }
+
+        return allRecruitments.subList(startIndex, endIndex);
     }
 
     /**
-     * Redis에 데이터 캐싱
+     * Redis에 전체 데이터 캐싱
      */
-    private void cacheRecruitments(List<RecruitmentDto> recruitments, int pageNo) {
-        String cacheKey = "recruitment_data_" + pageNo;
+    private void cacheAllRecruitments(List<RecruitmentDto> recruitments) {
+        String cacheKey = "recruitment_data_all";
         redisTemplate.opsForValue().set(cacheKey, recruitments, CACHE_EXPIRATION, TimeUnit.SECONDS);
-        log.info("Redis에 페이지 {}의 {}건의 채용 데이터를 캐싱했습니다.", pageNo, recruitments.size());
+        log.info("Redis에 총 {}건의 채용 데이터를 캐싱했습니다.", recruitments.size());
     }
 
     /**
      * API URI 구성
      */
-    private URI buildApiUri(int pageNo) {
+    private URI buildApiUri() {
         return UriComponentsBuilder.fromHttpUrl(baseUrl + "/list")
                 .queryParam("serviceKey", serviceKey)
-                .queryParam("numOfRows", 5)
-                .queryParam("pageNo", pageNo)
+                .queryParam("numOfRows", TOTAL_ITEMS)
+                .queryParam("pageNo", 1)
                 .queryParam("resultType", "json")
                 .build(true)
                 .toUri();
@@ -98,9 +110,9 @@ public class RecruitmentService {
     /**
      * API 호출 메서드
      */
-    private List<RecruitmentDto> fetchRecruitmentsFromApi(int pageNo) {
+    private List<RecruitmentDto> fetchRecruitmentsFromApi() {
         try {
-            URI uri = buildApiUri(pageNo);
+            URI uri = buildApiUri();
             String response = restTemplate.getForObject(uri, String.class);
             if (response == null || response.isEmpty()) {
                 log.warn("API 응답이 비어있습니다.");
@@ -131,7 +143,7 @@ public class RecruitmentService {
                     item.path("instNm").asText("N/A"),
                     item.path("recrutSe").asText("N/A"),
                     item.path("hireTypeLst").asText("N/A"),
-                    item.path("detailUrl").asText("N/A")
+                    item.path("srcUrl").asText("N/A")
             ));
         }
         return recruitments;
