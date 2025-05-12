@@ -155,7 +155,6 @@ const HomeView = () => {
     }
   };
 
-
   return (
       <div className="home" style={{marginTop:'1%'}}>
         {/* 배너 영역 */}
@@ -175,6 +174,7 @@ const HomeView = () => {
             </div>
           </div>
         </section>
+
         {/* 카테고리 버튼 영역 */}
         <section className="category-section">
           <div className="category-container">
@@ -193,6 +193,7 @@ const HomeView = () => {
             </div>
           </div>
         </section>
+
         {/* 기업 교육 정보 섹션 */}
         <section className="corporate-info-section">
           <div className="container" style={{padding: '40px 20px'}}>
