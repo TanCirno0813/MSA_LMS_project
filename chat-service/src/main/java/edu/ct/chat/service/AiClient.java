@@ -21,11 +21,8 @@ public class AiClient {
     private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
     public String ask(String userMessage) {
-        // 🌟 API 키 확인 로그
-        System.out.println("API Key: " + (apiKey != null ? "Present" : "Missing"));
-
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(apiKey);  // ✅ Bearer 토큰 설정 확인
+        headers.setBearerAuth(apiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> body = Map.of(
@@ -40,18 +37,13 @@ public class AiClient {
 
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(OPENAI_URL, entity, Map.class);
-            System.out.println("Response Status: " + response.getStatusCode());
-            System.out.println("Response Body: " + response.getBody());
-
             if (response.getStatusCode() == HttpStatus.OK) {
                 List<Map> choices = (List<Map>) response.getBody().get("choices");
                 Map message = (Map) choices.get(0).get("message");
                 return (String) message.get("content");
-            } else {
-                return "AI 응답 오류: " + response.getStatusCode();
             }
+            return "AI 응답 오류: " + response.getStatusCode();
         } catch (Exception e) {
-            e.printStackTrace();
             return "OpenAI API 호출 오류: " + e.getMessage();
         }
     }

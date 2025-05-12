@@ -31,6 +31,7 @@ const NavBar = () => {
 
           <Link to="/lectures">강의 목록</Link>
           <Link to="/reviews">리뷰 목록</Link>
+          <Link to="/recruitment">공고 목록</Link>
         </div>
         {/* ✅ 경로가 /lectures 일 때는 검색창 숨기기 */}
         <div className="nav-right">

@@ -158,7 +158,6 @@ public class LectureController {
         return ResponseEntity.ok(lectureService.getAllLectures());
     }
 
-
     @PostMapping("/{id}/like")
     public Map<String, Object> toggleLike(@PathVariable Long id, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");

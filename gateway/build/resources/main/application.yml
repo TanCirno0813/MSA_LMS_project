@@ -59,6 +59,10 @@ spring:
           uri: lb://CHAT-SERVICE
           predicates:
           - Path=/api/chat/**
+        - id: recruitment-service
+          uri: lb://RECRUITMENT-SERVICE
+          predicates:
+            - Path=/api/recruitments/**
 
 coolsms:
   api:

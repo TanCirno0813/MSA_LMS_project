@@ -28,6 +28,7 @@ import ChatWidget from "./components/chat/ChatWidget.tsx"
 import EnrollmentManagement from './pages/EnrollmentManagement';
 import RequireGuest from  './components/RequireGuest.tsx'
 import RequireAdmin from './components/RequireAdmin.tsx'
+import RecruitmentList from "@/components/recruitment/RecruitmentList.tsx";
 import {handleRegister} from "@/utils/registerUtils.ts";
 
 const App: React.FC = () => {
@@ -97,7 +98,8 @@ const App: React.FC = () => {
                 <Route path="/lectures/:id" element={<LectureDetail />} />
                 <Route path="/lectures/:lectureId/video/:videoId" element={<VideoPage />} />
                 <Route path="/result" element={<ResultReportPage />} />
-                
+                <Route path="/recruitment" element={<RecruitmentList/>}/>
+
                 {/* 관리자 라우트 보호 */}
                 <Route path="/admin" element={<RequireAdmin><AdminDashboard /></RequireAdmin>}>
                     <Route path="users" element={<Users />} />

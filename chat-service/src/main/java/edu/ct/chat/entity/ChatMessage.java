@@ -16,9 +16,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessage {
+
     @Id
     private String id = UUID.randomUUID().toString();
-    private int userId;
+    private String userId;
     private String message;
     private LocalDateTime timestamp;
+
+    public ChatMessage(String userId, String message) {
+        this.userId = userId;
+        this.message = message;
+        this.timestamp = LocalDateTime.now();
+    }
 }
