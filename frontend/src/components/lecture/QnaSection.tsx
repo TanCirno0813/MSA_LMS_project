@@ -31,7 +31,6 @@ const QnaSection: React.FC<QnaSectionProps> = ({
     isAskingQuestion,
     isAnswering,
     userIsAdmin,
-    onQnaClick,
     onAnswerClick,
     onAskQuestionClick,
     onCancelQuestion,
