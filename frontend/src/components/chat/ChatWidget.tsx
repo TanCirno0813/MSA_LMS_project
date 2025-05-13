@@ -22,11 +22,19 @@ const ChatWidget: React.FC = () => {
         if (!userId) return;
         try {
             const res = await axios.get(`${API_BASE_URL}/api/chat/${userId}`);
-            setMessages(res.data);
+
+            if (Array.isArray(res.data)) {
+                setMessages(res.data);
+            } else {
+                console.error("API 응답이 배열이 아닙니다:", res.data);
+                setMessages([]);
+            }
         } catch (err) {
             console.error('메시지 불러오기 실패:', err);
+            setMessages([]);
         }
     };
+
 
     const sendMessage = async () => {
         if (!input.trim()) return;
@@ -101,16 +109,20 @@ const ChatWidget: React.FC = () => {
                         <button onClick={() => setOpen(false)} style={{ background: 'none', color: '#fff', border: 'none', fontSize: '16px' }}>✕</button>
                     </div>
                     <div className="chat-messages" ref={chatBoxRef}>
-                        {messages.map((msg, index) => (
-                            <div
-                                key={`${msg.id}-${index}`}  // ← 중복 방지
-                                className={`chat-message ${msg.sender === 'AI' ? 'from-discord' : 'from-user'}`}
-                            >
-                                <span>{msg.message}</span>
-                                <div className="chat-timestamp">{formatKoreanDateTime(msg.timestamp)}</div>
-                            </div>
-                        ))}
+                        {Array.isArray(messages) && messages.length > 0 && (
+                            messages.map((msg, index) => (
+                                <div
+                                    key={`${msg.id}-${index}`}
+                                    className={`chat-message ${msg.sender === 'AI' ? 'from-discord' : 'from-user'}`}
+                                >
+                                    <span>{msg.message}</span>
+                                    <div className="chat-timestamp">{formatKoreanDateTime(msg.timestamp)}</div>
+                                </div>
+                            ))
+                        )}
                     </div>
+
+
                     <div className="chat-input-container">
                         <input
                             value={input}
