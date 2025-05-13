@@ -115,7 +115,7 @@ const NoticeSection: React.FC<NoticeSectionProps> = ({
                                 </button>
                                 <button 
                                     onClick={() => onDeleteNotice(selectedNotice.id)}
-                                    className="notice-delete-btn"
+                                    className="notice-delete-btn-1"
                                 >
                                     삭제
                                 </button>

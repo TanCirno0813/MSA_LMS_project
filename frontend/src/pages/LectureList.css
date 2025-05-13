@@ -55,14 +55,14 @@
 /*    font-size: 14px;*/
 /*}*/
 
-.pagination {
+.pagination-list {
     margin-top: 2rem;
     display: flex;
     justify-content: center;
     gap: 8px;
 }
 
-.pagination button {
+.pagination-list button {
     padding: 6px 12px;
     border: 1px solid #ddd;
     background-color: white;
@@ -70,7 +70,7 @@
     border-radius: 4px;
 }
 
-.pagination button.active {
+.pagination-list button.active {
     background-color: #028267;
     color: white;
     font-weight: bold;

@@ -155,7 +155,7 @@ const LectureList: React.FC = () => {
                             ))}
                         </div>
 
-                        <div className="pagination">
+                        <div className="pagination-list">
                             {[...Array(totalPages)].map((_, idx) => {
                                 const page = idx + 1;
                                 return (
