@@ -243,7 +243,12 @@ const Users: React.FC = () => {
       
       // 펼칠 때 상세 내역 로드
       if (newState[userId]) {
-        fetchUserCompletionDetails(userId);
+        // 현재 탭에 따라 적절한 데이터 로드
+        if (tabValue === 1) {
+          fetchUserCompletionDetails(userId);
+        } else if (tabValue === 2) {
+          fetchUserExamResults(userId);
+        }
       }
       
       return newState;
@@ -288,7 +293,7 @@ const Users: React.FC = () => {
 
   const handleEdit = (user: User) => {
     setIsEdit(true);
-    setUserForm({ ...user });
+    setUserForm({ ...user, password: '' });
     setDialogOpen(true);
   };
 
@@ -310,15 +315,12 @@ const Users: React.FC = () => {
         ...userForm
       };
       
-      // 비밀번호가 비어있는 경우 수정 요청에서 제외
+      // 수정 모드이고 비밀번호가 비어있는 경우, 비밀번호 필드를 제외하고 요청
       if (isEdit && !formToSubmit.password) {
         const { password, ...restForm } = formToSubmit;
-        if (isEdit) {
-          await api.put(`/users/${userForm.id}`, restForm);
-        } else {
-          await api.post('/users', formToSubmit);
-        }
+        await api.put(`/users/${userForm.id}`, restForm);
       } else {
+        // 새 사용자 추가 또는 비밀번호가 입력된 경우
         if (isEdit) {
           await api.put(`/users/${userForm.id}`, formToSubmit);
         } else {
@@ -335,6 +337,9 @@ const Users: React.FC = () => {
   
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+    // 탭이 변경될 때 expandedUsers 상태와 userExamResults 상태를 초기화
+    setExpandedUsers({});
+    setUserExamResults({});
   };
   
   const formatDate = (dateString: string) => {
@@ -546,7 +551,6 @@ const Users: React.FC = () => {
               <React.Fragment key={user.id}>
                 <ListItem
                   onClick={() => {
-                    fetchUserExamResults(user.id);
                     toggleUserExpand(user.id);
                   }}
                 >
@@ -665,9 +669,9 @@ const Users: React.FC = () => {
             />
             <TextField
               fullWidth
-              label="비밀번호"
+              label={isEdit ? "새 비밀번호 (변경하지 않으려면 비워두세요)" : "비밀번호"}
               type="password"
-            
+              value={userForm.password}
               onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
               className="admin-form-field"
               sx={{ mb: 2 }}
