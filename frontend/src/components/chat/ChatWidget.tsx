@@ -22,9 +22,32 @@ const ChatWidget: React.FC = () => {
         if (!userId) return;
         try {
             const res = await axios.get(`${API_BASE_URL}/api/chat/${userId}`);
-            setMessages(res.data);
+
+            // API 응답이 올바른지 확인
+            if (res.status === 200 && Array.isArray(res.data)) {
+                setMessages(res.data);
+            } else {
+                console.error("API 응답이 배열이 아닙니다:", res.data);
+
+                // 응답이 객체일 경우 배열로 변환
+                if (res.status === 200 && typeof res.data === 'object') {
+                    setMessages([res.data]);
+                } else {
+                    setMessages([]);
+                }
+            }
         } catch (err) {
             console.error('메시지 불러오기 실패:', err);
+
+            // 에러 응답에 대한 처리
+            if (err.response) {
+                console.error("서버 응답 오류:", err.response.data);
+            } else if (err.request) {
+                console.error("서버 응답이 없습니다.");
+            } else {
+                console.error("요청 설정 오류:", err.message);
+            }
+            setMessages([]);
         }
     };
 
@@ -101,16 +124,20 @@ const ChatWidget: React.FC = () => {
                         <button onClick={() => setOpen(false)} style={{ background: 'none', color: '#fff', border: 'none', fontSize: '16px' }}>✕</button>
                     </div>
                     <div className="chat-messages" ref={chatBoxRef}>
-                        {messages.map((msg, index) => (
-                            <div
-                                key={`${msg.id}-${index}`}  // ← 중복 방지
-                                className={`chat-message ${msg.sender === 'AI' ? 'from-discord' : 'from-user'}`}
-                            >
-                                <span>{msg.message}</span>
-                                <div className="chat-timestamp">{formatKoreanDateTime(msg.timestamp)}</div>
-                            </div>
-                        ))}
+                        {Array.isArray(messages) && messages.length > 0 && (
+                            messages.map((msg, index) => (
+                                <div
+                                    key={`${msg.id}-${index}`}
+                                    className={`chat-message ${msg.sender === 'AI' ? 'from-discord' : 'from-user'}`}
+                                >
+                                    <span>{msg.message}</span>
+                                    <div className="chat-timestamp">{formatKoreanDateTime(msg.timestamp)}</div>
+                                </div>
+                            ))
+                        )}
                     </div>
+
+
                     <div className="chat-input-container">
                         <input
                             value={input}

@@ -35,6 +35,4 @@ logging:
     edu.ct.admin: DEBUG
 
 openai:
-  api-key: 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
-openai:
-  api-key: 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
+  api-key: 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

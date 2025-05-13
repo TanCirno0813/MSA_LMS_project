@@ -70,6 +70,7 @@ public class ChatService {
         sb.append("- 질문이 일반 대화일 경우, 자연스럽게 대화를 이어가세요.\n");
         sb.append("- 사용자가 강의에 대한 추천을 해달라고 할 때, 상대방의 스타일을 고려하지 말고 임의로 강의 목록에 있는 것들을 추천해주세요.\n");
         sb.append("- 추천할 때 3가지 정도면 될 것아요.\n");
+        sb.append("- 강의 추천은 추천해달라는 느낌이 나면 그때 강의를 추천해주세요");
 
         sb.append("추천 강의 목록:\n");
         List<String> lectures = lectureRecommendationService.getAllLectureTitles();
