@@ -23,10 +23,10 @@ public class LectureRecommendationService {
                 .collect(Collectors.toList());
     }
 
-    public List<String> getFilteredLectures(String keyword) {
+    // 모든 강의 목록 가져오기
+    public List<String> getAllLectureTitles() {
         return lectureClient.getAllLectures().stream()
                 .map(LectureDto::getTitle)
-                .filter(title -> title.toLowerCase().contains(keyword.toLowerCase()))
                 .collect(Collectors.toList());
     }
 }
