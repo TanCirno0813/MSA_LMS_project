@@ -30,14 +30,16 @@ public class FileCleanupRunner implements ApplicationRunner {
             for (Path file : files) {
                 String filename = file.getFileName().toString();
                 String[] parts = filename.split("-", 3);
-                if (parts.length < 3) {
+
+                // 파일명 유효성 검사 (형식 불일치 시 삭제)
+                if (parts.length < 3 || !isNumeric(parts[0]) || !isNumeric(parts[1])) {
                     Files.delete(file);
                     System.out.println("🧹 형식 불일치로 삭제된 파일: " + filename);
                     continue;
                 }
 
-                Long lectureId = Long.valueOf(parts[0]);
-                Long resourceId = Long.valueOf(parts[1]);
+                Long lectureId = Long.parseLong(parts[0]);
+                Long resourceId = Long.parseLong(parts[1]);
 
                 boolean exists = validResources.stream().anyMatch(r ->
                         r.getId().equals(resourceId) && r.getLectureId().equals(lectureId));
@@ -48,5 +50,14 @@ public class FileCleanupRunner implements ApplicationRunner {
                 }
             }
         }
+    }
+
+    // 숫자 여부 확인 메서드
+    private boolean isNumeric(String str) {
+        if (str == null || str.isEmpty()) return false;
+        for (char c : str.toCharArray()) {
+            if (!Character.isDigit(c)) return false;
+        }
+        return true;
     }
 }

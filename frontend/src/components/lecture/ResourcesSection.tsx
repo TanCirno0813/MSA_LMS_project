@@ -41,7 +41,7 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
             {isUploading ? (
                 <div className="resource-form">
                     <h3>자료 업로드</h3>
-                    <input type="file" onChange={(e) => e.target.files && onFileChange(e.target.files[0])} />
+                    <input type="file" className="resource-select-file" onChange={(e) => e.target.files && onFileChange(e.target.files[0])} />
                     <div className="resource-form-buttons">
                         <button onClick={onCancelUpload} className="resource-cancel-btn">
                             취소
@@ -59,9 +59,8 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
                     </p>
                     <div className="resource-action-buttons">
                         <a
-                            href={selectedResource.fileUrl}
-                            target="_blank"
-                            rel="noreferrer"
+                            href={`${import.meta.env.VITE_API_BASE_URL}${selectedResource.fileUrl}`}
+                            download
                             className="resource-download-btn"
                         >
                             다운로드

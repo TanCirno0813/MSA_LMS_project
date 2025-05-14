@@ -3,18 +3,21 @@ package edu.ct.controller;
 import edu.ct.dto.LectureResourceDto;
 import edu.ct.service.LectureResourceService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/lectures")
 @RequiredArgsConstructor
-public class LectureResouceController {
+public class LectureResourceController {
 
     private final LectureResourceService service;
 
@@ -24,26 +27,31 @@ public class LectureResouceController {
     }
 
     @PostMapping("/{lectureId}/resources")
-    public ResponseEntity<?> upload(@PathVariable Long lectureId, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> upload(@PathVariable Long lectureId, @RequestParam("file") MultipartFile file) {
         try {
             service.upload(lectureId, file);
             return ResponseEntity.ok("업로드 성공");
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("업로드 실패");
+            return ResponseEntity.status(500).body("업로드 실패: " + e.getMessage());
         }
     }
 
+    @GetMapping("/resources/download/{fileName}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws IOException {
+        Resource resource = new UrlResource(Paths.get("uploads").resolve(fileName).toUri());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(resource);
+    }
+
     @DeleteMapping("/resources/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable Long id) {
         try {
             service.delete(id);
             return ResponseEntity.ok("삭제 성공");
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("파일 삭제 실패: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("자료를 찾을 수 없습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body("삭제 실패: " + e.getMessage());
         }
     }
 }
+

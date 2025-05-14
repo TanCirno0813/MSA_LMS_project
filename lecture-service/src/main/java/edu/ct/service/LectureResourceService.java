@@ -1,9 +1,7 @@
 package edu.ct.service;
 
 import edu.ct.dto.LectureResourceDto;
-import edu.ct.entity.Lecture;
 import edu.ct.entity.LectureResource;
-import edu.ct.repository.LectureRepository;
 import edu.ct.repository.LectureResourceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,8 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,61 +23,48 @@ public class LectureResourceService {
     private final LectureResourceRepository repository;
     private final Path uploadPath = Paths.get("uploads");
 
+    /**
+     * 강의 자료 목록 조회
+     */
     public List<LectureResourceDto> getResources(Long lectureId) {
         return repository.findByLectureIdOrderByUploadedAtDesc(lectureId).stream()
                 .map(r -> new LectureResourceDto(
-                        r.getId(), r.getFileName(), r.getFileUrl(), r.getUploadedAt().toString(),r.getLectureId()
+                        r.getId(), r.getFileName(), getDownloadUrl(r.getFileName()), r.getUploadedAt().toString(), r.getLectureId()
                 )).collect(Collectors.toList());
     }
 
-    private String resolveUniqueFilename(String originalName) {
-        String baseName = originalName;
-        String extension = "";
-
-        int dotIndex = originalName.lastIndexOf(".");
-        if (dotIndex != -1) {
-            baseName = originalName.substring(0, dotIndex);
-            extension = originalName.substring(dotIndex); // .pdf, .jpg 등 포함
-        }
-
-        String candidateName = originalName;
-        int count = 1;
-
-        while (Files.exists(uploadPath.resolve(candidateName))) {
-            candidateName = baseName + "(" + count + ")" + extension;
-            count++;
-        }
-
-        return candidateName;
-    }
-
+    /**
+     * 강의 자료 업로드
+     */
     public void upload(Long lectureId, MultipartFile file) throws IOException {
+        // 디렉토리 없을 시 생성
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
+        // 파일명 검증 및 저장 경로 설정
         String originalName = file.getOriginalFilename();
         if (originalName == null || originalName.trim().isEmpty()) {
             throw new IllegalArgumentException("파일명이 비어있습니다.");
         }
 
-        String tempName = UUID.randomUUID() + "_" + originalName;
-        Path tempPath = uploadPath.resolve(tempName);
-        Files.copy(file.getInputStream(), tempPath, StandardCopyOption.REPLACE_EXISTING);
-
-        LectureResource saved = repository.save(new LectureResource(originalName, "", lectureId));
-        String storedName = lectureId + "-" + saved.getId() + "-" + originalName;
-
+        // 저장 파일명 및 경로 생성 (타임스탬프 기반)
+        String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String storedName = lectureId + "-" + timestamp + "-" + originalName;
         Path finalPath = uploadPath.resolve(storedName);
-        Files.move(tempPath, finalPath, StandardCopyOption.REPLACE_EXISTING);
 
-        String url = "http://localhost:9898/files/" + storedName;
-        saved.setFileUrl(url);
-        saved.setFileName(storedName); // DB에도 새 파일명 저장
+        // 파일 저장
+        Files.copy(file.getInputStream(), finalPath, StandardCopyOption.REPLACE_EXISTING);
+
+        // DB에 파일명 저장
+        LectureResource saved = new LectureResource(originalName, "", lectureId);
+        saved.setFileName(storedName);
         repository.save(saved);
     }
 
-
+    /**
+     * 강의 자료 삭제
+     */
     public void delete(Long resourceId) throws IOException {
         LectureResource resource = repository.findById(resourceId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 자료를 찾을 수 없습니다."));
@@ -87,5 +73,12 @@ public class LectureResourceService {
             Files.delete(filePath);
         }
         repository.deleteById(resourceId);
+    }
+
+    /**
+     * 다운로드 URL 생성
+     */
+    private String getDownloadUrl(String fileName) {
+        return "/api/lectures/resources/download/" + fileName;
     }
 }
