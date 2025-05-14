@@ -92,12 +92,12 @@
   margin-right: 10px !important;
 }
 
-.notice-delete-btn {
+.notice-delete-btn-notice {
   color: #e74c3c !important;
   border-color: #e74c3c !important;
 }
 
-.notice-delete-btn:hover {
+.notice-delete-btn-notice:hover {
   background-color: rgba(231, 76, 60, 0.05) !important;
 }
 
