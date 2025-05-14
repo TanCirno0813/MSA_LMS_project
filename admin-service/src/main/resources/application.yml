@@ -38,6 +38,6 @@ logging:
 
 # 파일 업로드 설정
 file:
-  upload-dir: uploads
+  upload-dir: lecture_image
   base-url: http://localhost:9595
 
