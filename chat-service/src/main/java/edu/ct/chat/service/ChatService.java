@@ -65,12 +65,12 @@ public class ChatService {
         StringBuilder sb = new StringBuilder();
         sb.append("사용자 질문: ").append(userMessage).append("\n");
 
-        sb.append("아래 조건을 고려하여 응답하세요:\n");
-        sb.append("- 질문이 강의 추천 관련일 경우, 관련 강의를 제안하세요.\n");
-        sb.append("- 질문이 일반 대화일 경우, 자연스럽게 대화를 이어가세요.\n");
-        sb.append("- 사용자가 강의에 대한 추천을 해달라고 할 때, 상대방의 스타일을 고려하지 말고 임의로 강의 목록에 있는 것들을 추천해주세요.\n");
-        sb.append("- 추천할 때 3가지 정도면 될 것아요.\n");
-        sb.append("- 강의 추천은 추천해달라는 느낌이 나면 그때 강의를 추천해주세요");
+        sb.append("다음 조건을 준수하여 답변하세요:\n");
+        sb.append("- 사이트 소개 관련 질문일 경우: 사이트의 목적과 기능을 간단히 설명합니다. 강의 추천은 하지 않습니다.\n");
+        sb.append("- 자신에 대해 묻는 질문일 경우: 자신이 교육 추천 봇이라는 점을 강조하며 간단히 소개합니다.\n");
+        sb.append("- 일반 대화일 경우: 자연스럽게 대화를 이어갑니다.\n");
+        sb.append("- 강의 추천 요청일 경우: 무작위로 강의 목록 중 3가지를 추천합니다.\n");
+        sb.append("- 강의 추천이 아닌 경우: 강의를 추천하지 않습니다.\n");
 
         sb.append("추천 강의 목록:\n");
         List<String> lectures = lectureRecommendationService.getAllLectureTitles();
@@ -78,7 +78,6 @@ public class ChatService {
 
         return sb.toString();
     }
-
 
     /**
      * Redis에 메시지 저장
