@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Button, 
   Table, 
@@ -27,7 +27,7 @@ import {
   SelectChangeEvent,
 
 } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, List as ListIcon, Book as LectureIcon } from '@mui/icons-material';
+import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, List as ListIcon, Book as LectureIcon, Image as ImageIcon } from '@mui/icons-material';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import '../styles/admin.css';
@@ -69,6 +69,9 @@ const LectureManagement: React.FC = () => {
     category: '',
     thumbnail: ''
   });
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [editingLecture, setEditingLecture] = useState<Lecture | null>(null);
   const [searchKeyword] = useState('');
@@ -116,8 +119,6 @@ const LectureManagement: React.FC = () => {
     fetchLectures();
   }, []);
 
-
-
   const showAddModal = () => {
     setEditingLecture(null);
     setFormData({
@@ -127,6 +128,8 @@ const LectureManagement: React.FC = () => {
       category: '',
       thumbnail: ''
     });
+    setThumbnailFile(null);
+    setThumbnailPreview('');
     setFormErrors({});
     setModalOpen(true);
   };
@@ -140,6 +143,8 @@ const LectureManagement: React.FC = () => {
       category: lecture.category,
       thumbnail: lecture.thumbnail
     });
+    setThumbnailFile(null);
+    setThumbnailPreview(lecture.thumbnail || '');
     setFormErrors({});
     setModalOpen(true);
   };
@@ -155,18 +160,67 @@ const LectureManagement: React.FC = () => {
     if (!formData.author) errors.author = '저자를 입력해주세요';
     if (!formData.category) errors.category = '카테고리를 선택해주세요';
     if (!formData.description) errors.description = '설명을 입력해주세요';
-    if (!formData.thumbnail) errors.thumbnail = '썸네일 URL을 입력해주세요';
+    if (!thumbnailFile && !thumbnailPreview) errors.thumbnail = '썸네일 이미지를 업로드해주세요';
     
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
+  };
+
+  const handleFileUpload = async (): Promise<string | null> => {
+    if (!thumbnailFile) {
+      // 편집 중이고 새 파일이 선택되지 않았다면 기존 이미지 URL 반환
+      if (editingLecture && thumbnailPreview) {
+        return thumbnailPreview;
+      }
+      return null;
+    }
+
+    const formData = new FormData();
+    formData.append('file', thumbnailFile);
+
+    try {
+      const response = await axios.post('/api/admins/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      return response.data.fileUrl;
+    } catch (error) {
+      console.error('File upload error:', error);
+      setSnackbar({
+        open: true,
+        message: '이미지 업로드에 실패했습니다.',
+        severity: 'error'
+      });
+      return null;
+    }
   };
 
   const handleSave = async () => {
     if (!validateForm()) return;
     
     try {
+      // 이미지 업로드 처리
+      const thumbnailUrl = await handleFileUpload();
+      
+      if (thumbnailUrl === null && !thumbnailPreview) {
+        setSnackbar({
+          open: true,
+          message: '썸네일 이미지 업로드에 실패했습니다.',
+          severity: 'error'
+        });
+        return;
+      }
+      
+      // 폼 데이터에 이미지 URL 설정
+      const updatedData = { 
+        ...formData, 
+        thumbnail: thumbnailUrl || thumbnailPreview 
+      };
+      
       if (editingLecture) {
-        await api.put(`/api/admins/lectures/${editingLecture.id}`, formData);
+        await api.put(`/api/admins/lectures/${editingLecture.id}`, updatedData);
         setSnackbar({
           open: true,
           message: '강의가 수정되었습니다.',
@@ -174,7 +228,7 @@ const LectureManagement: React.FC = () => {
         });
       } else {
         // 새 강의 추가 시에는 ID 필드를 제거 (백엔드에서 자동생성)
-        const newLecture = { ...formData };
+        const newLecture = { ...updatedData };
         delete newLecture.id;
         
         await api.post('/api/admins/lectures', newLecture);
@@ -232,6 +286,29 @@ const LectureManagement: React.FC = () => {
     if (formErrors.category) {
       setFormErrors({ ...formErrors, category: undefined });
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setThumbnailFile(file);
+      
+      // 파일 미리보기 생성
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setThumbnailPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      // 에러 상태 제거
+      if (formErrors.thumbnail) {
+        setFormErrors({ ...formErrors, thumbnail: undefined });
+      }
+    }
+  };
+
+  const handleBrowseClick = () => {
+    fileInputRef.current?.click();
   };
 
   const categoryOptions = [
@@ -421,16 +498,44 @@ const LectureManagement: React.FC = () => {
               className="admin-form-field"
             />
           
-            <TextField
-            name="thumbnail"
-            label="썸네일 URL"
-              fullWidth
-              value={formData.thumbnail}
-              onChange={handleInputChange}
-              error={!!formErrors.thumbnail}
-              helperText={formErrors.thumbnail}
-              className="admin-form-field"
-            />
+            <Box sx={{ border: formErrors.thumbnail ? '1px solid #d32f2f' : '1px solid #ccc', borderRadius: 1, p: 2 }}>
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+                ref={fileInputRef}
+              />
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Box sx={{ width: 150, height: 100, bgcolor: '#f5f5f5', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                  {thumbnailPreview ? (
+                    <img
+                      src={thumbnailPreview}
+                      alt="썸네일 미리보기"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <ImageIcon sx={{ fontSize: 40, color: '#aaa' }} />
+                  )}
+                </Box>
+                <Stack spacing={1} sx={{ flexGrow: 1 }}>
+                  <Typography variant="subtitle1">썸네일 이미지</Typography>
+                  <Button
+                    variant="outlined"
+                    onClick={handleBrowseClick}
+                    startIcon={<ImageIcon />}
+                  >
+                    이미지 찾기
+                  </Button>
+                  {thumbnailFile && (
+                    <Typography variant="caption">{thumbnailFile.name}</Typography>
+                  )}
+                </Stack>
+              </Stack>
+              {formErrors.thumbnail && (
+                <FormHelperText error>{formErrors.thumbnail}</FormHelperText>
+              )}
+            </Box>
           </Stack>
         </DialogContent>
         <DialogActions>

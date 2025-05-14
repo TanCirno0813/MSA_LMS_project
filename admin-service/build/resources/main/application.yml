@@ -13,6 +13,12 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
 
 eureka:
   client:
@@ -29,4 +35,9 @@ logging:
   level:
     org.springframework.web.client.RestTemplate: DEBUG
     edu.ct.admin: DEBUG
+
+# 파일 업로드 설정
+file:
+  upload-dir: uploads
+  base-url: http://localhost:9595
 
