@@ -26,6 +26,8 @@
   align-items: center;
   height: 100%;
   transition: color 0.2s;
+  margin: -10px 0;
+  padding: 10px 1rem;
 }
 
 .nav-container a:hover {
@@ -63,14 +65,9 @@
   color: #333;
   padding: 0 1rem;
   font-weight: 500;
-  cursor: pointer;
   position: relative;
   height: 100%;
   border-right: 1px solid #e9ecef;
-}
-
-.menu-icon:hover {
-  color: #028267;
 }
 
 .menu-icon span {
@@ -102,5 +99,41 @@
   align-items: center;
 }
 
+.dropdown-container {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 155%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 0.5rem 0;
+  z-index: 1000;
+  margin-top: 2px;
+}
+
+.dropdown-menu a {
+  display: block;
+  width: 128px;
+  padding: 0.75rem 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.dropdown-menu a:hover {
+  color: #028267;
+}
+
+.dropdown-menu a::after {
+  display: none;
+}
 
   

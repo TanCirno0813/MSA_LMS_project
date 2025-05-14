@@ -1,6 +1,6 @@
 /* 공통 스타일 */
 .recruitment-list {
-    margin: 40px auto;
+    margin: 50px auto;
     padding: 20px;
     max-width: 1100px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -117,7 +117,7 @@
 .pagination-container {
     width: 100%;
     max-width: 1100px;
-    margin: 0 auto;
+    margin: 40px auto;
     padding: 10px 0 30px 0;
 }
 

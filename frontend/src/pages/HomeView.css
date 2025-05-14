@@ -278,7 +278,7 @@
 .home-notice-preview {
   background-color: #ffffff;
   max-width: 1200px;
-  margin: 30px auto 0;
+  margin: 10px auto 0;
   padding: 30px;
   border-radius: 16px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -367,8 +367,10 @@
 
 /* 최근 리뷰 섹션 */
 .home-reviews-preview {
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   max-width: 1200px;
-  margin: 30px auto 40px;
+  margin: 7em auto 7em;
   padding: 30px;
   position: relative;
 }

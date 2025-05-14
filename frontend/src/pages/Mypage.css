@@ -1,4 +1,4 @@
-/* 마이페이지 스타일 */
+/* 마이페이지 스타일
 
 /* 전체 컨테이너 */
 .mypage-container {
@@ -39,9 +39,9 @@
   transition: all 0.2s ease;
 }
 
-.sidebar-nav .MuiListItemButton-root:hover {
+/* .sidebar-nav .MuiListItemButton-root:hover {
   background-color: rgba(0, 0, 0, 0.04);
-}
+} */
 
 .sidebar-nav .MuiListItemButton-root.Mui-selected {
   background-color: #f1f8ff;
@@ -71,18 +71,19 @@
 
 /* 정보 카드 스타일 */
 .info-card {
+  margin: 20px auto;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
   background-color: #fff;
   transition: box-shadow 0.3s ease;
   overflow: hidden;
-  width: 100%;
+  width: 70%;
   box-sizing: border-box;
 }
 
 .info-card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: none !important;
 }
 
 .section-title {
@@ -103,9 +104,6 @@
   transition: background-color 0.2s ease;
 }
 
-.edit-button:hover {
-  background-color: #1565c0;
-}
 
 .cancel-button {
   margin-top: 1rem;

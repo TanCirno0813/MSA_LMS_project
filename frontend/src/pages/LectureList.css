@@ -6,16 +6,15 @@
 
 .lecture-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    column-gap: 0.1rem; /* 좌우 간격만 */
-    row-gap: 1.5rem;     /* 위아래 간격은 그대로 */
-    justify-items: center;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* auto-fill로 변경 */
+    gap: 1.5rem; /* 위아래, 좌우 간격 통합 */
+    justify-content: center; /* 요소를 가운데 정렬 */
     padding: 20px;
 }
 
 .lecture-card {
     width: 300px;
-    height: 340px; /* 고정 높이 */
+    height: 340px;
     background: white;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -23,11 +22,13 @@
     transition: transform 0.2s ease;
     display: flex;
     flex-direction: column;
+    margin-bottom: 30px;
 }
 
 .lecture-card:hover {
     transform: translateY(-5px);
 }
+
 
 .lecture-thumbnail {
     width: 100%;
