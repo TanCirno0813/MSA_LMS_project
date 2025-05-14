@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -38,9 +39,21 @@ public class LectureResourceController {
 
     @GetMapping("/resources/download/{fileName}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws IOException {
-        Resource resource = new UrlResource(Paths.get("uploads").resolve(fileName).toUri());
+        Path filePath = Paths.get("uploads").resolve(fileName).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        // 파일 존재 여부 확인
+        if (!resource.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // 모든 파일을 무조건 다운로드로 처리 (가장 안전한 방식)
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")  // 통일된 MIME 타입
+                .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                .header(HttpHeaders.PRAGMA, "no-cache")
+                .header(HttpHeaders.EXPIRES, "0")
                 .body(resource);
     }
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import './ResourcesSection.css';
 import { Resource } from '../../utils/LectureDetailUtils';
+import {colors} from "@mui/material";
 
 interface ResourcesSectionProps {
     resources: Resource[];
@@ -40,7 +41,7 @@ const ResourcesSection: React.FC<ResourcesSectionProps> = ({
 
             {isUploading ? (
                 <div className="resource-form">
-                    <h3>자료 업로드</h3>
+                    <h3>자료 업로드</h3><h5 style={{color: '#aaa'}}>한번에 최대 50MB까지 업로드 가능합니다.</h5>
                     <input type="file" className="resource-select-file" onChange={(e) => e.target.files && onFileChange(e.target.files[0])} />
                     <div className="resource-form-buttons">
                         <button onClick={onCancelUpload} className="resource-cancel-btn">
