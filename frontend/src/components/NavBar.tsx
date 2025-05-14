@@ -1,4 +1,4 @@
-import {Link, useLocation, useNavigate} from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import './NavBar.css';
 import SearchBar from '../components/SearchBar';
@@ -8,29 +8,50 @@ const NavBar = () => {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>(''); // ✅ 상태 추가
 
+  // ✅ 카테고리 클릭 핸들러
   const handleCategoryClick = (category: string) => {
-    navigate(`/lectures?page=1&category=${encodeURIComponent(category)}`);
-    setIsDropdownOpen(false);
+    // URL 파라미터 설정
+    const newUrl = `/lectures?page=1&category=${encodeURIComponent(category)}`;
+
+    // 현재 경로와 같아도 강제로 새로고침
+    if (location.pathname + location.search === newUrl) {
+      window.location.href = newUrl; // 강제 URL 이동
+    } else {
+      navigate(newUrl);
+      setTimeout(() => {
+        window.location.reload(); // 강제 새로고침
+      });
+    }
+
+    setIsDropdownOpen(false); // 드롭다운 닫기
+  };
+
+  const handleLectureListClick = () => {
+    // 메인 강의 목록 클릭 시
+    // navigate('/lectures?page=1');
+
+    // 페이지 이동 후 강제 새로고침
+    setTimeout(() => {
+      window.location.reload();
+    }, 50);
   };
 
   const categoryCards = [
-    {
-      name: '신입사원',
-    },
-    {
-      name: '사무 기획',
-    },
-    {
-      name: '리더십/관리자',
-    },
-    {
-      name: '자기개발',
-    },
-    {
-      name: '디지털 시대',
-    },
+    { name: '신입사원' },
+    { name: '사무 기획' },
+    { name: '리더십/관리자' },
+    { name: '자기개발' },
+    { name: '디지털 시대' },
   ];
+
+  // ✅ URL 변화 감지하여 상태 업데이트
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const category = searchParams.get('category') || '';
+    setSelectedCategory(category); // URL이 바뀔 때 상태 갱신
+  }, [location.search]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -46,68 +67,49 @@ const NavBar = () => {
   }, []);
 
   return (
-    <nav className="main-nav">
-      <div className="nav-container">
-        <div className="nav-left">
-          <div className="menu-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="icon"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="#028267"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M4 6l16 0" />
-              <path d="M4 12l16 0" />
-              <path d="M4 18l16 0" />
-            </svg>
-            <span>전체메뉴</span>
-          </div>
+      <nav className="main-nav">
+        <div className="nav-container">
+          <div className="nav-left">
+            <div className="menu-icon">
+              <span>전체메뉴</span>
+            </div>
 
-          <div 
-            className="dropdown-container" 
-            ref={dropdownRef}
-            onMouseEnter={() => setIsDropdownOpen(true)}
-            onMouseLeave={() => setIsDropdownOpen(false)}
-          >
-            <Link to="/lectures">
-              강의 목록
-            </Link>
-            {isDropdownOpen && (
-              <div className="dropdown-menu">
-                {categoryCards.map((category) => (
-                  <Link 
-                    key={category.name}
-                    to="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleCategoryClick(category.name);
-                    }}
-                  >
-                    {category.name}
-                  </Link>
-                ))}
-              </div>
-            )}
+            <div
+                className="dropdown-container"
+                ref={dropdownRef}
+                onMouseEnter={() => setIsDropdownOpen(true)}
+                onMouseLeave={() => setIsDropdownOpen(false)}
+            >
+              <Link to="/lectures" onClick={handleLectureListClick}>
+                강의 목록
+              </Link>
+              {isDropdownOpen && (
+                  <div className="dropdown-menu">
+                    {categoryCards.map((category) => (
+                        <Link
+                            key={category.name}
+                            to="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleCategoryClick(category.name);
+                            }}
+                            className={selectedCategory === category.name ? 'active' : ''} // ✅ 선택 시 강조
+                        >
+                          {category.name}
+                        </Link>
+                    ))}
+                  </div>
+              )}
+            </div>
+            <Link to="/reviews">리뷰 목록</Link>
+            <Link to="/recruitment">공고 목록</Link>
           </div>
-          <Link to="/reviews">리뷰 목록</Link>
-          <Link to="/recruitment">공고 목록</Link>
+          <div className="nav-right">
+            {location.pathname !== '/lectures' && <SearchBar className="nav-search" />}
+          </div>
         </div>
-        {/* ✅ 경로가 /lectures 일 때는 검색창 숨기기 */}
-        <div className="nav-right">
-          {location.pathname !== '/lectures' && (
-              <SearchBar className="nav-search" />
-          )}
-      </div>
-      </div>
-    </nav>
+      </nav>
   );
 };
 
-export default NavBar; 
+export default NavBar;
