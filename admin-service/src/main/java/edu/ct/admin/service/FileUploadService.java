@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FileUploadService {
 
-    @Value("${file.upload-dir:uploads}")
+    @Value("${file.upload-dir:lecture_image}")
     private String uploadDir;
     
     //file.base-url을 통해 9595포트로 접근 함 없으면 8080포트로 접근 함
