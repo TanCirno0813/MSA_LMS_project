@@ -368,10 +368,20 @@ const Register: React.FC = () => {
                             />
                         </div>
                         <Button
+
                             variant="outlined"
                             onClick={sendAuthCode}
                             disabled={sending || !form.phone1 || !form.phone2 || !form.phone3}
-                            sx={{ mt: 1, mb: 1 }}
+                            sx={{
+                                mt: 1,
+                                mb: 1,
+                                color: '#028267',
+                                borderColor: '#028267',
+                                '&:hover': {
+                                    borderColor: '#026b55',
+                                    backgroundColor: 'rgba(2, 130, 103, 0.04)', // 약간 연하게
+                                },
+                            }}
                         >
                             {sending ? '발송 중...' : '인증번호 발송'}
                         </Button>
@@ -379,15 +389,24 @@ const Register: React.FC = () => {
                         {sent && (
                             <Box mt={2} mb={3} display="flex" gap={2} alignItems="center">
                                 <TextField
+
                                     label="인증번호 입력"
                                     value={authCode}
                                     onChange={(e) => setAuthCode(e.target.value)}
                                     sx={{ flex: 2 }}  // 입력창은 조금 넓게
                                 />
                                 <Button
+
                                     variant="contained"
                                     onClick={verifyAuthCode}
-                                    sx={{ height: '56px', flex: 1 }} // 버튼 높이 맞추고 조금 작게
+                                    sx={{
+                                        height: '56px',
+                                        flex: 1,
+                                        backgroundColor: '#028267',
+                                        '&:hover': {
+                                            backgroundColor: '#026b55',
+                                        },
+                                    }}
                                 >
                                     인증 확인
                                 </Button>

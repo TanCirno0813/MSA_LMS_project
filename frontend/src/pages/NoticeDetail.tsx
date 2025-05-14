@@ -77,7 +77,7 @@ const NoticeDetail: React.FC = () => {
                         <Button
                             variant="outlined"
                             onClick={handleDelete}
-                            className="notice-delete-btn"
+                            className="notice-delete-btn-notice"
                         >
                             삭제
                         </Button>
