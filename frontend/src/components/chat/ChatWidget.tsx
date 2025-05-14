@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import axios  from 'axios';
 import './ChatWidget.css';
 
 interface Message {
@@ -36,16 +36,17 @@ const ChatWidget: React.FC = () => {
                     setMessages([]);
                 }
             }
-        } catch (err) {
+        } catch (err: unknown) {
             console.error('메시지 불러오기 실패:', err);
-
             // 에러 응답에 대한 처리
-            if (err.response) {
-                console.error("서버 응답 오류:", err.response.data);
-            } else if (err.request) {
-                console.error("서버 응답이 없습니다.");
-            } else {
-                console.error("요청 설정 오류:", err.message);
+            if (axios.isAxiosError(err)) {
+                if (err.response) {
+                    console.error("서버 응답 오류:", err.response.data);
+                } else if (err.request) {
+                    console.error("서버 응답이 없습니다.");
+                } else {
+                    console.error("요청 설정 오류:", err.message);
+                }
             }
             setMessages([]);
         }

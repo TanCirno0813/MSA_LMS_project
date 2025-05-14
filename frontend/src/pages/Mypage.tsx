@@ -247,7 +247,7 @@ const Mypage: React.FC = () => {
             <TextField label="전화번호" fullWidth disabled value={userInfo.phone || ''} margin="normal" />
             <TextField label="주소" fullWidth disabled value={userInfo.address || ''} margin="normal" />
             <TextField label="생년월일" fullWidth disabled value={userInfo.birthDate || ''} margin="normal" />
-            <Button variant="contained" className="edit-button" onClick={() => setView('edit')}>
+            <Button variant="contained" className="edit-button" onClick={() => setView('edit')} sx={{ mt: 3, mb:7 }}>
                 정보 수정
             </Button>
 
@@ -295,7 +295,7 @@ const Mypage: React.FC = () => {
         const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString().padStart(2, '0'));
 
         return (
-            <Box component={Paper} className="info-card">
+            <Box component={Paper} className="info-card" >
                 <Typography variant="h6" className="section-title">정보 수정</Typography>
                 <TextField label="아이디" fullWidth disabled value={userInfo.username || ''} margin="normal" />
                 <TextField label="이름" name="name" fullWidth value={userInfo.name || ''} onChange={handleChange} margin="normal" />
@@ -303,7 +303,7 @@ const Mypage: React.FC = () => {
                 <TextField label="새 비밀번호" name="newPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
                 <TextField label="새 비밀번호 확인" name="confirmNewPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
 
-                <Typography variant="subtitle1" sx={{ mt: 2 }}>생년월일</Typography>
+                <Typography variant="subtitle1" sx={{ mt: 2, mb:2, textAlign:'left' }}>생년월일</Typography>
                 <Box className="form-row">
                     <TextField select label="년" name="birthYear" value={userInfo.birthYear || ''} onChange={handleChange} sx={{ flex: 1 }}>
                         {years.map(year => (
@@ -322,17 +322,58 @@ const Mypage: React.FC = () => {
                     </TextField>
                 </Box>
 
-                <Typography variant="h6" className="section-title" sx={{mt: 3}}>전화번호 인증</Typography>
-                <TextField label="전화번호" fullWidth value={userInfo.phone || ''} onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })} margin="normal" variant="outlined" />
-
-                <Button variant="contained" color="primary" onClick={sendAuthCode} disabled={sending || sent} sx={{ mt: 2 }}>
-                    {sending ? <CircularProgress size={24} /> : '인증번호 발송'}
-                </Button>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,  // 간격 조정
+                        mt: 2   // 상단 여백
+                    }}
+                >
+                    <TextField
+                        label="전화번호"
+                        fullWidth
+                        value={userInfo.phone || ''}
+                        onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
+                        margin="normal"
+                        variant="outlined"
+                        sx={{ flex: 1 }}  // 남은 공간을 채움
+                    />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={sendAuthCode}
+                        disabled={sending || sent}
+                        sx={{ height: '56px' }}  // TextField 높이와 맞춤
+                    >
+                        {sending ? <CircularProgress size={24} /> : '인증번호 발송'}
+                    </Button>
+                </Box>
 
                 {sent && (
-                    <Box sx={{ mt: 3 }}>
-                        <TextField label="인증번호" fullWidth value={authCode} onChange={(e) => setAuthCode(e.target.value)} margin="normal" variant="outlined" />
-                        <Button variant="contained" color="primary" onClick={verifyAuthCode} sx={{ mt: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,      // 좌우 간격 조정
+                            mb: 2
+                        }}
+                    >
+                        <TextField
+                            label="인증번호"
+                            fullWidth
+                            value={authCode}
+                            onChange={(e) => setAuthCode(e.target.value)}
+                            margin="normal"
+                            variant="outlined"
+                            sx={{ flex: 1 }}  // 남은 공간을 채움
+                        />
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={verifyAuthCode}
+                            sx={{ height: '56px' }}  // TextField 높이와 맞춤
+                        >
                             인증번호 확인
                         </Button>
                     </Box>

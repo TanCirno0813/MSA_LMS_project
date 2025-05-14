@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+interface SearchBarProps {
+  className?: string;
+}
 
-const SearchBar = () => {
+const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
     const [input, setInput] = useState('');
     const navigate = useNavigate();
 
@@ -14,7 +17,7 @@ const SearchBar = () => {
     };
 
     return (
-        <div className="main-search-bar">
+        <div className={`main-search-bar ${className || ''}`}>
             <input
                 type="text"
                 placeholder="강의명을 검색하세요"
