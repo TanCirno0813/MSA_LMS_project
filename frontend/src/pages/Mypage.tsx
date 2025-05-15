@@ -13,7 +13,7 @@ interface Completion {
     lectureTitle: string;
     contentTitle: string;
     completedAt: string;
-    isCompleted: boolean; // ✅ 추가
+    isCompleted: boolean;
 }
 
 interface UserInfo {
