@@ -71,19 +71,25 @@
 
 /* 정보 카드 스타일 */
 .info-card {
-  margin: 20px auto;
+  margin: 30px auto;
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
   background-color: #fff;
   transition: box-shadow 0.3s ease;
   overflow: hidden;
-  width: 70%;
+  width: 70%; 
+  max-width: 700px; 
+  min-width: 300px; 
   box-sizing: border-box;
 }
 
 .info-card:hover {
   transform: none !important;
+}
+
+.info-header{
+  width: 80%;
 }
 
 .section-title {
@@ -95,6 +101,12 @@
 }
 
 /* 버튼 스타일 */
+.edit-button-group{
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
 .edit-button {
   margin-top: 1rem;
   background-color: #1976d2;
@@ -119,6 +131,7 @@
   margin-top: 2rem;
   padding-top: 1rem;
   border-top: 1px solid #e0e0e0;
+  width: 100%;
 }
 
 .history-header {
@@ -234,6 +247,7 @@
 
 /* 폼 스타일 */
 .form-row {
+  margin-top: 3%;
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
