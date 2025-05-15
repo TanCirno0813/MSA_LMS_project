@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.ct.chat.dto.ChatMessageDto;
 import edu.ct.chat.dto.Sender;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -171,8 +174,13 @@ public class ChatService {
             String redisKey = generateRedisKey(userId);
             redisTemplate.opsForList().leftPush(redisKey, jsonMessage);
             redisTemplate.opsForList().trim(redisKey, 0, MAX_MESSAGES - 1);
+            log.debug("Redis에 메시지 저장 완료: key={}, message={}", redisKey, message.getMessage());
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("메시지 직렬화 실패: {}", e.getMessage());
+            throw new RuntimeException("메시지 저장에 실패했습니다.", e);
+        } catch (RedisConnectionFailureException e) {
+            log.error("Redis 연결 실패: {}", e.getMessage());
+            throw new RuntimeException("채팅 서비스 연결에 실패했습니다.", e);
         }
     }
 
@@ -184,12 +192,21 @@ public class ChatService {
         try {
             return objectMapper.readValue(json, ChatMessageDto.class);
         } catch (JsonProcessingException e) {
+            log.error("메시지 역직렬화 실패: {}", e.getMessage());
             return null;
         }
     }
 
     private boolean isInvalidMessage(ChatMessageDto message) {
-        return message == null || message.getMessage() == null || message.getMessage().trim().isEmpty();
+        if (message == null) {
+            log.warn("메시지가 null입니다.");
+            return true;
+        }
+        if (message.getMessage() == null || message.getMessage().trim().isEmpty()) {
+            log.warn("메시지 내용이 비어있습니다.");
+            return true;
+        }
+        return false;
     }
 
     private ChatMessageDto createMessage(String content, Sender sender) {

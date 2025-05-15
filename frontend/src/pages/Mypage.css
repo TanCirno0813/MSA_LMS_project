@@ -283,29 +283,29 @@
   .mypage-layout {
     flex-direction: column;
   }
-  
+
   .mypage-sidebar {
     width: 100%;
     position: relative;
     margin-bottom: 1.5rem;
   }
-  
+
   .mypage-content {
     margin-left: 0;
     max-width: 100%;
   }
-  
+
   .form-row {
     flex-direction: column;
     gap: 0;
   }
-  
+
   /* 반응형에서 주소 검색 입력 처리 */
   .address-input {
     flex-direction: row;
     align-items: flex-end;
   }
-  
+
   .address-search-btn {
     height: 40px !important;
     margin: 0 0 9px 0 !important;
