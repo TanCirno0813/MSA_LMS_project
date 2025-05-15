@@ -240,16 +240,18 @@ const Mypage: React.FC = () => {
 
     const renderInfoView = () => (
         <Box component={Paper} className="info-card">
-            <Typography variant="h6" className="section-title">내 정보</Typography>
-            <TextField label="아이디" fullWidth disabled value={userInfo.username || ''} margin="normal" />
-            <TextField label="이름" fullWidth disabled value={userInfo.name || ''} margin="normal" />
-            <TextField label="이메일" fullWidth disabled value={userInfo.email || ''} margin="normal" />
-            <TextField label="전화번호" fullWidth disabled value={userInfo.phone || ''} margin="normal" />
-            <TextField label="주소" fullWidth disabled value={userInfo.address || ''} margin="normal" />
-            <TextField label="생년월일" fullWidth disabled value={userInfo.birthDate || ''} margin="normal" />
-            <Button variant="contained" className="edit-button" onClick={() => setView('edit')} sx={{ mt: 3, mb:7 }}>
-                정보 수정
-            </Button>
+            <Box className="info-header">
+                <Typography variant="h6" className="section-title">내 정보</Typography>
+                <TextField label="아이디" fullWidth disabled value={userInfo.username || ''} margin="normal" />
+                <TextField label="이름" fullWidth disabled value={userInfo.name || ''} margin="normal" />
+                <TextField label="이메일" fullWidth disabled value={userInfo.email || ''} margin="normal" />
+                <TextField label="전화번호" fullWidth disabled value={userInfo.phone || ''} margin="normal" />
+                <TextField label="주소" fullWidth disabled value={userInfo.address || ''} margin="normal" />
+                <TextField label="생년월일" fullWidth disabled value={userInfo.birthDate || ''} margin="normal" />
+                <Button variant="contained" className="edit-button" onClick={() => setView('edit')} sx={{ mt: 3, mb:7 }}>
+                    정보 수정
+                </Button>
+            </Box>
 
             <Box className="history-section">
                 <Box className="history-header">
@@ -296,74 +298,44 @@ const Mypage: React.FC = () => {
 
         return (
             <Box component={Paper} className="info-card" >
-                <Typography variant="h6" className="section-title">정보 수정</Typography>
-                <TextField label="아이디" fullWidth disabled value={userInfo.username || ''} margin="normal" />
-                <TextField label="이름" name="name" fullWidth value={userInfo.name || ''} onChange={handleChange} margin="normal" />
-                <TextField label="현재 비밀번호" name="currentPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
-                <TextField label="새 비밀번호" name="newPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
-                <TextField label="새 비밀번호 확인" name="confirmNewPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
+                <Box className="info-header">
+                    <Typography variant="h6" className="section-title">정보 수정</Typography>
+                    <TextField label="아이디" fullWidth disabled value={userInfo.username || ''} margin="normal" />
+                    <TextField label="이름" name="name" fullWidth value={userInfo.name || ''} onChange={handleChange} margin="normal" />
+                    <TextField label="현재 비밀번호" name="currentPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
+                    <TextField label="새 비밀번호" name="newPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
+                    <TextField label="새 비밀번호 확인" name="confirmNewPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
+                    <Box className="form-row">
+                        <TextField select label="년" name="birthYear" value={userInfo.birthYear || ''} onChange={handleChange} sx={{ flex: 1 }}>
+                            {years.map(year => (
+                                <MenuItem key={year} value={year.toString()}>{year}년</MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField select label="월" name="birthMonth" value={userInfo.birthMonth || ''} onChange={handleChange} sx={{ flex: 1 }}>
+                            {months.map(month => (
+                                <MenuItem key={month} value={month}>{month}월</MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField select label="일" name="birthDay" value={userInfo.birthDay || ''} onChange={handleChange} sx={{ flex: 1 }}>
+                            {days.map(day => (
+                                <MenuItem key={day} value={day}>{day}일</MenuItem>
+                            ))}
+                        </TextField>
+                    </Box>
 
-                <Typography variant="subtitle1" sx={{ mt: 2, mb:2, textAlign:'left' }}>생년월일</Typography>
-                <Box className="form-row">
-                    <TextField select label="년" name="birthYear" value={userInfo.birthYear || ''} onChange={handleChange} sx={{ flex: 1 }}>
-                        {years.map(year => (
-                            <MenuItem key={year} value={year.toString()}>{year}년</MenuItem>
-                        ))}
-                    </TextField>
-                    <TextField select label="월" name="birthMonth" value={userInfo.birthMonth || ''} onChange={handleChange} sx={{ flex: 1 }}>
-                        {months.map(month => (
-                            <MenuItem key={month} value={month}>{month}월</MenuItem>
-                        ))}
-                    </TextField>
-                    <TextField select label="일" name="birthDay" value={userInfo.birthDay || ''} onChange={handleChange} sx={{ flex: 1 }}>
-                        {days.map(day => (
-                            <MenuItem key={day} value={day}>{day}일</MenuItem>
-                        ))}
-                    </TextField>
-                </Box>
-
-                <Box
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,  // 간격 조정
-                        mt: 2   // 상단 여백
-                    }}
-                >
-                    <TextField
-                        label="전화번호"
-                        fullWidth
-                        value={userInfo.phone || ''}
-                        onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
-                        margin="normal"
-                        variant="outlined"
-                        sx={{ flex: 1 }}  // 남은 공간을 채움
-                    />
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={sendAuthCode}
-                        disabled={sending || sent}
-                        sx={{ height: '56px' }}  // TextField 높이와 맞춤
-                    >
-                        {sending ? <CircularProgress size={24} /> : '인증번호 발송'}
-                    </Button>
-                </Box>
-
-                {sent && (
                     <Box
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 1,      // 좌우 간격 조정
-                            mb: 2
+                            gap: 1,  // 간격 조정
+                            mt: 2   // 상단 여백
                         }}
                     >
                         <TextField
-                            label="인증번호"
+                            label="전화번호"
                             fullWidth
-                            value={authCode}
-                            onChange={(e) => setAuthCode(e.target.value)}
+                            value={userInfo.phone || ''}
+                            onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
                             margin="normal"
                             variant="outlined"
                             sx={{ flex: 1 }}  // 남은 공간을 채움
@@ -371,44 +343,74 @@ const Mypage: React.FC = () => {
                         <Button
                             variant="contained"
                             color="primary"
-                            onClick={verifyAuthCode}
+                            onClick={sendAuthCode}
+                            disabled={sending || sent}
                             sx={{ height: '56px' }}  // TextField 높이와 맞춤
                         >
-                            인증번호 확인
+                            {sending ? <CircularProgress size={24} /> : '인증번호 발송'}
                         </Button>
                     </Box>
-                )}
 
-                <TextField label="이메일" name="email" fullWidth value={userInfo.email || ''} onChange={handleChange} margin="normal" />
-                <Box className="address-input">
-                    <TextField 
-                        label="주소" 
-                        name="address" 
-                        fullWidth 
-                        value={userInfo.address || ''} 
-                        onChange={handleChange} 
-                        variant="outlined"
-                    />
-                    <Button 
-                        variant="contained" 
-                        className="address-search-btn"
-                        onClick={() => setAddressModalOpen(true)}
-                        disableElevation
-                    >
-                        주소 검색
-                    </Button>
-                </Box>
-                <TextField label="상세 주소" name="addressDetail" fullWidth value={userInfo.addressDetail || ''} onChange={handleChange} margin="normal" />
+                    {sent && (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,      // 좌우 간격 조정
+                                mb: 2
+                            }}
+                        >
+                            <TextField
+                                label="인증번호"
+                                fullWidth
+                                value={authCode}
+                                onChange={(e) => setAuthCode(e.target.value)}
+                                margin="normal"
+                                variant="outlined"
+                                sx={{ flex: 1 }}  // 남은 공간을 채움
+                            />
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={verifyAuthCode}
+                                sx={{ height: '56px' }}  // TextField 높이와 맞춤
+                            >
+                                인증번호 확인
+                            </Button>
+                        </Box>
+                    )}
 
-                <Box mt={9} display="flex" gap={2}>
-                    <Button variant="contained" className="edit-button" onClick={handleUpdate}>저장</Button>
-                    <Button variant="outlined" className="cancel-button" onClick={() => setView('info')}>취소</Button>
-                </Box>
-                <Modal open={addressModalOpen} onClose={() => setAddressModalOpen(false)}>
-                    <Box className="address-modal">
-                        <DaumPostcode onComplete={handleAddressComplete} />
+                    <TextField label="이메일" name="email" fullWidth value={userInfo.email || ''} onChange={handleChange} margin="normal" />
+                    <Box className="address-input">
+                        <TextField 
+                            label="주소" 
+                            name="address" 
+                            fullWidth 
+                            value={userInfo.address || ''} 
+                            onChange={handleChange} 
+                            variant="outlined"
+                        />
+                        <Button 
+                            variant="contained" 
+                            className="address-search-btn"
+                            onClick={() => setAddressModalOpen(true)}
+                            disableElevation
+                        >
+                            주소 검색
+                        </Button>
                     </Box>
-                </Modal>
+                    <TextField label="상세 주소" name="addressDetail" fullWidth value={userInfo.addressDetail || ''} onChange={handleChange} margin="normal" />
+
+                    <Box mt={9} display="flex" gap={2} className="edit-button-group">
+                        <Button variant="contained" className="edit-button" onClick={handleUpdate}>저장</Button>
+                        <Button variant="outlined" className="cancel-button" onClick={() => setView('info')}>취소</Button>
+                    </Box>
+                    <Modal open={addressModalOpen} onClose={() => setAddressModalOpen(false)}>
+                        <Box className="address-modal">
+                            <DaumPostcode onComplete={handleAddressComplete} />
+                        </Box>
+                    </Modal>
+                </Box>
             </Box>
         );
     };
