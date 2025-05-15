@@ -22,10 +22,4 @@ public class ChatMessage {
     private String userId;
     private String message;
     private LocalDateTime timestamp;
-
-    public ChatMessage(String userId, String message) {
-        this.userId = userId;
-        this.message = message;
-        this.timestamp = LocalDateTime.now();
-    }
 }
