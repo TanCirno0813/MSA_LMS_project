@@ -17,12 +17,5 @@ public class ChatMessageDto {
     private String message;
     private Sender sender;
     private LocalDateTime timestamp;
-
-    public ChatMessageDto(String message, Sender sender) {
-        this.id = UUID.randomUUID().toString();
-        this.message = message;
-        this.sender = sender;
-        this.timestamp = LocalDateTime.now();
-    }
 }
 

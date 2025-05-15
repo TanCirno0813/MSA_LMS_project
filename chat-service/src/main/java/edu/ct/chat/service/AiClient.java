@@ -20,7 +20,7 @@ public class AiClient {
 
     private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
-    public String ask(String userMessage) {
+    public String ask(String userMessage, String systemPrompt) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(apiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -28,7 +28,7 @@ public class AiClient {
         Map<String, Object> body = Map.of(
                 "model", "gpt-3.5-turbo",
                 "messages", List.of(
-                        Map.of("role", "system", "content", "너는 교육 추천 봇이야. 사용자의 메시지를 보고 강의 추천이나 도움을 줘."),
+                        Map.of("role", "system", "content", systemPrompt),
                         Map.of("role", "user", "content", userMessage)
                 )
         );

@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LectureDto {
     private String title;
+    private String category;
 }

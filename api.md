@@ -104,6 +104,7 @@
 | GET | `/api/exams/{id}` | 특정 시험 상세 조회 |
 | GET | `/api/exams/lecture/{lectureId}` | 특정 강의의 시험 목록 조회 |
 | GET | `/api/exams/latest` | 최근 시험 결과 목록 조회 |
+| GET | `/api/exams/user/{userId}` | 특정 사용자의 시험 결과 목록 조회 |
 | POST | `/api/exams` | 새 시험 생성 |
 | PUT | `/api/exams/{id}` | 시험 정보 수정 |
 
@@ -118,6 +119,8 @@
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/grading/submit` | 여러 시험 결과 일괄 제출 및 채점 |
+| GET | `/api/grading/results/latest` | 최근 시험 결과 목록 조회 |
+| GET | `/api/grading/results/user/{userId}` | 특정 사용자의 시험 결과 목록 조회 |
 
 ## 5. Chat Service API
 
@@ -164,6 +167,25 @@
 | POST | `/api/admins/lectures` | 새 강의 생성 |
 | PUT | `/api/admins/lectures/{id}` | 강의 정보 수정 |
 | DELETE | `/api/admins/lectures/{id}` | 강의 삭제 |
+
+### File Upload API (`/api/admins/upload`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/admins/upload` | 파일 업로드 (이미지 파일만 허용, 최대 5MB)<br>- 파일 형식: jpg, jpeg, png, gif<br>- 응답: 업로드된 파일의 URL |
+
+## 7. Review Service API
+
+### Review API (`/api/reviews`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/reviews` | 전체 리뷰 목록 조회 |
+
+## 8. Recruitment Service API
+
+### Recruitment API (`/api/recruitments`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/recruitments` | 채용 공고 목록 조회<br>- pageNo: 페이지 번호 (기본값: 1)<br>- searchKeyword: 검색 키워드 (선택) |
 
 ## API 공통 사항
 
