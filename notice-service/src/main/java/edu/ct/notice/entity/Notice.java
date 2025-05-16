@@ -27,8 +27,6 @@ public class Notice {
     @Column(nullable = false)
     private String writer;
 
-    // 추가 필요!
-
     @Column(nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;

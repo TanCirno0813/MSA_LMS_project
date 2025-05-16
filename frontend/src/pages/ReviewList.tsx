@@ -4,7 +4,8 @@ import './ReviewList.css';
 import {
    Card, CardContent, CardHeader, Typography,
   Container, Divider, FormControl, InputLabel, Select,
-  MenuItem, Box, SelectChangeEvent, Chip, Paper, Badge, Avatar, Tooltip
+  MenuItem, Box, SelectChangeEvent, Chip, Paper, Badge, Avatar, Tooltip,
+  Pagination
 } from '@mui/material';
 import { DateRange, School, Sort, RateReview, Bookmark, Forum, Person } from '@mui/icons-material';
 
@@ -25,6 +26,8 @@ const ReviewList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedLecture, setSelectedLecture] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('newest');
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -64,6 +67,17 @@ const ReviewList: React.FC = () => {
       }
       return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     });
+
+  const totalPages = Math.ceil(filteredAndSortedReviews.length / ITEMS_PER_PAGE);
+  const paginatedReviews = filteredAndSortedReviews.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // 프로필 이미지 생성 함수 - 사용자 이름 기반 임의 색상 할당
   const getProfileColor = (name: string) => {
@@ -173,63 +187,87 @@ const ReviewList: React.FC = () => {
           </Typography>
         </Box>
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mt: 3 }}>
-          {filteredAndSortedReviews.map((review) => (
-            <Card key={review.id} className="review-card">
-              <CardHeader
-                avatar={
-                  <Tooltip title={review.author}>
-                    <Avatar 
-                      sx={{ 
-                        bgcolor: getProfileColor(review.author),
-                        width: 40,
-                        height: 40
-                      }}
-                    >
-                      {review.author.charAt(0).toUpperCase()}
-                    </Avatar>
-                  </Tooltip>
-                }
-                title={
-                  <Typography className="review-title">{review.title}</Typography>
-                }
-                subheader={
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                    <Chip 
-                      label={review.lectureTitle} 
-                      size="small" 
-                      color="primary" 
-                      variant="outlined"
-                      className="review-chip"
-                      icon={<Bookmark sx={{ fontSize: '0.9rem', color: '#028267' }} />}
-                    />
+        <>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mt: 3 }}>
+            {paginatedReviews.map((review) => (
+              <Card key={review.id} className="review-card">
+                <CardHeader
+                  avatar={
+                    <Tooltip title={review.author}>
+                      <Avatar 
+                        sx={{ 
+                          bgcolor: getProfileColor(review.author),
+                          width: 40,
+                          height: 40
+                        }}
+                      >
+                        {review.author.charAt(0).toUpperCase()}
+                      </Avatar>
+                    </Tooltip>
+                  }
+                  title={
+                    <Typography className="review-title">{review.title}</Typography>
+                  }
+                  subheader={
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                      <Chip 
+                        label={review.lectureTitle} 
+                        size="small" 
+                        color="primary" 
+                        variant="outlined"
+                        className="review-chip"
+                        icon={<Bookmark sx={{ fontSize: '0.9rem', color: '#028267' }} />}
+                      />
 
-                  </Box>
-                }
-              />
-              <Divider />
-              <CardContent>
-                <Typography 
-                  className="review-content"
-                >
-                  {review.content}
-                </Typography>
-                <Box className="review-meta">
-                  <Typography className="review-author" variant="body2">
-                    <Person sx={{ fontSize: '1rem', verticalAlign: 'middle', mr: 0.5 }} />
-                    {review.author}
+                    </Box>
+                  }
+                />
+                <Divider />
+                <CardContent>
+                  <Typography 
+                    className="review-content"
+                  >
+                    {review.content}
                   </Typography>
-                  <Box className="review-date">
-                    <DateRange fontSize="small" sx={{ mr: 0.5, fontSize: '1rem', color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {formatDate(review.createdAt)}
+                  <Box className="review-meta">
+                    <Typography className="review-author" variant="body2">
+                      <Person sx={{ fontSize: '1rem', verticalAlign: 'middle', mr: 0.5 }} />
+                      {review.author}
                     </Typography>
+                    <Box className="review-date">
+                      <DateRange fontSize="small" sx={{ mr: 0.5, fontSize: '1rem', color: 'text.secondary' }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {formatDate(review.createdAt)}
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 4 }}>
+            <Pagination 
+              count={totalPages} 
+              page={page} 
+              onChange={handlePageChange}
+              color="primary"
+              size="large"
+              sx={{
+                '& .MuiPaginationItem-root': {
+                  fontSize: '1.1rem',
+                  '&.Mui-selected': {
+                    backgroundColor: '#028267',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: '#026657',
+                    },
+                  },
+                },
+              }}
+            />
+          </Box>
+        </>
       )}
     </Container>
   );

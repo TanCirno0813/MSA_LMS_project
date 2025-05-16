@@ -364,7 +364,22 @@ const Users: React.FC = () => {
         }
       />
       <CardContent>
-        <TableContainer className="admin-table-container">
+        <TableContainer 
+          component={Paper} 
+          className="admin-table-container"
+          sx={{ 
+            maxHeight: '500px',
+            '& .MuiTable-root': {
+              tableLayout: 'fixed'
+            },
+            '& .MuiTableHead-root': {
+              position: 'sticky',
+              top: 0,
+              backgroundColor: 'white',
+              zIndex: 1
+            }
+          }}
+        >
           <Table className="admin-table">
             <TableHead>
               <TableRow>
