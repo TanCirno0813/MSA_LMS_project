@@ -56,7 +56,7 @@ const ResultReportPage: React.FC = () => {
         typeof result?.score === 'number' ? getPassStatus(result.score) : '미채점';
 
     return (
-        <Box sx={{ mt: 6, display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ mt: 12, mb:12, display: 'flex', justifyContent: 'center' }}>
             <Paper sx={{ width: 700, p: 4, boxShadow: 4, border: '1px solid #ccc', borderRadius: 2 }}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
                     📚 성적표
@@ -107,12 +107,13 @@ const ResultReportPage: React.FC = () => {
                 })}
 
                 <Stack direction="row" spacing={2} justifyContent="center">
-                    <Button variant="contained" onClick={() => navigate(-1)}>다시 풀기</Button>
+                    <Button variant="contained" onClick={() => navigate(-1)} style={{backgroundColor: '#028267'}}>다시 풀기</Button>
                     <Button
                         variant="outlined"
                         onClick={() =>
                             navigate(`/lectures/${result.lectureId || 1}`)
                         }
+                        style={{borderColor: '#028267', color: '#028267'}}
                     >
                         강의 상세로
                     </Button>

@@ -196,28 +196,26 @@ const HomeView = () => {
 
         {/* 기업 교육 정보 섹션 */}
         <section className="corporate-info-section">
-          <div className="container" style={{padding: '40px 20px'}}>
-            <div className="info-grid">
-              <div className="info-card">
-                <div className="info-icon">🔔</div>
-                <h3>법정의무교육</h3>
-                <p>성희롱 예방, 개인정보보호, 산업안전 등 법정의무교육을 체계적으로 관리하세요.</p>
-              </div>
-              <div className="info-card">
-                <div className="info-icon">🧠</div>
-                <h3>직무역량 강화</h3>
-                <p>직무별 맞춤형 교육과정으로 임직원의 업무 역량을 향상시킵니다.</p>
-              </div>
-              <div className="info-card">
-                <div className="info-icon">📊</div>
-                <h3>교육 현황 분석</h3>
-                <p>부서별, 직급별 교육 이수 현황을 한눈에 파악하고 관리할 수 있습니다.</p>
-              </div>
-              <div className="info-card">
-                <div className="info-icon">📱</div>
-                <h3>모바일 학습</h3>
-                <p>언제 어디서나 모바일로 편리하게 학습할 수 있는 환경을 제공합니다.</p>
-              </div>
+          <div className="info-grid">
+            <div className="info-cards">
+              <div className="info-icon">🔔</div>
+              <h3>법정의무교육</h3>
+              <p>성희롱 예방, 개인정보보호, 산업안전 등 법정의무교육을 체계적으로 관리하세요.</p>
+            </div>
+            <div className="info-cards">
+              <div className="info-icon">🧠</div>
+              <h3>직무역량 강화</h3>
+              <p>직무별 맞춤형 교육과정으로 임직원의 업무 역량을 향상시킵니다.</p>
+            </div>
+            <div className="info-cards">
+              <div className="info-icon">📊</div>
+              <h3>교육 현황 분석</h3>
+              <p>부서별, 직급별 교육 이수 현황을 한눈에 파악하고 관리할 수 있습니다.</p>
+            </div>
+            <div className="info-cards">
+              <div className="info-icon">📱</div>
+              <h3>모바일 학습</h3>
+              <p>언제 어디서나 모바일로 편리하게 학습할 수 있는 환경을 제공합니다.</p>
             </div>
           </div>
         </section>
