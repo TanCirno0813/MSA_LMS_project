@@ -101,7 +101,7 @@ INSERT INTO content (title, type, url, lecture_id) VALUES
        ( '확인 문제', 'quiz', '19', 19),
 
        ('교육 영상 1 원격 커뮤니케이션', 'video', 'm0OyNdWgzP0', 20),
-       ( '교육 영상 2 원격 커뮤니케이션', 'video', 'VZxjYp8zlFI', 20),
+       ( '교육 영상 2 원격 커뮤니케이션', 'video', 's8SCdFRuD74', 20),
        ( '확인 문제', 'quiz', '20', 20);
 
 -- 리뷰 데이터 추가

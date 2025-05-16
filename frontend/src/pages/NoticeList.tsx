@@ -13,7 +13,7 @@ const NoticeList: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
-    const ITEMS_PER_PAGE = 4;
+    const ITEMS_PER_PAGE = 5;
     const navigate = useNavigate();
     const role = localStorage.getItem('role');
 

@@ -553,14 +553,14 @@ const LectureDetail: React.FC = () => {
                             </button>
                         )}
                         {enrollmentStatus === 'PENDING' && (
-                            <div className="enrollment-status pending">신청 대기 중 - 승인 후 강의를 수강할 수 있습니다</div>
+                            <div className="enrollment-status pending" style={{width: '33%'}}>신청 대기 중 - 승인 후 강의를 수강할 수 있습니다</div>
                         )}
                         {enrollmentStatus === 'APPROVED' && (
-                            <div className="enrollment-status approved">수강 승인됨</div>
+                            <div className="enrollment-status approved" style={{width: '11%'}}>수강 승인됨</div>
                         )}
                         {enrollmentStatus === 'REJECTED' && (
                             <>
-                                <div className="enrollment-status rejected">신청 거절됨</div>
+                                <div className="enrollment-status rejected" style={{width: '11%'}}>신청 거절됨</div>
                                 <button
                                     onClick={async () => {
                                         try {
