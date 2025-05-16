@@ -1,29 +1,37 @@
 # MSA 기반 LMS 프로젝트
 
+---
 ## 프로젝트 개요
 이 프로젝트는 마이크로서비스 아키텍처(MSA) 기반의 학습 관리 시스템(LMS)입니다. 각 도메인별로 독립적인 서비스를 구현하여 확장성과 유지보수성을 높였습니다.
 
+---
 ## 개발 기간
-- 2024.04.15 ~ 2024.05.
+- 2024.04.15 ~ 2024.05.29
 
+---
+## 개발 인원
+- 4명
+
+---
 ## 기술 스택
 
 ### Backend
-- Java 17, Spring Boot, Spring Cloud
-- Gradle, JPA, MySQL
-- Redis
+- Java(jdk-17), Spring Boot(3.1.5), Spring Cloud
+- Gradle, JPA, MySQL, H2-Database, Redis
 - Eureka, Spring Cloud Gateway
 
 ### Frontend
-- React 18, TypeScript
-- Vite
+- React, TypeScript
 - Material-UI (MUI)
-- Redux Toolkit, React Router
+- Redux Toolkit, Axios
 
-### DevOps
-- Docker, Kubernetes, Helm (예정)
-- Minikube, kubectl
+### Infra
+- Eureka, Spring Cloud Gateway
 
+### CI/CD 
+- Docker, AWS
+
+---
 ## 서비스 구성도
 
 ```
@@ -40,6 +48,7 @@
 └── helm/
 ```
 
+---
 ## 로컬 개발 및 실행 방법
 
 ### 공통
@@ -60,6 +69,7 @@ cd <service>
 ./gradlew bootRun
 ```
 
+---
 ## 서비스별 역할
 
 ### 1. 인프라 서비스
@@ -73,6 +83,7 @@ cd <service>
 - 사용자 관리 (회원가입/로그인/정보수정)
 - 학습 진도 관리 (CompletionHistory)
 
+---
 ### 2. 핵심 서비스
 #### lecture-service
 - 강의 CRUD
@@ -104,6 +115,7 @@ cd <service>
 - 콘텐츠 관리
 - 시험 관리
 
+---
 ## 주요 API 명세
 
 ### 강의 서비스 (`/api/lectures`)

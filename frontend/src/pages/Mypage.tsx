@@ -85,8 +85,6 @@ const Mypage: React.FC = () => {
                     : false // ✅ 95% 이상 시 이수 처리
             }));
 
-
-
             setCompletionHistory(completionsWithTitles);
         } catch (err) {
             console.error('❌ 이수 내역 불러오기 실패', err);
@@ -241,14 +239,14 @@ const Mypage: React.FC = () => {
     const renderInfoView = () => (
         <Box component={Paper} className="info-card">
             <Box className="info-header">
-                <Typography variant="h6" className="section-title">내 정보</Typography>
+                <Typography variant="h6" className="section-title" sx={{ borderBottom: '2px solid #028267'}} >내 정보</Typography>
                 <TextField label="아이디" fullWidth disabled value={userInfo.username || ''} margin="normal" />
                 <TextField label="이름" fullWidth disabled value={userInfo.name || ''} margin="normal" />
                 <TextField label="이메일" fullWidth disabled value={userInfo.email || ''} margin="normal" />
                 <TextField label="전화번호" fullWidth disabled value={userInfo.phone || ''} margin="normal" />
                 <TextField label="주소" fullWidth disabled value={userInfo.address || ''} margin="normal" />
                 <TextField label="생년월일" fullWidth disabled value={userInfo.birthDate || ''} margin="normal" />
-                <Button variant="contained" className="edit-button" onClick={() => setView('edit')} sx={{ mt: 3, mb:7 }}>
+                <Button variant="contained" style={{ backgroundColor:'#028267'}} className="edit-button" onClick={() => setView('edit')} sx={{ mt: 3, mb:7 }}>
                     정보 수정
                 </Button>
             </Box>
@@ -256,7 +254,7 @@ const Mypage: React.FC = () => {
             <Box className="history-section">
                 <Box className="history-header">
                     <Typography variant="h6">최근 이수 이력</Typography>
-                    <Button variant="text" color="primary" size="small" onClick={() => setView('history')}>
+                    <Button variant="text" style={{ color:'#028267'}} size="small" onClick={() => setView('history')}>
                         전체보기
                     </Button>
                 </Box>
@@ -299,7 +297,7 @@ const Mypage: React.FC = () => {
         return (
             <Box component={Paper} className="info-card" >
                 <Box className="info-header">
-                    <Typography variant="h6" className="section-title">정보 수정</Typography>
+                    <Typography variant="h6" className="section-title" sx={{ borderBottom: '2px solid #028267'}}>정보 수정</Typography>
                     <TextField label="아이디" fullWidth disabled value={userInfo.username || ''} margin="normal" />
                     <TextField label="이름" name="name" fullWidth value={userInfo.name || ''} onChange={handleChange} margin="normal" />
                     <TextField label="현재 비밀번호" name="currentPassword" type="password" fullWidth onChange={handleChange} margin="normal" />
@@ -342,12 +340,18 @@ const Mypage: React.FC = () => {
                         />
                         <Button
                             variant="contained"
-                            color="primary"
                             onClick={sendAuthCode}
                             disabled={sending || sent}
-                            sx={{ height: '56px' }}  // TextField 높이와 맞춤
+                            sx={{ 
+                                height: '56px', 
+                                mt: 1,
+                                backgroundColor: sending ? '#FF6347' : '#028267',  // 색상 조건부 변경
+                                '&:hover': {
+                                    backgroundColor: sending ? '#FF4500' : '#026657'  // 호버 시 색상 변경
+                                },
+                            }}
                         >
-                            {sending ? <CircularProgress size={24} /> : '인증번호 발송'}
+                            {sending ? <CircularProgress size={24} color="inherit" /> : '인증번호 발송'}
                         </Button>
                     </Box>
 
@@ -362,21 +366,20 @@ const Mypage: React.FC = () => {
                         >
                             <TextField
                                 label="인증번호"
-                                fullWidth
                                 value={authCode}
                                 onChange={(e) => setAuthCode(e.target.value)}
                                 margin="normal"
                                 variant="outlined"
-                                sx={{ flex: 1 }}  // 남은 공간을 채움
+                                sx={{ flex: 1, mt:1 }}  // 남은 공간을 채움
                             />
                             <Button
                                 variant="contained"
-                                color="primary"
                                 onClick={verifyAuthCode}
+                                style={{ backgroundColor:'#028267'}}
                                 sx={{ height: '56px' }}  // TextField 높이와 맞춤
                             >
                                 인증번호 확인
-                            </Button>
+                            </Button>   
                         </Box>
                     )}
 
@@ -394,6 +397,7 @@ const Mypage: React.FC = () => {
                             variant="contained" 
                             className="address-search-btn"
                             onClick={() => setAddressModalOpen(true)}
+                            style={{ backgroundColor:'#028267'}}
                             disableElevation
                         >
                             주소 검색
@@ -402,8 +406,8 @@ const Mypage: React.FC = () => {
                     <TextField label="상세 주소" name="addressDetail" fullWidth value={userInfo.addressDetail || ''} onChange={handleChange} margin="normal" />
 
                     <Box mt={9} display="flex" gap={2} className="edit-button-group">
-                        <Button variant="contained" className="edit-button" onClick={handleUpdate}>저장</Button>
-                        <Button variant="outlined" className="cancel-button" onClick={() => setView('info')}>취소</Button>
+                        <Button variant="contained" style={{ backgroundColor:'#028267'}} className="edit-button" onClick={handleUpdate}>저장</Button>
+                        <Button variant="outlined" style={{ color:'#028267',  border: '1px solid #028267'}} className="cancel-button" onClick={() => setView('info')}>취소</Button>
                     </Box>
                     <Modal open={addressModalOpen} onClose={() => setAddressModalOpen(false)}>
                         <Box className="address-modal">
@@ -418,68 +422,103 @@ const Mypage: React.FC = () => {
     const renderHistoryView = () => {
         const groupedCompletions = groupCompletionsByLecture();
         return (
-            <Box component={Paper} className="info-card">
-                <Typography variant="h6" className="section-title">이수 이력</Typography>
+            <Box component={Paper} className="info-card" sx={{ 
+                height: Object.keys(groupedCompletions).length === 0 ? '200px' : '700px',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column'
+            }}>
+                <Typography variant="h6" className="section-title" sx={{ borderBottom: '2px solid #028267'}}>이수 이력</Typography>
 
-                {Object.keys(groupedCompletions).length === 0 ? (
-                    <Typography color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
-                        아직 이수한 강의가 없습니다.
-                    </Typography>
-                ) : (
-                    Object.entries(groupedCompletions).map(([lectureId, completions]) => (
-                        <Box key={lectureId} className="lecture-group">
-                            <Box className="lecture-header-my">
-                                <Avatar className="lecture-avatar">
-                                    {completions[0].lectureTitle.charAt(0)}
-                                </Avatar>
-                                <Typography className="lecture-title" noWrap sx={{ maxWidth: { xs: '150px', sm: '250px', md: '300px' } }}>
-                                    {completions[0].lectureTitle}
-                                </Typography>
-                                <Chip
-                                    size="small"
-                                    label={`${completions.length}개 수료`}
-                                    color="primary"
-                                    sx={{ ml: 'auto' }}
-                                />
-                            </Box>
+                <Box sx={{ 
+                    flex: 1,
+                    overflow: 'auto',
+                    '&::-webkit-scrollbar': {
+                        width: '8px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                        background: '#f1f1f1',
+                        borderRadius: '4px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                        background: '#888',
+                        borderRadius: '4px',
+                    },
+                    '&::-webkit-scrollbar-thumb:hover': {
+                        background: '#555',
+                    }
+                }}>
+                    {Object.keys(groupedCompletions).length === 0 ? (
+                        <Typography color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
+                            아직 이수한 강의가 없습니다.
+                        </Typography>
+                    ) : (
+                        Object.entries(groupedCompletions).map(([lectureId, completions]) => (
+                            <Box key={lectureId} className="lecture-group" sx={{ mt: 2 }}>
+                                <Box className="lecture-header-my">
+                                    <Avatar className="lecture-avatar">
+                                        {completions[0].lectureTitle.charAt(0)}
+                                    </Avatar>
+                                    <Typography className="lecture-title" noWrap sx={{ maxWidth: { xs: '150px', sm: '250px', md: '300px' } }}>
+                                        {completions[0].lectureTitle}
+                                    </Typography>
+                                    <Chip
+                                        style={{ backgroundColor:'#028267'}}
+                                        size="small"
+                                        label={`${completions.length}개 수료`}
+                                        color="primary"
+                                        sx={{ ml: 'auto' }}
+                                    />
+                                </Box>
 
-                            <List disablePadding>
-                                {completions.map((completion, idx) => (
-                                    <ListItem key={idx} className="content-item" disablePadding>
-                                        <Box sx={{ 
-                                            width: '100%', 
-                                            overflow: 'hidden'
-                                        }}>
-                                            <Box className="lecture-content-header">
-                                                <Typography 
-                                                    className="content-title" 
-                                                    noWrap 
-                                                    sx={{ 
-                                                        maxWidth: { xs: '120px', sm: '180px', md: '250px' },
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis'
-                                                    }}
-                                                >
-                                                    {completion.contentTitle}
-                                                </Typography>
-                                                <Typography 
-                                                    className="content-date"
-                                                    sx={{
-                                                        flexShrink: 0
-                                                    }}
-                                                >
-                                                    {completion.isCompleted
-                                                        ? `${formatDate(completion.completedAt)} 수료`
-                                                        : "진행 중"}
-                                                </Typography>
+                                <List>
+                                    {completions.map((completion, idx) => (
+                                        <ListItem key={idx} className="content-item" disablePadding>
+                                            <Box sx={{ 
+                                                width: '100%', 
+                                                overflow: 'hidden',
+                                                px: 2,
+                                                py: 1
+                                            }}>
+                                                <Box className="lecture-content-header" sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    width: '100%'
+                                                }}>
+                                                    <Typography 
+                                                        className="content-title" 
+                                                        noWrap 
+                                                        sx={{ 
+                                                            maxWidth: { xs: '200px', sm: '300px', md: '400px' },
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            fontSize: '1rem'
+                                                        }}
+                                                    >
+                                                        {completion.contentTitle}
+                                                    </Typography>
+                                                    <Typography 
+                                                        className="content-date"
+                                                        sx={{
+                                                            flexShrink: 0,
+                                                            ml: 2,
+                                                            color: 'text.secondary'
+                                                        }}
+                                                    >
+                                                        {completion.isCompleted
+                                                            ? `${formatDate(completion.completedAt)} 수료`
+                                                            : "진행 중"}
+                                                    </Typography>
+                                                </Box>
                                             </Box>
-                                        </Box>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        </Box>
-                    ))
-                )}
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </Box>
+                        ))
+                    )}
+                </Box>
             </Box>
         );
     };
